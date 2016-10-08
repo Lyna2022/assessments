@@ -13,7 +13,7 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
     if (type=='BCCAQ') {
 
       file.name <- list.files(path=data.dir,pattern=paste(gcm,'_historical\\+',scenario,'_*',sep=''),full.name=TRUE)[1]
-
+      
       file.split <- strsplit(file.name,'_')[[1]]
       run <- file.split[grep('r*i1p1',file.split)]
 
@@ -30,7 +30,7 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
       pys <- strsplit(past.int,'-')[[1]]
       fys <- strsplit(proj.int,'-')[[1]]
 
-      write.hist.name <- paste(var.name,'_day_BCCAQ_',gcm,'_',scenario,'_',run,'_'pys[1],'-',pys[2],'.nc',sep='') ###
+      write.hist.name <- paste(var.name,'_day_BCCAQ_',gcm,'_',scenario,'_',run,'_',pys[1],'-',pys[2],'.nc',sep='') ###
       write.proj.name <- paste(var.name,'_day_BCCAQ_',gcm,'_',scenario,'_',run,'_',fys[1],'-',fys[2],'.nc',sep='')
 
       hist.dir <- paste(write.dir,gcm,'/',sep='')
@@ -77,7 +77,7 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
   pys <- strsplit(past.int,'-')[[1]]
   fys <- strsplit(proj.int,'-')[[1]]
 
-  if (bccaq) {
+  if (type=='BCCAQ') {
     past.st <- head(grep(paste(pys[1],'-*',sep=''),time.series),1) ###
     past.en <- tail(grep(paste(pys[2],'-*',sep=''),time.series),1)
 
@@ -85,7 +85,7 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
     ##proj.en <- tail(grep('2100-*',time.series),1)
     ##proj.st <- 1 ##head(grep('1991-*',time.series),1)
     proj.en <- length(time.series) ##tail(grep('2100-*',time.series),1)      
-  } else if (prism) {
+  } else if (type=='PRISM') {
     past.st <- 1
     past.en <- 12
     proj.st <- 1
@@ -137,7 +137,7 @@ if (1==1) {
   
   var.geog <- ncvar_def(var.name, units=data.atts$units, dim=list(x.geog, y.geog, t.geog),
                         missval=data.atts[['_FillValue']])
-  
+
   hist.nc <- nc_create(paste(hist.dir,write.hist.name,sep=''), var.geog)
   
   ##Loop over subsets of the time series
@@ -277,8 +277,8 @@ fix.precipitation <-  function(gcm,rcm) {
 ##**************************************************************************************
 
       ##BC Boundaries
-      ##      lon.bnds <- c(-140,-114)
-      ##      lat.bnds <- c(48,60)
+            ##lon.bnds <- c(-140,-114)
+            ##lat.bnds <- c(48,60)
       ##MOTI Boundaries
       ##lon.bnds <- c(-127.0,-126.0)
       ##lat.bnds <- c(52,53)
@@ -298,11 +298,11 @@ fix.precipitation <-  function(gcm,rcm) {
       ##lon.bnds <- c(-123.303,-121.236)
       ##lat.bnds <- c(48.989,50.5197)
       ##Nanaimo Hospital Boundaries
-      ##lon.bnds <- c(-124.30,-123.70)
-      ##lat.bnds <- c(48.86,49.33)
+      lon.bnds <- c(-124.30,-123.70)
+      lat.bnds <- c(48.86,49.33)
       ##South Vancouver Island
-      lon.bnds <- c(-124.60,-122.95)
-      lat.bnds <- c(48.25,49.2)
+      ##lon.bnds <- c(-124.90,-122.95)
+      ##lat.bnds <- c(48.25,49.2)
 
 ##**************************************************************************************
 
@@ -319,17 +319,20 @@ gcm.list <- c('ACCESS1-0',
               'MPI-ESM-LR',
               'MRI-CGCM3')
 
+
 extract.bccaq.gcms <- function() {
   data.dir <- '/storage/data/climate/downscale/CMIP5/BCCAQ/'
-  write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_south_island_subset/'
-  var.list <- c('pr','tasmax','tasmin')
+  write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_nanaimo_subset/'
+  var.list <- c('tasmax','tasmin','pr')
   scenario <- 'rcp85'
   past.int <- '1951-2000'
   proj.int <- '2001-2100'
 
   for (var.name in var.list) {
-    for (model in gcm.list) {
+    print(var.name)
+    for (model in gcm.list) {      
       gcm <- model[1]
+      print(gcm)
       rcm <- NULL 
       test <- extract.gcm(gcm,rcm,var.name,scenario,type='BCCAQ',
 			lon.bnds,lat.bnds,past.int,proj.int,
@@ -352,9 +355,11 @@ extract.anusplin <- function() {
 
 extract.prism <- function() {
   data.dir <- '/storage/data/climate/PRISM/dataportal/'
-  write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_van_whistler_subset/PRISM/'
+  write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_south_island_subset/PRISM/'
   var.list <- c('pr','tmax','tmin')
   scenario <- 'observation'  
+  past.int <- '1971-2000'
+  proj.int <- '2001-2002'
   for (var.name in var.list) {
     test <- extract.gcm(gcm='PRISM',rcm=NULL,var.name,scenario,type='PRISM',
 			lon.bnds,lat.bnds,past.int,proj.int,

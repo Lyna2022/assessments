@@ -10,13 +10,13 @@ var.list <- c('pr','tasmax','tasmin')
 rperiod <- '20'
 ds.type <- 'bccaq'  ## 'rcm'
 type <- 'gcm'
-reg.list <-  c('skeena','northeast','kootenay','omineca','west','cariboo','thompson','south')
-title.list <- c('Skeena','Northeast','Kootenay','Omineca','West','Cariboo','Thompson','South')
+##reg.list <-  c('skeena','northeast','kootenay','omineca','west','cariboo','thompson','south')
+##title.list <- c('Skeena','Northeast','Kootenay','Omineca','West','Cariboo','Thompson','South')
 ##reg.list <- 'northeast'
-##region <- 'coquitlam_watershed'
-##region.title <- 'Coquitlam Watershed'
-proj.dir <- '/storage/data/projects/rci/data/cas/'
-##proj.dir <- '/home/data/projects/rci/data/assessments/metro_van/'
+reg.list <- 'cvrd'
+title.list <- 'Cowichan Valley Regional District'
+##proj.dir <- '/storage/data/projects/rci/data/cas/'
+proj.dir <- '/storage/data/projects/rci/data/assessments/cvrd/'
 pctl <- TRUE
 #scenario <- 'rcp85'
 
@@ -54,16 +54,16 @@ gcm.list <- c('ACCESS1-0',
                   'MRI-CGCM3')
 
 
-##scen.list <- c('rcp26','rcp45','rcp85')
-scen.list <- 'rcp85'
+scen.list <- c('rcp26','rcp45','rcp85')
+##scen.list <- 'rcp85'
 proj.list <- c('2011-2040','2041-2070','2071-2100')
 #proj.list <- '2041-2070'
 for (scenario in scen.list) {
   model.list <- gcm.list
   if (scenario=='rcp26')
     model.list <- rcp26.list
-  read.dir <- paste('/storage/data/projects/rci/data/stat.downscaling/BCCAQ/bccaq_gcm/',scenario,'/return_periods/',sep='')
-  ##read.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_van_whistler_subset/rcp85/snow/'
+  ##read.dir <- paste('/storage/data/projects/rci/data/stat.downscaling/BCCAQ/bccaq_gcm/',scenario,'/return_periods/',sep='')
+  read.dir <- paste('/storage/data/scratch/ssobie/bccaq_gcm_bc_subset/',scenario,'/return_periods/',sep='')
   
   for (proj.int in proj.list) {
     for (i in seq_along(reg.list)) {

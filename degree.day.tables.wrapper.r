@@ -16,11 +16,11 @@ gcm.list <- c('ACCESS1-0',
               'MPI-ESM-LR',
               'MRI-CGCM3')
 
-##reg.list <- 'van_city'
-##region.title <- 'City of Vancouver'
-reg.list <- c('cariboo','kootenay','northeast','omineca','skeena','south','thompson','west')
-title.list <- c('Cariboo','Kootenay','Northeast','Omineca','Skeena','South','Thompson','West')
-proj.dir <- '/storage/data/projects/rci/data/cas/'
+reg.list <- 'cvrd'
+title.list <- 'Cowichan Valley Regional District'
+##reg.list <- c('cariboo','kootenay','northeast','omineca','skeena','south','thompson','west')
+##title.list <- c('Cariboo','Kootenay','Northeast','Omineca','Skeena','South','Thompson','West')
+
 
 ds.type <- 'bccaq'  ## 'rcm'
 scenario <- 'rcp85'
@@ -40,8 +40,9 @@ if (scenario=='rcp26') {
 }
 
 pctl <- TRUE
+proj.dir <- paste('/storage/data/projects/rci/data/assessments/',reg.list,'/',sep='')
 ##read.dir <- paste('/storage/data/projects/rci/data/stat.downscaling/BCCAQ/bccaq_gcm/',scenario,'/degree_days/',sep='')
-read.dir <- paste('/storage/data/projects/rci/data/stat.downscaling/BCCAQ/bccaq_gcm/',scenario,'/pas/',sep='')
+read.dir <- paste('/storage/data/scratch/ssobie/bccaq_gcm_bc_subset/',scenario,'/degree_days/',sep='')
 ##read.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_van_whistler_subset/rcp85/degree_days/'
 shape.dir <- paste(proj.dir,'shapefiles/',sep='')
 

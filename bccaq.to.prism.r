@@ -230,8 +230,8 @@ run.adjust <- function() {
   ##Also need the PRISM climatologies (also using extract.bccaq.gcm.r).
 
   ##base.dir <- '/storage/data/projects/rci/data/stat.downscaling/BCCAQ/bccaq_gcm_van_whistler_subset/'
-  base.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_van_whistler_subset/'
-  grid.file <- '/storage/home/ssobie/grid_files/van.whistler.prism.grid.txt'
+  base.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_south_island_subset/'
+  grid.file <- '/storage/home/ssobie/grid_files/south.island.prism.grid.txt'
 
   var.list <- c('tasmax','tasmin','pr')
   ##var.list <- 'tasmax'
@@ -257,6 +257,7 @@ run.adjust <- function() {
       interp.bccaq(var.name,gcm,'2001-2100',base.dir,grid.file)
       daily.prism.scale(var.name,gcm,'1951-2000',base.dir)
       daily.prism.scale(var.name,gcm,'2001-2100',base.dir)
+      browser()
     }
   }  
 }
