@@ -183,17 +183,17 @@ make.lm.plots <- function(metro.past,metro.proj,
 
   shared.range <- range(c(range(metro.past,na.rm=T),range(metro.proj,na.rm=T),
                           range(cvrd.past,na.rm=T),range(cvrd.proj,na.rm=T),
-                          range(crd.past,na.rm=T),range(crd.proj,na.rm=T),
-                          range(bc.past,na.rm=T),range(bc.proj,na.rm=T)),na.rm=T)
+                          range(crd.past,na.rm=T),range(crd.proj,na.rm=T)),na.rm=T)
+                          ##range(bc.past,na.rm=T),range(bc.proj,na.rm=T)),na.rm=T)
 
   shared.box <- range(c(metro.past.box@data@min,metro.past.box@data@max,
                         metro.proj.box@data@min,metro.proj.box@data@max,
                         cvrd.past.box@data@min,cvrd.past.box@data@max,
                         cvrd.proj.box@data@min,cvrd.proj.box@data@max,
                         crd.past.box@data@min,crd.past.box@data@max,
-                        crd.proj.box@data@min,crd.proj.box@data@max,
-                        bc.past.box@data@min,bc.past.box@data@max,
-                        bc.proj.box@data@min,bc.proj.box@data@max),na.rm=T)
+                        crd.proj.box@data@min,crd.proj.box@data@max),na.rm=T)
+##                        bc.past.box@data@min,bc.past.box@data@max,
+##                        bc.proj.box@data@min,bc.proj.box@data@max),na.rm=T)
 if (1==1) {
   lm.ds.maps(metro.past,metro.past.box,
              cvrd.past,cvrd.past.box,
@@ -292,13 +292,8 @@ gcm.list <- c('ACCESS1-0',
 
 seasonal.directories <- function(var.name,scenario,seas,time.dir,grep.name,meta,draft) {
   
-  if (grepl('seas',grep.name))
-    read.dir <- paste('/storage/data/scratch/ssobie/bccaq_gcm_',meta$subset,'_subset/',scenario,'/seasonal/',sep='')
-  if (grepl('mon',grep.name))
-    read.dir <- paste('/storage/data/scratch/ssobie/bccaq_gcm_',meta$subset,'_subset/',scenario,'/monthly/',sep='')
-
   if (grepl('(seas|apr1|may1)',grep.name))
-    plot.dir <- paste('/storage/data/projects/rci/data/assessments/',meta$region,'/production/plots/',var.name,'/',tolower(seas),'/',sep='')  
+    plot.dir <- paste('/storage/data/projects/rci/data/assessments/',meta$region,'/production/plots/',var.name,'/',sep='')  
   if (grepl('mon',grep.name))
     plot.dir <- paste('/storage/data/projects/rci/data/assessments/',meta$region,'/production/plots/',var.name,'/monthly/',sep='')    
 
@@ -395,7 +390,20 @@ plot.single.seasonal <- function(scenario,proj.int,
     load(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_proj_ensemble_box_',proj.int,'.RData',sep=''))
     crd.proj.box <- proj.box.ens.project    
 
-  plot.dir <- paste('/storage/data/projects/rci/data/assessments/lower_mainland/production/plots/',var.name,'/seasonal/',sep='')      
+  ##BC
+  region <- 'bc'
+  read.dir <-'/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/rcp85/seasonal/'
+    load(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_past_ensemble_',past.int,'.RData',sep=''))
+    bc.past <- clim.past.ens
+    load(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_proj_ensemble_',proj.int,'.RData',sep=''))
+    bc.proj <- clim.proj.ens
+    load(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_past_ensemble_box_',past.int,'.RData',sep=''))
+    bc.past.box <- past.box.ens.project
+    load(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_proj_ensemble_box_',proj.int,'.RData',sep=''))
+    bc.proj.box <- proj.box.ens.project    
+
+
+  plot.dir <- paste('/storage/data/projects/rci/data/assessments/lower_mainland/production/plots/',var.name,'/',sep='')      
   if (!file.exists(plot.dir))
     dir.create(plot.dir,recursive=TRUE)
     
@@ -408,6 +416,8 @@ plot.single.seasonal <- function(scenario,proj.int,
                       cvrd.past.box=cvrd.past.box,cvrd.proj.box=cvrd.proj.box,
                       crd.past=crd.past,crd.proj=crd.proj,
                       crd.past.box=crd.past.box,crd.proj.box=crd.proj.box,
+                      bc.past=bc.past,bc.proj=bc.proj,
+                      bc.past.box=bc.past.box,bc.proj.box=bc.proj.box,
                       plot.dir=plot.dir,
                       var.name=var.name,scenario=scenario,proj=proj,
                       type=type,ds.type=ds.type,seas=seas,
@@ -626,7 +636,7 @@ plot.climdex <- function(scenario,proj.int,
     load(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_climdex_proj_ensemble_box_',proj.int,'.RData',sep=''))
     bc.proj.box <- proj.box.ens.project    
 
-  plot.dir <- paste('/storage/data/projects/rci/data/assessments/lower_mainland/production/plots/',var.name,'/climdex/',sep='')      
+  plot.dir <- paste('/storage/data/projects/rci/data/assessments/lower_mainland/production/plots/',var.name,'/',sep='')      
   if (!file.exists(plot.dir))
     dir.create(plot.dir,recursive=TRUE)
     
@@ -659,7 +669,7 @@ draft <- TRUE
 run.season <- function() {
   var.name <- 'pr' ##'snowdepth'
   grep.name <- 'pr_seas' ##'snowdepth_seas'
-  seas.list <- c('Winter') ##,'Spring','Summer','Fall','Annual') ##'APRIL1' c('January','February','March','April','May','June','July','August','September','October','November','December')
+  seas.list <- c('Annual') ##,'Spring','Summer','Fall','Annual') ##'APRIL1' c('January','February','March','April','May','June','July','August','September','October','November','December')
   for (seas in seas.list) {
     for (scenario in scenario.list) {
       for (proj.int in proj.intervals) {
@@ -687,7 +697,7 @@ run.return.periods <- function() {
 run.climdex <- function() {
   ##var.names <- c('cddETCCDI','cwdETCCDI','prcptotETCCDI','rx1dayETCCDI','rx5dayETCCDI','suETCCDI','tn10pETCCDI','tx90pETCCDI','tnnETCCDI','txxETCCDI') 
   ##var.names <- c('fdETCCDI','gslETCCDI','idETCCDI','suETCCDI','trETCCDI','tnnETCCDI','txxETCCDI')
-  var.names <- c('suETCCDI') ##,'r95daysETCCDI') ##,'suETCCDI')
+  var.names <- 'r95pETCCDI' 
   seas.list <- c('Annual') ##,'Spring','Summer','Fall')
   for (seas in seas.list) {
     for (var.name in var.names) {

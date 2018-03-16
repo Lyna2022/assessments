@@ -7,210 +7,128 @@ library(PCICt)
 
 ptm <- proc.time()
 
-extract.gcm <- function(gcm,var.name,scenario,type,
-	   		lon.bnds,lat.bnds,past.int,proj.int,
-                        data.dir,hist.dir,tmp.dir) {
+extract.gcm <- function(gcm,var.name,scenario,run,type,
+	   		lon.bnds,lat.bnds,interval,
+                        meta.dir,data.file.read,hist.dir,tmp.dir) {
    
-      file.names <- list.files(path=data.dir,pattern=paste(gcm,'_historical\\+',scenario,'_r1i1p1*',sep=''))
-      file.read <- file.names[grep(var.name,file.names)]
-      print(file.read)
+      meta.file.names <- list.files(path=meta.dir,pattern=paste(gcm,'_historical\\+',scenario,'_',run,'*',sep=''))
+      meta.file.read <- meta.file.names[grep(var.name,meta.file.names)]
+      print(meta.file.read)
 
-      move.to <- paste("rsync -av ",data.dir,file.read,' ',tmp.dir,file.read,sep='')
-      print(move.to)
-      system(move.to)
+      ##Get Metadata
+      nc <- nc_open(paste0(meta.dir,meta.file.read),write=FALSE)
 
-      file.name <- paste0(tmp.dir,file.read)
-
-      file.split <- strsplit(file.name,'_')[[1]]
-      run <- file.split[grep('r*i1p1',file.split)]
-
-      lon.offset <- 0
-      pys <- strsplit(past.int,'-')[[1]]
-      fys <- strsplit(proj.int,'-')[[1]]
-
-      write.hist.name <- paste(var.name,'_day_BCCAQ2_',gcm,'_',scenario,'_',run,'_',pys[1],'-',pys[2],'.nc',sep='') ###
-      write.proj.name <- paste(var.name,'_day_BCCAQ2_',gcm,'_',scenario,'_',run,'_',fys[1],'-',fys[2],'.nc',sep='')
-
-##--------------------------------------------------------------
-
-  nc <- nc_open(file.name,write=FALSE)
-
-  time.atts <- ncatt_get(nc,'time')
-  time.calendar <- time.atts$calendar
-  time.units <- time.atts$units
-  time.values <- ncvar_get(nc,'time') 
-  origin.pcict <- as.PCICt(strsplit(time.units, ' ')[[1]][3],
+      ##Time Atts
+      time.atts <- ncatt_get(nc,'time')
+      time.calendar <- time.atts$calendar
+      time.units <- time.atts$units
+      time.values <- ncvar_get(nc,'time') 
+      origin.pcict <- as.PCICt(strsplit(time.units, ' ')[[1]][3],
                            cal=time.calendar)
-  time.series <- origin.pcict + time.values*86400
-  pys <- strsplit(past.int,'-')[[1]]
-  fys <- strsplit(proj.int,'-')[[1]]
+      time.series <- origin.pcict + time.values*86400
+      pys <- strsplit(interval,'-')[[1]]
 
-    past.st <- head(grep(paste(pys[1],'-*',sep=''),time.series),1) ###
-    past.en <- tail(grep(paste(pys[2],'-*',sep=''),time.series),1)
+      write.new.name <- paste(var.name,'_day_BCCAQ2_',gcm,'_',scenario,'_',run,'_',pys[1],'-',pys[2],'.nc',sep='') ###  
 
-    proj.st <- head(grep(paste(fys[1],'-*',sep=''),time.series),1)
-    proj.en <- length(time.series) ##tail(grep('2100-*',time.series),1)      
+      time.st <- head(grep(paste(pys[1],'-*',sep=''),time.series),1)
+      time.en <- tail(grep(paste(pys[2],'-*',sep=''),time.series),1)
+      if (length(time.en)==0)
+        time.en <- length(time.values)
 
-  if (length(past.en)==0)
-    past.en <- proj.st-1
+      time.ix <- time.st:time.en
+      time.len <- length(time.ix)
 
-  past.ix <- past.st:past.en
-  past.len <- length(past.ix)
+      ##Attributes to retain
+      lon <- ncvar_get(nc,'lon') ##- lon.offset
+      lat <- ncvar_get(nc,'lat')  
   
-  proj.ix <- proj.st:proj.en
-  proj.len <- length(proj.ix)
-  
-  ##Attributes to retain
-  lon <- ncvar_get(nc,'lon') - lon.offset
-  lat <- ncvar_get(nc,'lat')  
-  
-  lon.atts <- ncatt_get(nc,'lon')
-  lat.atts <- ncatt_get(nc,'lat')
-  global.atts <- ncatt_get(nc,varid=0)
+      lon.atts <- ncatt_get(nc,'lon')
+      lat.atts <- ncatt_get(nc,'lat')
+      global.atts <- ncatt_get(nc,varid=0)
 
-  data.atts <- ncatt_get(nc,var.name)
+      data.atts <- ncatt_get(nc,var.name)
 
-  past.time.sub <- time.values[past.st:past.en]
-  proj.time.sub <- time.values[proj.st:proj.en]
+      time.sub <- time.values[time.st:time.en]  
 
-  lon.st <- which.min(abs(lon-lon.bnds[1]))  
-  lon.en <- which.min(abs(lon-lon.bnds[2]))
-  lon.sub <- lon[lon.st:lon.en]
-  n.lon <- length(lon.sub)
+      lon.st <- which.min(abs(lon-lon.bnds[1]))  
+      lon.en <- which.min(abs(lon-lon.bnds[2]))
+      lon.sub <- lon[lon.st:lon.en]
+      n.lon <- length(lon.sub)
 
-  lat.st <- which.min(abs(lat-lat.bnds[1]))
-  lat.en <- which.min(abs(lat-lat.bnds[2]))
-  lat.sub <- lat[lat.st:lat.en]
-  n.lat <- length(lat.sub)
+      lat.st <- which.min(abs(lat-lat.bnds[1]))
+      lat.en <- which.min(abs(lat-lat.bnds[2]))
+      lat.sub <- lat[lat.st:lat.en]
+      n.lat <- length(lat.sub)
 
-  ##--------------------------------------------------------------
-  ##Create new past netcdf file
-  if (1==1) {
-  x.geog <- ncdim_def('lon', 'degrees_east', lon.sub)
-  y.geog <- ncdim_def('lat', 'degrees_north', lat.sub)
-  t.geog <- ncdim_def('time', time.units, past.time.sub,
-                      unlim=TRUE, calendar=time.calendar)
+      ##--------------------------------------------------------------
+      ##Create new netcdf file
+      x.geog <- ncdim_def('lon', 'degrees_east', lon.sub)
+      y.geog <- ncdim_def('lat', 'degrees_north', lat.sub)
+      t.geog <- ncdim_def('time', time.units, time.sub,
+                           unlim=TRUE, calendar=time.calendar)
   
-  var.geog <- ncvar_def(var.name, units=data.atts$units, dim=list(x.geog, y.geog, t.geog),
-                        missval=data.atts[['_FillValue']])
+      var.geog <- ncvar_def(var.name, units=data.atts$units, dim=list(x.geog, y.geog, t.geog),
+                            missval=data.atts[['_FillValue']])
 
-  hist.nc <- nc_create(paste(tmp.dir,write.hist.name,sep=''), var.geog)
+      new.nc <- nc_create(paste(tmp.dir,write.new.name,sep=''), var.geog)
   
-  ##Loop over subsets of the time series
-  ##Past file first
-  global.names <- names(global.atts)
-  for (g in 1:length(global.atts)) 
-    ncatt_put(hist.nc,varid=0,attname=global.names[g],attval=global.atts[[g]])
-  
-  time.names <- names(time.atts)
-  for (j in 1:length(time.atts)) 
-    ncatt_put(hist.nc,varid='time',attname=time.names[j],attval=time.atts[[j]])
-  
-  lon.names <- names(lon.atts)
-  for (j in 1:length(lon.atts))  
-    ncatt_put(hist.nc,varid='lon',attname=lon.names[j],attval=lon.atts[[j]])
-  
-  lat.names <- names(lat.atts)
-  for (j in 1:length(lat.atts))  
-    ncatt_put(hist.nc,varid='lat',attname=lat.names[j],attval=lat.atts[[j]])
-  
-  data.names <- names(data.atts)
-  for (j in 1:length(data.atts)) {
-    ncatt_put(hist.nc,varid=var.name,attname=data.names[j],attval=data.atts[[j]])
-    print(data.atts[[j]])
-  }
+      ##Loop over subsets of the time series
+      global.names <- names(global.atts)
+      for (g in 1:length(global.atts)) {
+         ncatt_put(new.nc,varid=0,attname=global.names[g],attval=global.atts[[g]])
+      }   
+      time.names <- names(time.atts)
+      for (j in 1:length(time.atts)) {
+          ncatt_put(new.nc,varid='time',attname=time.names[j],attval=time.atts[[j]])
+      }
+      lon.names <- names(lon.atts)
+      for (j in 1:length(lon.atts))  {
+          ncatt_put(new.nc,varid='lon',attname=lon.names[j],attval=lon.atts[[j]])
+      }
+      lat.names <- names(lat.atts)
+      for (j in 1:length(lat.atts))  {
+          ncatt_put(new.nc,varid='lat',attname=lat.names[j],attval=lat.atts[[j]])
+      }
+      data.names <- names(data.atts)
+      data.skip <- data.names %in% c('add_offset','scale_factor')
+      print(data.names)
+      data.atts <- data.atts[!data.skip]
+      data.names <- data.names[!data.skip]
 
-  for (i in 1:past.len) { 
-    x <- past.ix[i]
-    data.subset <- ncvar_get(nc,var.name,start=c(lon.st,lat.st,x),count=c(n.lon,n.lat,1))
-    if (var.name=='pr')
-      data.subset[data.subset < -10] <- NA
-    if (var.name=='tasmax' | var.name=='tasmin')
-      data.subset[data.subset < -90] <- NA
+      for (j in 1:length(data.atts)) {
+        ncatt_put(new.nc,varid=var.name,attname=data.names[j],attval=data.atts[[j]])
+        print(data.atts[[j]])
+     }
 
-    ##data.adjust <- (data.subset - data.atts$add_offset)/data.atts$scale_factor
-    ncvar_put(hist.nc,varid=var.name,vals=data.subset,
-              start=c(1,1,i),count=c(n.lon,n.lat,1))   
-  }
+     data.nc <- nc_open(paste0(tmp.dir,data.file.read),write=FALSE)
 
-  nc_close(hist.nc)
+     ##Subset the data
+     for (i in 1:time.len) { 
+       x <- time.ix[i]
+       data.subset <- ncvar_get(data.nc,var.name,start=c(lon.st,lat.st,x),count=c(n.lon,n.lat,1))
+       if (var.name=='pr')
+         data.subset[data.subset < -10] <- NA
+       if (var.name=='pr')
+         data.subset[data.subset < 0] <- 0
+       if (var.name=='tasmax' | var.name=='tasmin')
+         data.subset[data.subset < -90] <- NA
 
-  move.back <- paste('rsync -av ',tmp.dir,write.hist.name,' ',hist.dir,sep='')
-  print(move.back)
-  system(move.back)
-
-  clean.up <- paste0('rm ',tmp.dir,write.hist.name)
-  print(clean.up)
-  system(clean.up)
-
-}
-  ##--------------------------------------------------------------
-  ##--------------------------------------------------------------
-  ##Create new netcdf file for the future
-
-if (1==1) {
-  x.geog <- ncdim_def('lon', 'degrees_east', lon.sub)
-  y.geog <- ncdim_def('lat', 'degrees_north', lat.sub)
-  t.geog <- ncdim_def('time', time.units, proj.time.sub,
-                      unlim=TRUE, calendar=time.calendar)
-  
-  var.geog <- ncvar_def(var.name, units=data.atts$units, dim=list(x.geog, y.geog, t.geog),
-                      missval=data.atts[['_FillValue']])
-  proj.nc <- nc_create(paste(hist.dir,write.proj.name,sep=''), var.geog)
-  
-  ##Loop over subsets of the time series
-  
-  global.names <- names(global.atts)
-  for (g in 1:length(global.atts)) 
-    ncatt_put(proj.nc,varid=0,attname=global.names[g],attval=global.atts[[g]])
-  
-  time.names <- names(time.atts)
-  for (j in 1:length(time.atts)) 
-    ncatt_put(proj.nc,varid='time',attname=time.names[j],attval=time.atts[[j]])
-  
-  lon.names <- names(lon.atts)
-  for (j in 1:length(lon.atts))  
-    ncatt_put(proj.nc,varid='lon',attname=lon.names[j],attval=lon.atts[[j]])
-  
-  lat.names <- names(lat.atts)
-  for (j in 1:length(lat.atts))  
-    ncatt_put(proj.nc,varid='lat',attname=lat.names[j],attval=lat.atts[[j]])
-  
-  data.names <- names(data.atts)
-  for (j in 1:length(data.atts))
-    ncatt_put(proj.nc,varid=var.name,attname=data.names[j],attval=data.atts[[j]])
-  
-  for (i in 1:proj.len) {
-    x <- proj.ix[i]
-    data.subset <- ncvar_get(nc,var.name,start=c(lon.st,lat.st,x),count=c(n.lon,n.lat,1))
-    if (var.name=='pr')
-      data.subset[data.subset < -10] <- NA
-    if (var.name=='tasmax' | var.name=='tasmin')
-      data.subset[data.subset < -90] <- NA
-    ##data.adjust <- (data.subset - data.atts$add_offset)/data.atts$scale_factor    
-    ncvar_put(proj.nc,varid=var.name,vals=data.subset,
-              start=c(1,1,i),count=c(n.lon,n.lat,1))   
-  }
-  
-  nc_close(proj.nc)
-  move.back <- paste('rsync -av ',tmp.dir,write.proj.name,' ',hist.dir,sep='')
-  print(move.back)
-  system(move.back)
-
-  clean.up <- paste0('rm ',tmp.dir,write.proj.name)
-  print(clean.up)
-  system(clean.up)
-
-}
+       ncvar_put(new.nc,varid=var.name,vals=data.subset,
+                 start=c(1,1,i),count=c(n.lon,n.lat,1))   
+     }
   nc_close(nc)
+  nc_close(new.nc)
+  nc_close(data.nc)  
 
+  file.copy(from=paste0(tmp.dir,write.new.name),to=hist.dir,overwrite=TRUE)
+  print('Copying')
+  print(paste0(tmp.dir,write.new.name))
+  print(hist.dir)
 
-
-  clean.up <- paste0("rm ",tmp.dir,file.read)  
+  clean.up <- paste0('rm ',tmp.dir,write.new.name)
   print(clean.up)
   system(clean.up)
 
-  
 }
 
 ##**************************************************************************************
@@ -227,28 +145,61 @@ for(i in 1:length(args)){
     eval(parse(text=args[[i]]))
 }
 
+##gcm <- 'MIROC5'
+##run <- 'r3i1p1'
+##tmpdir <- '/local_temp/ssobie/extract/'
 
-data.dir <- '/storage/data/climate/downscale/CMIP5_delivery/bccaqv2_with_metadata/'
-write.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/' ##baseline/'
+##data.dir <- '/storage/data/climate/downscale/CMIP5_delivery/bccaqv2_with_metadata/'
+meta.dir <- '/storage/data/climate/downscale/BCCAQ2/bccaqv2_with_metadata/'
+data.dir <- '/storage/data/climate/downscale/BCCAQ2/qdm_files/'
+
+write.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/'
+
 tmp.dir <- '/local_temp/ssobie/extract/'
 if (!file.exists(tmp.dir))
    dir.create(tmp.dir,recursive=TRUE)      
  
-var.list <- c('tasmax','tasmin','pr')  ##c('pr','tasmax','tasmin') ##c('tasmax','tasmin','pr')
-scenario <- 'rcp45'
-past.int <- '1951-2000'
-proj.int <- '2001-2100'
+var.list <- 'tasmax' ##c('tasmax','tasmin','pr')  ##c('pr','tasmax','tasmin') ##c('tasmax','tasmin','pr')
+scenario <- 'rcp85'
 
 for (var.name in var.list) {
   print(var.name)
   print(gcm)
+
+  data.file.names <- list.files(path=data.dir,pattern=paste(gcm,'_historical\\+',scenario,'_',run,'*',sep=''))
+  data.file.read <- data.file.names[grep(var.name,data.file.names)]
+  print(paste0(data.dir,data.file.read))
+
+  file.copy(from=paste0(data.dir,data.file.read),to=paste0(tmp.dir,data.file.read))
+  print(paste0(tmp.dir,data.file.read))
+
+  ##Full series
   hist.dir <- paste(write.dir,gcm,'/',sep='')
   if (!file.exists(hist.dir)) {
     dir.create(hist.dir,recursive=TRUE)      
   }
-  test <- extract.gcm(gcm,var.name,scenario,type='BCCAQ',
-                      lon.bnds,lat.bnds,past.int,proj.int,
-                      data.dir,hist.dir,tmp.dir)
+  past <- extract.gcm(gcm,var.name,scenario,run,type='BCCAQ',
+                      lon.bnds,lat.bnds,interval='1951-2000',
+                      meta.dir,data.file.read,hist.dir,tmp.dir)
+  proj <- extract.gcm(gcm,var.name,scenario,run,type='BCCAQ',
+                      lon.bnds,lat.bnds,interval='2001-2100',
+                      meta.dir,data.file.read,hist.dir,tmp.dir)
+
+  ##Baseline                      
+  base.dir <- paste(write.dir,'baseline/',gcm,'/',sep='')
+  if (!file.exists(base.dir)) {
+    dir.create(base.dir,recursive=TRUE)      
+  }
+  base <- extract.gcm(gcm,var.name,scenario='rcp85',run,type='BCCAQ',
+                      lon.bnds,lat.bnds,interval='1981-2010',
+                      meta.dir,data.file.read,base.dir,tmp.dir)
+
+
+  ##Clean up
+  clean.up <- paste0('rm ',tmp.dir,data.file.read)
+  print(clean.up)
+  system(clean.up)
+  
 }
  
 

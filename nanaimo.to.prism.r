@@ -235,7 +235,7 @@ daily.prism.scale <- function(var.name,gcm,interval,base.dir) {
 
 run.adjust <- function() {
 
-  base.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_nanaimo_subset/'
+  base.dir <- '/storage/data/climate/downscale/BCCAQ2/high_res_downscaling/bccaq_gcm_nanaimo_subset/'
   grid.file <- '/storage/home/ssobie/grid_files/nanaimo.prism.grid.txt'
 
   var.list <- c('tasmax','tasmin','pr')

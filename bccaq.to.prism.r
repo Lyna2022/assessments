@@ -4,13 +4,15 @@
 library(ncdf4)
 library(PCICt)
 library(fields)
+
+
 ##******************************************************************************
 ################################################################################
 ##Calculate BCCAQ anomalies
 
 create.anoms <- function(var.name,file,var.mon) {
 
-  ##For mean subset 1971-2000
+  ##For mean subset 1981-2010
   anoms.file <- gsub(pattern='_day_',replacement='_anoms_',file)
   file.copy(from=file,to=anoms.file,overwrite=T)
   Sys.sleep(5)
@@ -222,19 +224,19 @@ daily.prism.scale <- function(var.name,gcm,interval,base.dir) {
 }
 ################################################################################
 ##******************************************************************************
+Rprof('bccaq.prism.out')
 
 run.adjust <- function() {
 
-  ##Requires 1971-2000 (or equivalent base period) in the /baseline directory to create anomalies from the full period
+  ##Requires 1981-2010 (or equivalent base period) in the /baseline directory to create anomalies from the full period
   ## (usually 1950-2000 and 2001-2100). Both of these are created using extract.bccaq.gcm.r
   ##Also need the PRISM climatologies (also using extract.bccaq.gcm.r).
 
-  ##base.dir <- '/storage/data/projects/rci/data/stat.downscaling/BCCAQ/bccaq_gcm_van_whistler_subset/'
-  base.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_south_island_subset/'
-  grid.file <- '/storage/home/ssobie/grid_files/south.island.prism.grid.txt'
+  base.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/'
+  grid.file <- '/storage/home/ssobie/grid_files/bc.prism.grid.txt'
 
-  var.list <- c('tasmax','tasmin','pr')
-  ##var.list <- 'tasmax'
+  ##var.list <- c('tasmax','tasmin','pr')
+  var.list <- 'pr'
   gcm.list <- c('ACCESS1-0',
                 'CCSM4',
                 'CanESM2',
@@ -247,22 +249,22 @@ run.adjust <- function() {
                 'MIROC5',
                 'MPI-ESM-LR',
                 'MRI-CGCM3')
-
+  gcm.list <- 'ACCESS1-0'
+                                
   for (var.name in var.list) {
     print(var.name)
     for (gcm in gcm.list) {
       print(gcm)
       bccaq.anomalies(var.name,gcm,base.dir)
-      interp.bccaq(var.name,gcm,'1951-2000',base.dir,grid.file)
-      interp.bccaq(var.name,gcm,'2001-2100',base.dir,grid.file)
-      daily.prism.scale(var.name,gcm,'1951-2000',base.dir)
-      daily.prism.scale(var.name,gcm,'2001-2100',base.dir)
-      browser()
+      ##interp.bccaq(var.name,gcm,'1951-2000',base.dir,grid.file)
+      ##interp.bccaq(var.name,gcm,'2001-2100',base.dir,grid.file)
+      ##daily.prism.scale(var.name,gcm,'1951-2000',base.dir)
+      ##daily.prism.scale(var.name,gcm,'2001-2100',base.dir)
     }
   }  
 }
 
 run.adjust()
 
-
+Rprof(NULL)
 

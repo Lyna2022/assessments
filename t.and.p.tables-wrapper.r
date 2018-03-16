@@ -1,6 +1,6 @@
 ##Script to produce tables of projected temperature and precipitation changes
-source('/storage/data/projects/rci/bcgov/moti/nrcan-precip_case_studies/code/moti.climdex.robjects.r',chdir=TRUE)
-source('/storage/home/ssobie/code/hg/rci-lib/ds.t.and.p.tables.r',chdir=TRUE)
+source('/storage/home/ssobie/code/repos/assessments/calc.t.and.p.tables.r')
+
 
 ##-----------------------------------------------------------------------------------------------
 
@@ -8,20 +8,15 @@ var.list <- c('pr','tasmax','tasmin')
 ##var.list <- 'snowdepth'
 ds.type <- 'bccaq'  ## 'rcm'
 type <- 'gcm'
-##reg.list <-  c('skeena','northeast','kootenay','omineca','west','cariboo','thompson','south')
-##reg.list <- 'inshuck_road_boundary_10'
-region <- 'cvrd' ##'metro_van'
-region.title <- 'Cowichan Valley Regional District' ##'Metro Vancouver'
-proj.dir <- '/storage/data/projects/rci/data/assessments/cvrd/'
+
+reg.list <- 'northeast'
+reg.titles <- 'Northeast'
+
+proj.dir <- '/storage/data/projects/rci/data/assessments/northeast/'
+
 
 past.int <- '1971-2000'
-
 pctl <- TRUE ##Controls whether the percentiles (10,50,90) are added to the ensemble
-
-
-shape.dir <- paste(proj.dir,'shapefiles/',sep='')
-shape.name <- region
-clip.shp <- readOGR(shape.dir,shape.name, stringsAsFactors=F)  
 
 gcm.list <- c('ACCESS1-0',              
               'CanESM2',
@@ -36,32 +31,34 @@ gcm.list <- c('ACCESS1-0',
               'MPI-ESM-LR',
               'MRI-CGCM3')
 
-  rcp26.list <- c('CanESM2',
-                  'CCSM4',
-                  'CNRM-CM5',
-                  'CSIRO-Mk3-6-0',
-                  'GFDL-ESM2G',
-                  'HadGEM2-ES',
-                  'MIROC5',
-                  'MPI-ESM-LR',
-                  'MRI-CGCM3')
-
-scen.list <- c('rcp26','rcp45','rcp85')
+gcm.list <- c('CNRM-CM5','CanESM2','ACCESS1-0')
+scen.list <- 'rcp85' ###c('rcp26','rcp45','rcp85')
 proj.list <- c('2011-2040','2041-2070','2071-2100')
 
-for (scenario in scen.list) {
-  print(scenario)
-  ##read.dir <- paste('/storage/data/projects/rci/data/stat.downscaling/BCCAQ/bccaq_gcm_bc_subset/',scenario,'/',sep='')
-  read.dir <- paste('/storage/data/scratch/ssobie/bccaq_gcm_bc_subset/',scenario,'/',sep='')
-  model.list <- gcm.list
-  if (scenario=='rcp26')
-    model.list <- rcp26.list
-  for (proj.int in proj.list) {
-    print(proj.int)
-    make.tables(var.list,model.list,
-                ds.type,region,region.title,clip.shp,type,scenario,
-                proj.dir,read.dir,write.dir=proj.dir,
-                past.int=past.int,proj.int=proj.int,pctl=pctl)   
-  }
+for (i in seq_along(reg.list)) {        
+   region <- reg.list[i]
+   print(region)
+   region.title <- reg.titles[i]
+   shape.dir <- '/storage/data/projects/rci/data/assessments/northeast/shapefiles/'
+   shape.name <- region
+
+   clip.shp <- spTransform(readOGR(shape.dir,shape.name, stringsAsFactors=F),CRS("+init=epsg:4326"))
+
+   for (scenario in scen.list) {
+     print(scenario)
+     read.dir <- paste('/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/assessment_subsets/',region,'/',scenario,'/',sep='')
+
+     model.list <- gcm.list
+     if (scenario=='rcp26') {
+        model.list <- rcp26.list
+     }
+     for (proj.int in proj.list) {
+         print(proj.int)
+         make.tables(var.list,model.list,
+                       ds.type,region,region.title,clip.shp,type,scenario,
+                       proj.dir,read.dir,write.dir=proj.dir,
+                       past.int=past.int,proj.int=proj.int,pctl=pctl)   
+     }
+   }
 }
   

@@ -82,15 +82,15 @@ lm.ds.maps <- function(metro.data,metro.box,
   
   map.range <- range(c(range(metro.raster@data,na.rm=TRUE),
                        range(cvrd.raster@data,na.rm=TRUE),
-                       range(crd.raster@data,na.rm=TRUE),
-                       range(bc.raster@data,na.rm=TRUE)))
+                       range(crd.raster@data,na.rm=TRUE)))
+##                       range(bc.raster@data,na.rm=TRUE)))
   box.range <- range(c(range(metro.box@data@values,na.rm=TRUE),
                        range(cvrd.box@data@values,na.rm=TRUE), 
-                       range(crd.box@data@values,na.rm=TRUE),
-                       range(bc.box@data@values,na.rm=TRUE)))
+                       range(crd.box@data@values,na.rm=TRUE)))
+##                       range(bc.box@data@values,na.rm=TRUE)))
                 
   print(map.range)
-  
+
   if (!is.null(shared.range))
     map.range <- shared.range
   class.breaks <- get.class.breaks(var.name,type,map.range,manual.breaks='')
@@ -144,10 +144,11 @@ if(1==1) {
     }
   }
 }  
+##  class.breaks <- c(0,10,20,30,40,1000)
+##  map.class.breaks.labels <- get.class.break.labels(class.breaks,greater.sign=TRUE)
   colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
                                       my.bp=0,class.breaks=class.breaks,
                                       type)
-
   ##------------------------------------------------------------------------------------------------
 
   ##Set up plot image
@@ -225,7 +226,7 @@ if(1==1) {
 
   my.label.units <- leg.label.units(var.name,type)
   par(xpd=NA)
-  legend(leg.loc, col = "black", legend=map.class.breaks.labels, pch=22, pt.bg = colour.ramp,
+  legend(leg.loc, col = "black", legend=rev(map.class.breaks.labels), pch=22, pt.bg = rev(colour.ramp),
          pt.cex=2.0, y.intersp=0.8, title.adj=0.2, title=my.label.units, xjust=0, cex=1.7)
   box(which='plot',lwd=3)
   dev.off()

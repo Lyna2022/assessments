@@ -968,10 +968,17 @@ plot.climdex <- function(region,scenario,proj.int,
   var.title <- get.var.title(var.name)
   grep.name <- var.name
   seas.fx <- mean
-  if (grepl('(txx|tnn)',var.name)) {
+  if (grepl('(txx|tnn|tnx|txn)',var.name)) {
     seas.fx <- switch(var.name,
                       txxETCCDI=max,
-                      tnnETCCDI=min)
+                      tnnETCCDI=min,
+                      txnETCCDI=min,
+                      tnxETCCDI=max)
+  }
+  if (grepl('(rx1|rx5)',var.name)) {
+    seas.fx <- switch(var.name,
+                      rx1dayETCCDI=max,
+                      rx5dayETCCDI=min)
   }
       
   ##-------------------------------------------------
@@ -1173,14 +1180,14 @@ plot.climdex <- function(region,scenario,proj.int,
 ##area <- 'metro_van' ##
 #region <- 'nanaimo'
 #area <- 'nanaimo'
-region <- 'north_van'
-area <- 'north_van'
+region <- 'cvrd'
+area <- 'cvrd'
 
 source(paste('/storage/data/projects/rci/assessments/code/',area,'_map_support.r',sep=''),chdir=T)
 ##source(paste('/storage/data/projects/rci/assessments/code/van_city_map_support.r',sep=''),chdir=T)
 
 scenario.list <- 'rcp85' ##c('rcp26','rcp45','rcp85')
-proj.intervals <- c('2041-2070','2071-2100') ##c('2011-2040','2041-2070','2071-2100')
+proj.intervals <- c('2041-2070') ##,'2071-2100') ##c('2011-2040','2041-2070','2071-2100')
 draft <- TRUE
 ##Single Season
 run.season <- function() {
@@ -1215,8 +1222,8 @@ run.return.periods <- function() {
 ##Climdex
 run.climdex <- function() {
   ##var.names <- c('cddETCCDI','cwdETCCDI','prcptotETCCDI','rx1dayETCCDI','rx5dayETCCDI','suETCCDI','tn10pETCCDI','tx90pETCCDI','tnnETCCDI','txxETCCDI') 
-  var.names <- c('fdETCCDI','gslETCCDI','idETCCDI','suETCCDI','trETCCDI','tnnETCCDI','txxETCCDI')
-##  var.names <- c('r95pETCCDI','r99pETCCDI')
+  ##var.names <- c('fdETCCDI','gslETCCDI','idETCCDI','suETCCDI','trETCCDI','tnnETCCDI','txxETCCDI')
+  var.names <- c('txnETCCDI','tnxETCCDI','rx1dayETCCDI','rx5dayETCCDI')
   seas.list <- c('Annual') ##,'Spring','Summer','Fall')
   for (seas in seas.list) {
     for (var.name in var.names) {

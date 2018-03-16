@@ -104,9 +104,9 @@ reg.ds.maps <- function(data,box.data,region,
   }
   e <- extent(c(plot.window.xlim,plot.window.ylim))
   ##Metro Van Extent
-  #e <- extent(c(-123.5,-121.680,48.99602,49.90))
-  #plot.window.xlim <- c(-123.5,-121.680)
-  #plot.window.ylim <- c(48.99602,49.90)
+  e <- extent(c(-123.5,-121.680,48.99602,49.90))
+  plot.window.xlim <- c(-123.5,-121.680)
+  plot.window.ylim <- c(48.99602,49.90)
   ##Watershed extents
   #e <- extent(c(-123.25,-122.4,49.2,49.70))
   #plot.window.xlim <- c(-123.25,-122.4)

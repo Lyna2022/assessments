@@ -2,14 +2,14 @@
 library(zoo)
 
 read.data <- function(read.dir,var.name,region) {
-  
-  rcp26.file <- paste(read.dir,var.name,'_',region,'_rcp26_seasonal_time_series.RData',sep='')
+
+  rcp26.file <- paste(read.dir,var.name,'_',region,'_rcp26_monthly_time_series.RData',sep='')
   load(rcp26.file)
   names(data.rcp26) <- toupper(c(month.abb,'ANN')) 
-  rcp45.file <- paste(read.dir,var.name,'_',region,'_rcp45_seasonal_time_series.RData',sep='')
+  rcp45.file <- paste(read.dir,var.name,'_',region,'_rcp45_monthly_time_series.RData',sep='')
   load(rcp45.file)
   names(data.rcp45) <- toupper(c(month.abb,'ANN'))  
-  rcp85.file <- paste(read.dir,var.name,'_',region,'_rcp85_seasonal_time_series.RData',sep='')
+  rcp85.file <- paste(read.dir,var.name,'_',region,'_rcp85_monthly_time_series.RData',sep='')
   load(rcp85.file)
   names(data.rcp85) <- toupper(c(month.abb,'ANN')) 
 
@@ -19,10 +19,10 @@ read.data <- function(read.dir,var.name,region) {
   return(rv)  
 }
 
-convert.tas.data <- function(read.dir) {
+convert.tas.data <- function(read.dir,region) {
 
-  tasmax.data <- read.data(read.dir,var.name='tasmax')
-  tasmin.data <- read.data(read.dir,var.name='tasmin')
+  tasmax.data <- read.data(read.dir,var.name='tasmax',region)
+  tasmin.data <- read.data(read.dir,var.name='tasmin',region)
   tas.data <- vector(mode='list',length=3)
   for (i in 1:3) {
     tasmax.sub <- tasmax.data[[i]]
@@ -31,19 +31,19 @@ convert.tas.data <- function(read.dir) {
   }
   names(tas.data) <- c('rcp26','rcp45','rcp85')
   data.rcp26 <- tas.data[[1]]
-  save(data.rcp26,file=paste(read.dir,'tas_metro_van_rcp26_seasonal_time_series.RData',sep=''))
+  save(data.rcp26,file=paste(read.dir,'tas_',region,'_rcp26_monthly_time_series.RData',sep=''))
   data.rcp45 <- tas.data[[2]]
-  save(data.rcp45,file=paste(read.dir,'tas_metro_van_rcp45_seasonal_time_series.RData',sep=''))
+  save(data.rcp45,file=paste(read.dir,'tas_',region,'_rcp45_monthly_time_series.RData',sep=''))
   data.rcp85 <- tas.data[[3]]
-  save(data.rcp85,file=paste(read.dir,'tas_metro_van_rcp85_seasonal_time_series.RData',sep=''))
+  save(data.rcp85,file=paste(read.dir,'tas_',region,'_rcp85_monthly_time_series.RData',sep=''))
   
 }
 
                                                  
 
 
-plot.data <- function(var.name,seas,region,scenario,anomalies,percent=FALSE) {
-  read.dir <- '/home/data/projects/rci/data/assessments/metro_van/data_files/'
+plot.data <- function(var.name,seas,region,scenario,read.dir,anomalies,percent=FALSE) {
+
   series.data <- read.data(read.dir,var.name,region)
   if (grepl('(gdd|ffd|pas)',var.name)) {
     seas.data <- series.data
@@ -78,7 +78,7 @@ plot.data <- function(var.name,seas,region,scenario,anomalies,percent=FALSE) {
   return(seas.anoms)
 }
 
-box.avgs <- function(var.name,seas,region,scenario,anomalies,percent) {
+box.avgs <- function(var.name,seas,region,scenario,read.dir,anomalies,percent) {
 
   yrs <- 1951:2100
   
@@ -89,7 +89,7 @@ box.avgs <- function(var.name,seas,region,scenario,anomalies,percent) {
   
   print(var.name)
   print(seas)
-  vals <- plot.data(var.name,seas,region,scenario,anomalies,percent)
+  vals <- plot.data(var.name,seas,region,scenario,read.dir,anomalies,percent)
 
   base.vals <- vals[,ix.base]
   vals.2020s <- vals[,ix.2020s]
@@ -122,6 +122,7 @@ new.box <- function(at,data,add,boxwex,axes) { #     new.box(at=i+0.2,seas.2080s
   
 make.plot <- function(var.name,seasons,
                       yvals,region,scenario,
+                      read.dir,
                       anomalies,percent) {
 
   plot.title <- switch(var.name,
@@ -135,7 +136,7 @@ make.plot <- function(var.name,seasons,
   seas.2080s <- vector(mode='list',length=length(seasons))
 
   for (s in seq_along(seasons)){
-    seas.anoms <- box.avgs(var.name,seasons[s],region,scenario,anomalies,percent)
+    seas.anoms <- box.avgs(var.name,seasons[s],region,scenario,read.dir,anomalies,percent)
     seas.past[[s]] <- as.vector(seas.anoms$past)
     seas.2020s[[s]] <- as.vector(seas.anoms$c2020)
     seas.2050s[[s]] <- as.vector(seas.anoms$c2050)
@@ -154,22 +155,22 @@ make.plot <- function(var.name,seasons,
   
   ##Precip Plot
   if (anomalies) {
-    plot.file <- paste('/home/data/projects/rci/data/assessments/metro_van/plots/',region,'/boxplots/anomalies/',var.name,'_anoms_',region,'_boxplots_',scenario,'.png',sep='')    
+    plot.file <- paste('/storage/data/projects/rci/data/assessments/crd/production/plots/boxplots/anomalies/',var.name,'_anoms_',region,'_boxplots_',scenario,'.png',sep='')    
     if (percent)
-      plot.file <- paste('/home/data/projects/rci/data/assessments/metro_van/plots/',region,'/boxplots/anomalies/',var.name,'_percent_',region,'_boxplots_',scenario,'.png',sep='')      
+      plot.file <- paste('/storage/data/projects/rci/data/assessments/crd/production/plots/boxplots/anomalies/',var.name,'_percent_',region,'_boxplots_',scenario,'.png',sep='')      
   } else {
-    plot.file <- paste('/home/data/projects/rci/data/assessments/metro_van/plots/',region,'/boxplots/averages/',var.name,'_avgs_',region,'_boxplots_',scenario,'.png',sep='')    
+    plot.file <- paste('/storage/data/projects/rci/data/assessments/crd/production/plots/boxplots/averages/',var.name,'_avgs_',region,'_boxplots_',scenario,'.png',sep='')    
   }
   png(file=plot.file,width=1500,height=800)
   par(mar=c(10,5,5,5))
   if (anomalies) {
-    plot(c(),xlim=c(1,length(seasons)),ylim=c(yvals[1],yvals[2]),main=paste('Projected Change of ',plot.title,'\n in Metro Vancouver',sep=''),
+    plot(c(),xlim=c(1,length(seasons)),ylim=c(yvals[1],yvals[2]),main=paste('Projected Change of ',plot.title,'\n in CRD',sep=''),
          xlab='',ylab=y.label,cex.axis=2,cex.lab=2,cex.main=2.5,axes=F,yaxs='i')         
   } else if (var.name=='pr') {
-    plot(c(),xlim=c(1,length(seasons)),ylim=c(yvals[1],yvals[2]),main=paste(plot.title,'\n in Metro Vancouver',sep=''),
+    plot(c(),xlim=c(1,length(seasons)),ylim=c(yvals[1],yvals[2]),main=paste(plot.title,'\n in CRD',sep=''),
          xlab='',ylab=y.label,cex.axis=2,cex.lab=2,cex.main=2.5,axes=F,yaxs='i')         
   } else {
-    plot(c(),xlim=c(1,length(seasons)),ylim=c(yvals[1],yvals[2]),main=paste(plot.title,'\n in Metro Vancouver',sep=''),
+    plot(c(),xlim=c(1,length(seasons)),ylim=c(yvals[1],yvals[2]),main=paste(plot.title,'\n in CRD',sep=''),
          xlab='',ylab=y.label,cex.axis=2,cex.lab=2,cex.main=2.5,axes=F,yaxs='i')
   }
   axis(1,at=1:length(seasons),seasons,cex.axis=2)
@@ -212,49 +213,69 @@ make.plot <- function(var.name,seasons,
 ##North Vancouver
 if (1==0) {
 region <- 'north_van'
+read.dir <- '/storage/data/projects/rci/data/assessments/metro_van/data_files/'
 rcps <- c('rcp26','rcp45','rcp85')
 for (rcp in rcps) {
   ##Anomalies  
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(-400,700,100),region,rcp,TRUE,FALSE)
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(-150,650,150),region,rcp,TRUE,TRUE)
-  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-10,20,5),region,rcp,TRUE,FALSE)
-  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,15,5),region,rcp,TRUE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-400,700,100),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-150,650,150),region,rcp,read.dir,TRUE,TRUE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-10,20,5),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,15,5),region,rcp,read.dir,TRUE,FALSE)
   ##Averages
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(0,1000,200),region,rcp,FALSE,FALSE)
-  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-5,40,5),region,rcp,FALSE,FALSE)
-  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,25,5),region,rcp,FALSE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(0,1000,200),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-5,40,5),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,25,5),region,rcp,read.dir,FALSE,FALSE)
 }
 }
 
 if (1==0) {
 region <- 'van_city'
+read.dir <- '/storage/data/projects/rci/data/assessments/metro_van/data_files/'
 rcps <- c('rcp26','rcp45','rcp85')
 for (rcp in rcps) {
   ##Anomalies  
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(-300,700,100),region,rcp,TRUE,FALSE)
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(-150,600,150),region,rcp,TRUE,TRUE)
-  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-10,20,5),region,rcp,TRUE,FALSE)
-  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,15,5),region,rcp,TRUE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-300,700,100),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-150,600,150),region,rcp,read.dir,TRUE,TRUE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-10,20,5),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,15,5),region,rcp,read.dir,TRUE,FALSE)
   ##Averages
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(0,900,200),region,rcp,FALSE,FALSE)
-  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-5,40,5),region,rcp,FALSE,FALSE)
-  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,25,5),region,rcp,FALSE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(0,900,200),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-5,40,5),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,25,5),region,rcp,read.dir,FALSE,FALSE)
+}
+}
+
+if (1==0) {
+region <- 'metro_van'
+read.dir <- '/storage/data/projects/rci/data/assessments/metro_van/data_files/'
+rcps <- c('rcp26','rcp45','rcp85')
+for (rcp in rcps) {
+  ##Anomalies  
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-300,700,100),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-150,600,150),region,rcp,read.dir,TRUE,TRUE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-10,20,5),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,15,5),region,rcp,read.dir,TRUE,FALSE)
+  ##Averages
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(0,900,200),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-5,40,5),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,25,5),region,rcp,read.dir,FALSE,FALSE)
 }
 }
 
 if (1==1) {
-region <- 'metro_van'
+region <- 'crd'
+read.dir <- '/storage/data/projects/rci/data/assessments/crd/data_files/'
 rcps <- c('rcp26','rcp45','rcp85')
 for (rcp in rcps) {
   ##Anomalies  
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(-300,700,100),region,rcp,TRUE,FALSE)
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(-150,600,150),region,rcp,TRUE,TRUE)
-  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-10,20,5),region,rcp,TRUE,FALSE)
-  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,15,5),region,rcp,TRUE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-300,700,100),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(-150,600,150),region,rcp,read.dir,TRUE,TRUE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-10,20,5),region,rcp,read.dir,TRUE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,15,5),region,rcp,read.dir,TRUE,FALSE)
   ##Averages
-  make.plot('pr',seasons=toupper(month.abb),yvals=c(0,900,200),region,rcp,FALSE,FALSE)
-  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-5,40,5),region,rcp,FALSE,FALSE)
-  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,25,5),region,rcp,FALSE,FALSE)
+  make.plot('pr',seasons=toupper(month.abb),yvals=c(0,900,200),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmax',seasons=toupper(month.abb),yvals=c(-5,40,5),region,rcp,read.dir,FALSE,FALSE)
+  make.plot('tasmin',seasons=toupper(month.abb),yvals=c(-15,25,5),region,rcp,read.dir,FALSE,FALSE)
 }
 }
 

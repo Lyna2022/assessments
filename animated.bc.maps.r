@@ -112,15 +112,16 @@ for (g in seq_along(gcm.list)) {
   gcm <- gcm.list[g]
   print(gcm)  
 
-  read.dir <- paste0('/storage/data/scratch/ssobie/bccaq_gcm_bc_subset/rcp85/annual/',gcm,'/')
-  head.file <- list.files(path=read.dir,pattern=paste0('tasmax_ann_BCCAQ_',gcm,'_rcp85_*'),full.name=TRUE)[1]
+  ##read.dir <- paste0('/storage/data/scratch/ssobie/bccaq_gcm_bc_subset/rcp45/annual/',gcm,'/')
+  read.dir <- paste0('/storage/data/scratch/ssobie/bccaq_gcm_bc_subset/rcp45/annual/',gcm,'/')
+  head.file <- list.files(path=read.dir,pattern=paste0('tasmax_ann_BCCAQ_',gcm,'_rcp45_*'),full.name=TRUE)[1]
   file.split <- strsplit(head.file,'_')[[1]]
   run <- file.split[grep('r*i1p1',file.split)]
 
-  txp.file <- paste0(read.dir,'tasmax_ann_BCCAQ_',gcm,'_rcp85_',run,'_1951-2000.nc')
-  txf.file <- paste0(read.dir,'tasmax_ann_BCCAQ_',gcm,'_rcp85_',run,'_2001-2100.nc')
-  tnp.file <- paste0(read.dir,'tasmin_ann_BCCAQ_',gcm,'_rcp85_',run,'_1951-2000.nc')
-  tnf.file <- paste0(read.dir,'tasmin_ann_BCCAQ_',gcm,'_rcp85_',run,'_2001-2100.nc')
+  txp.file <- paste0(read.dir,'tasmax_ann_BCCAQ_',gcm,'_rcp45_',run,'_1951-2000.nc')
+  txf.file <- paste0(read.dir,'tasmax_ann_BCCAQ_',gcm,'_rcp45_',run,'_2001-2100.nc')
+  tnp.file <- paste0(read.dir,'tasmin_ann_BCCAQ_',gcm,'_rcp45_',run,'_1951-2000.nc')
+  tnf.file <- paste0(read.dir,'tasmin_ann_BCCAQ_',gcm,'_rcp45_',run,'_2001-2100.nc')
 
   txp.brick <- brick(txp.file)
   txf.brick <- brick(txf.file)
@@ -197,9 +198,9 @@ tas.stack <- stack(tas.stack.1,tas.stack.2,tas.stack.3)
     for (y in 1:len) {     
     plot.bc.tas(tas.2080s.clim,'2080s')
     }
-  },    img.name=paste('bc_tas_years',sep=''),
+  },    img.name=paste('bc_tas_years_rcp45',sep=''),
            outdir=plot.dir,
-           movie.name='bc_tas_years.gif',
+           movie.name='bc_tas_years_rcp45.gif',
         ani.width=600,ani.height=600,bg='white')
 
 

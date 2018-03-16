@@ -11,7 +11,7 @@ library(rgdal)
 library(rgeos)
 library(raster)
 library(RColorBrewer) # to get the sweet color ramps
-library(spatstat) ##to set up the color ramp values 
+##library(spatstat) ##to set up the color ramp values 
 library(TeachingDemos) #For shadow text
 
 rasterOptions(tmpdir='/home/data/scratch/ssobie/tmp/R_raster_tmp',

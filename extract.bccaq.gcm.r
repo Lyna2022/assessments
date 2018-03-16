@@ -5,6 +5,8 @@
 library(ncdf4)
 library(PCICt)
 
+ptm <- proc.time()
+
 extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
 	   		lon.bnds,lat.bnds,past.int,proj.int,
                         data.dir,write.dir) {
@@ -12,8 +14,11 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
     ##BCCAQ GCM Files
     if (type=='BCCAQ') {
 
-      file.name <- list.files(path=data.dir,pattern=paste(gcm,'_historical\\+',scenario,'_*',sep=''),full.name=TRUE)[1]
-      
+      ##file.name <- list.files(path=data.dir,pattern=paste(gcm,'_historical\\+',scenario,'_*',sep=''),full.name=TRUE)[1] ##For Canada file
+      ##file.name <- list.files(path=paste0(data.dir,gcm),pattern=paste('*BCCAQ_',gcm,'_',scenario,'_*',sep=''),full.name=TRUE)[1] 
+      file.names <- list.files(path=data.dir,pattern=paste(gcm,'_historical\\+',scenario,'_*',sep=''),full.name=TRUE)
+      file.name <- file.names[grep(var.name,file.names)]
+
       file.split <- strsplit(file.name,'_')[[1]]
       run <- file.split[grep('r*i1p1',file.split)]
 
@@ -52,9 +57,9 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
 
     }
     if (type=='PRISM') {
-      file.name <- paste(data.dir,var.name,'_monClim_PRISM_historical_run1_197101-200012.nc',sep='')
+      file.name <- paste(data.dir,var.name,'_monClim_PRISM_historical_run1_198101-201012.nc',sep='')
       lon.offset <- 0
-      write.hist.name <- paste(var.name,'_day_PRISM_observation_1971-2000.nc',sep='')
+      write.hist.name <- paste(var.name,'_day_PRISM_observation_1981-2010.nc',sep='')
       write.proj.name <- NULL
 
       
@@ -85,6 +90,7 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
     ##proj.en <- tail(grep('2100-*',time.series),1)
     ##proj.st <- 1 ##head(grep('1991-*',time.series),1)
     proj.en <- length(time.series) ##tail(grep('2100-*',time.series),1)      
+
   } else if (type=='PRISM') {
     past.st <- 1
     past.en <- 12
@@ -111,8 +117,8 @@ if (length(past.en)==0)
 
   data.atts <- ncatt_get(nc,var.name)
 
-  data.att.sub <- !(names(data.atts) %in% c('add_offset','scale_factor'))
-  data.atts <- data.atts[data.att.sub]
+  ##data.att.sub <- !(names(data.atts) %in% c('add_offset','scale_factor'))
+  ##data.atts <- data.atts[data.att.sub]
 
   past.time.sub <- time.values[past.st:past.en]
   proj.time.sub <- time.values[proj.st:proj.en]
@@ -126,7 +132,7 @@ if (length(past.en)==0)
   lat.en <- which.min(abs(lat-lat.bnds[2]))
   lat.sub <- lat[lat.st:lat.en]
   n.lat <- length(lat.sub)
- 
+
   ##--------------------------------------------------------------
   ##Create new past netcdf file
 if (1==1) {
@@ -165,11 +171,12 @@ if (1==1) {
   for (i in 1:past.len) { 
     x <- past.ix[i]
     data.subset <- ncvar_get(nc,var.name,start=c(lon.st,lat.st,x),count=c(n.lon,n.lat,1))
-    data.adjust <- data.subset ##(data.subset - data.atts$add_offset)/data.atts$scale_factor
     if (var.name=='pr')
-      data.adjust[data.adjust < -10] <- NA
+      data.subset[data.subset < -10] <- NA
     if (var.name=='tasmax' | var.name=='tasmin')
-      data.adjust[data.adjust < -90] <- NA
+      data.subset[data.subset < -90] <- NA
+
+    data.adjust <- (data.subset - data.atts$add_offset)/data.atts$scale_factor
     ncvar_put(hist.nc,varid=var.name,vals=data.adjust,
               start=c(1,1,i),count=c(n.lon,n.lat,1))
     
@@ -181,7 +188,7 @@ if (1==1) {
   ##--------------------------------------------------------------
   ##Create new netcdf file for the future
 
-if (1==1) {
+if (1==0) {
   x.geog <- ncdim_def('lon', 'degrees_east', lon.sub)
   y.geog <- ncdim_def('lat', 'degrees_north', lat.sub)
   t.geog <- ncdim_def('time', time.units, proj.time.sub,
@@ -277,8 +284,8 @@ fix.precipitation <-  function(gcm,rcm) {
 ##**************************************************************************************
 
       ##BC Boundaries
-            ##lon.bnds <- c(-140,-114)
-            ##lat.bnds <- c(48,60)
+        lon.bnds <- c(-140,-114)
+        lat.bnds <- c(48,60)
       ##MOTI Boundaries
       ##lon.bnds <- c(-127.0,-126.0)
       ##lat.bnds <- c(52,53)
@@ -298,16 +305,27 @@ fix.precipitation <-  function(gcm,rcm) {
       ##lon.bnds <- c(-123.303,-121.236)
       ##lat.bnds <- c(48.989,50.5197)
       ##Nanaimo Hospital Boundaries
-      lon.bnds <- c(-124.30,-123.70)
-      lat.bnds <- c(48.86,49.33)
+      ##lon.bnds <- c(-124.30,-123.70)
+      ##lat.bnds <- c(48.86,49.33)
       ##South Vancouver Island
       ##lon.bnds <- c(-124.90,-122.95)
       ##lat.bnds <- c(48.25,49.2)
+      ##Upper Adams River
+      ##lon.bnds <- c(-119.89,-118.4)
+      ##lat.bnds <- c(50.90,52.26)
+      ##Revelstoke Region
+      ##lon.bnds <- c(-118.50,-117.88)
+      ##lat.bnds <- c(50.67,51.3)
+      ##Block Test
+      ##lon.bnds <- c(-130.0,-120.0)
+      ##lat.bnds <- c(49.0,56.0)
+
 
 ##**************************************************************************************
 
-gcm.list <- c('ACCESS1-0',
-              'CCSM4',
+##'ACCESS1-0',
+
+gcm.list <- c('CCSM4',
               'CanESM2',
               'CNRM-CM5',
               'CSIRO-Mk3-6-0',
@@ -318,14 +336,16 @@ gcm.list <- c('ACCESS1-0',
               'MIROC5',
               'MPI-ESM-LR',
               'MRI-CGCM3')
-
+gcm.list <- 'CNRM-CM5'
 
 extract.bccaq.gcms <- function() {
-  data.dir <- '/storage/data/climate/downscale/CMIP5/BCCAQ/'
-  write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_nanaimo_subset/'
-  var.list <- c('tasmax','tasmin','pr')
+  ##data.dir <- '/storage/data/climate/downscale/CMIP5/BCCAQ/'
+  data.dir <- '/storage/data/climate/downscale/BCCAQ2/bccaqv2_with_metadata/'
+  ##write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_van_whistler_subset/'
+  write.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/baseline/'
+  var.list <- c('tasmax','tasmin','pr')  ##c('pr','tasmax','tasmin') ##c('tasmax','tasmin','pr')
   scenario <- 'rcp85'
-  past.int <- '1951-2000'
+  past.int <- '1981-2010'
   proj.int <- '2001-2100'
 
   for (var.name in var.list) {
@@ -355,10 +375,10 @@ extract.anusplin <- function() {
 
 extract.prism <- function() {
   data.dir <- '/storage/data/climate/PRISM/dataportal/'
-  write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_south_island_subset/PRISM/'
+  write.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/PRISM/'
   var.list <- c('pr','tmax','tmin')
   scenario <- 'observation'  
-  past.int <- '1971-2000'
+  past.int <- '1981-2010'
   proj.int <- '2001-2002'
   for (var.name in var.list) {
     test <- extract.gcm(gcm='PRISM',rcm=NULL,var.name,scenario,type='PRISM',
@@ -371,3 +391,6 @@ extract.prism <- function() {
 
 extract.bccaq.gcms()  
 ##extract.prism()
+
+print('Elapsed time')
+print(proc.time() - ptm)
