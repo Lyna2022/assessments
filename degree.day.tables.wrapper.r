@@ -3,36 +3,39 @@
 source('/storage/home/ssobie/code/repos/assessments/calc.degree.days.r',chdir=TRUE)
 ##-----------------------------------------------------------------------------------------------
 
-reg.list <- 'northeast'
-title.list <- 'Northeast'
+args <- commandArgs(trailingOnly=TRUE)
+for(i in 1:length(args)){
+    eval(parse(text=args[[i]]))
+}
 
-ds.type <- 'bccaq' 
-scenario.list <- 'rcp85'
+##region <- 'lionsgate_site'
+##title <- "LionsgateSite"
+##readloc <- 'van_coastal_health'
+##writeloc <- 'van_coastal_health/lionsgate_site'
+
+
+ds.type <- 'bccaq2' 
+scenario <- 'rcp85'
 past.int <- '1971-2000'
-proj.ints <- c('2011-2040','2041-2070','2071-2100')
+proj.list <- c('2011-2040','2041-2070','2071-2100')
+pctl <- TRUE ##Controls whether the percentiles (10,50,90) are added to the ensemble
 
-pctl <- TRUE
-proj.dir <- '/storage/data/projects/rci/data/assessments/northeast/'
-shape.dir <- '/storage/data/projects/rci/data/assessments/northeast/shapefiles/'
-read.dir <- paste('/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/assessment_subsets/northeast/',scenario,'/degree_days/',sep='')
-   gcm.list <- c('ACCESS1-0',
-                 'CanESM2',
-                'CNRM-CM5')
+shape.dir <- paste0('/storage/data/projects/rci/data/assessments/shapefiles/',readloc,'/')
+read.dir <- paste0('/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/assessment_subsets/',readloc,'/',scenario,'/')
+write.dir <-  paste0('/storage/data/projects/rci/data/assessments/',writeloc,'/')
 
-  for (i in seq_along(reg.list)) {
-    for (proj.int in proj.ints) {
-      region <- reg.list[i]
-      region.title <- title.list[i]
+gcm.list <- c('ACCESS1-0','CanESM2','CCSM4','CNRM-CM5','CSIRO-Mk3-6-0','GFDL-ESM2G',
+              'HadGEM2-CC','inmcm4','HadGEM2-ES','MIROC5','MPI-ESM-LR','MRI-CGCM3')
 
-      shape.name <- region
-      clip.shp <- spTransform(readOGR(shape.dir,shape.name, stringsAsFactors=F),CRS("+init=epsg:4326"))
-     
-      go <- make.dd.tables(gcm.list,ds.type,region,region.title,scenario,clip.shp,
-                           past.int,proj.int,
-                           proj.dir,read.dir,pctl)
+clip.shp <- spTransform(readOGR(shape.dir,region, stringsAsFactors=F),CRS("+init=epsg:4326"))
 
-     }
-  }
+for (proj.int in proj.list) {
+   print(proj.int)
+   make.dd.tables(gcm.list,ds.type,region,title,scenario,clip.shp,
+                  past.int=past.int,proj.int=proj.int,
+                  read.dir=read.dir,write.dir=write.dir,pctl=pctl)
+
+}
 
 
 

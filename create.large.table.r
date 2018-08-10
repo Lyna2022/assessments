@@ -14,7 +14,7 @@ get.var.units <- function(var.name) {
     leg.label <- '%'
   if (grepl("(dd)", var.name))
     leg.label <- 'Degree days'
-  if (grepl("(fd|cdd|cwd|su|gsl|id|trE|s30|wsdi|csdi)", var.name))
+  if (grepl("(fdE|cddE|cwd|su|gsl|id|trE|s30|wsdi|csdi)", var.name))
     leg.label <- 'days'
   if (grepl("(dtr)", var.name))
     leg.label <- 'degC'
@@ -39,26 +39,28 @@ get.round.val <- function(var.name) {
 
 get.scenarios <- function(var.name,seas,interval,scenario,type,rp=NULL) {
   
-  file.name <- paste(type,'.',var.name,'.',interval,'.values.csv',sep='')
-
+  file.name <- paste(type,'.',var.name,'.rcp85.',interval,'.csv',sep='')
+  
   if (!is.null(rp)) {
     if (type!='ratio') {
-    file.name <- paste(type,'.',var.name,'.rp.',rp,'.',interval,'.values.csv',sep='')
-    file.scen <- as.matrix(read.csv(paste(read.dir,scenario,'/return_periods/',var.name,'/',file.name,sep=''),
+    file.name <- paste(type,'.',var.name,'.rcp85.rp.',rp,'.',interval,'.csv',sep='')
+    file.scen <- as.matrix(read.csv(paste(read.dir,'/return_periods/',var.name,'/',file.name,sep=''),
                                     header=TRUE,as.is=TRUE))
     } else {
-        file.name <- paste('future.',var.name,'.new.rp.',rp,'.interval.',interval,'.values.csv',sep='')
-        file.scen <- as.matrix(read.csv(paste(read.dir,scenario,'/return_periods/',var.name,'/',file.name,sep=''),
+        file.name <- paste('future.',var.name,'.rcp85.new.rp.',rp,'.interval.',interval,'.csv',sep='')
+        file.scen <- as.matrix(read.csv(paste(read.dir,'/return_periods/',var.name,'/',file.name,sep=''),
                                     header=TRUE,as.is=TRUE))       
     }
-    print(var.name)
-    print(file.scen)
+
   } else if (grepl('ETCCDI',var.name)) {
-    file.scen <- as.matrix(read.csv(paste(read.dir,scenario,'/climdex/',var.name,'/',file.name,sep=''),header=TRUE,as.is=TRUE))
+    file.scen <- as.matrix(read.csv(paste(read.dir,'/climdex/',var.name,'/',file.name,sep=''),header=TRUE,as.is=TRUE))
   } else if (grepl('(^cdd$|hdd|gdd|ffd|pas|s30)',var.name)) {
-    file.scen <- as.matrix(read.csv(paste(read.dir,scenario,'/degree_days/',var.name,'/',file.name,sep=''),header=TRUE,as.is=TRUE))
+    file.scen <- as.matrix(read.csv(paste(read.dir,'/degree_days/',var.name,'/',file.name,sep=''),header=TRUE,as.is=TRUE))
+  } else if (grepl('(maximum|minimum|quantile|standard_deviation)',var.name)) {
+    var.sub <- strsplit(var.name,'\\.')[[1]][1]
+    file.scen <- as.matrix(read.csv(paste(read.dir,'/build_code/',var.sub,'/',file.name,sep=''),header=TRUE,as.is=TRUE))
   } else {
-    file.scen <- as.matrix(read.csv(paste(read.dir,scenario,'/',var.name,'/',file.name,sep=''),header=TRUE,as.is=TRUE))
+    file.scen <- as.matrix(read.csv(paste(read.dir,'/',var.name,'/',file.name,sep=''),header=TRUE,as.is=TRUE))
   }
 
   models <- file.scen[,1]
@@ -66,11 +68,6 @@ get.scenarios <- function(var.name,seas,interval,scenario,type,rp=NULL) {
   data.names <- file.scen[1,]
   seas.sub <- data.names %in% seas
   data.scen <- file.scen[which(mod.sub),which(seas.sub)]
-  print(var.name)
-  print(seas)
-  print(interval)
-  print(scenario)
-
   return(data.scen)
 }
  
@@ -179,10 +176,9 @@ get.ratio.data <- function(var.name,scenario,rp) {
   return(result)
 }
 
-
 seasonal.table <- function(var.name,scenario) {
 
-  no.percent <- '(tasmax|tasmin|txxETCCDI|tnnETCCD|trETCCDI|suETCCDI)'
+  no.percent <- '(tasmax|tasmin|txxETCCDI|tnnETCCD|trETCCDI|suETCCDI|su30ETCCDI)'
   var.units <- get.var.units(var.name)
   
   data.top <- c(toupper(var.name),paste('Past (',var.units,')',sep=''),
@@ -255,67 +251,42 @@ ratio.table <- function(var.name,scenario,rp) {
 
 ##---------------------------------------------------------
 
+reg.list <- list(c("bella_hospital_site","van_coastal_health/bella_hospital_site"),
+                 c("richmond","van_coastal_health/richmond"),
+                 c("lionsgate_hospital_site","van_coastal_health/lionsgate_hospital_site"),
+                 c("royal_columbian_hospital_site","van_coastal_health/royal_columbian_hospital_site"),
+                 c("vancouver_general_hospital_site","van_coastal_health/vancouver_general_hospital_site"),
+                 c("bella_health","van_coastal_health/bella_health"),
+                 c("lionsgate_hospital","van_coastal_health/lionsgate_hospital"),
+                 c("van_coastal_health","van_coastal_health/van_coastal_health"))
 
-##Seasonal Data
-##Precip | Past |        2020s       |        2050s       |
-##       |      | 10th  | Avg | 90th | 10th  | Avg | 90th |
-##Winter |
-##Spring |
-##Summer |
-##Fall   |
-##Annual |
-
-#seasonal.vars <- c('pr','tasmax','tasmin','txx','tnn')
-
-##reg.list <- c('cariboo','kootenay','northeast','omineca','skeena','south','thompson','west')
-##title.list <- c('Cariboo','Kootenay','Northeast','Omineca','Skeena','South','Thompson','West')
-
-##reg.list <- 'fraser_municipal' ##'cvrd'
-##title.list <- 'Fraser District Municipalities' ##'Capital Regional District' ##
-
-reg.list <- c('mission','kent','abbotsford','chilliwack','FVRDelectoralG','FVRDelectoralH')
-title.list <- c('Mission','Kent','Abbotsford','Chilliwack','FVRD Electoral G','FVRD Electoral H')
+reg.list <- list(c("richmond_hospital_site","van_coastal_health/richmond_hospital_site"),       
+                 c("powell_river_hospital_site","van_coastal_health/powell_river_hospital_site"),       
+                 c("sechelt_hospital_site","van_coastal_health/sechelt_hospital_site"),       
+                 c("squamish_hospital_site","van_coastal_health/squamish_hospital_site"),       
+                 c("ubc_hospital_site","van_coastal_health/ubc_hospital_site"))       
 
 
-##reg.list <-  c('cvrd_developed_watersheds','cvrd_water_supply_watersheds','cvrd_west_coast_watersheds')
-##title.list <- c('Developed Area Watersheds','Water Supply Watersheds','West Coast Watersheds')
-##reg.list <-  c('GVRD','JDF_Electoral','victoria_water','southern_gulf_islands')
-##reg.titles <- c('Greater Victoria','Juan de Fuca Electoral','Victoria Water Supply','Southern Gulf Islands')
-
+reg.list <- list(c("east_willow_road","willow_road/east_willow_road"),                
+                 c("west_willow_road","willow_road/west_willow_road"))
+reg.list <- list(c('north_rockies_muni','northeast/north_rockies_muni'))
+reg.list <- list(c('downtown_community_health_centre','van_coastal_health/downtown_community_health_centre'),
+                 c('george_pearson_centre','van_coastal_health/george_pearson_centre'),
+                 c('bella_coola_general_hospital','van_coastal_health/bella_coola_general_hospital'))
+build_code <- TRUE
 
 scen.list <- 'rcp85' ##c('rcp26','rcp45','rcp85')
 
-for (region in reg.list) {
-  for (scenario in scen.list) {
-  
-###    read.dir <- paste('/storage/data/projects/rci/data/assessments/fraser_municipal/tables/',region,'/bccaq/',sep='')
-    read.dir <- paste('/storage/data/projects/rci/data/assessments/fraser_municipal/tables/',region,'/bccaq/',sep='')
-
-
-    gcm.list <- c('ACCESS1-0',
-                  'CanESM2',
-                  'CCSM4',
-                  'CNRM-CM5',
-                  'CSIRO-Mk3-6-0',
-                  'GFDL-ESM2G',
-                  'HadGEM2-CC',
-                  'HadGEM2-ES',
-                  'inmcm4',
-                  'MIROC5',
-                  'MPI-ESM-LR',
-                  'MRI-CGCM3')
-
-    if (scenario == 'rcp26') {
-      gcm.list <- c('CanESM2',
-                    'CCSM4',
-                    'CNRM-CM5',
-                    'CSIRO-Mk3-6-0',
-                    'GFDL-ESM2G',              
-                    'HadGEM2-ES',              
-                    'MIROC5',
-                    'MPI-ESM-LR',
-                    'MRI-CGCM3')
-    }
+for (i in seq_along(reg.list)) {
+  region.info <- reg.list[[i]]
+  region <- region.info[1]
+  readloc <- region.info[2]
+  writeloc <- readloc
+  for (scenario in scen.list) { 
+    read.dir <- paste('/storage/data/projects/rci/data/assessments/',readloc,'/tables',sep='')  
+    print(read.dir)        
+    gcm.list <- c('ACCESS1-0','CanESM2','CCSM4','CNRM-CM5','CSIRO-Mk3-6-0','GFDL-ESM2G',
+                  'HadGEM2-CC','HadGEM2-ES','inmcm4','MIROC5','MPI-ESM-LR','MRI-CGCM3')
 
       pr.table <- seasonal.table('pr',scenario)
       rx1.table <- seasonal.table('rx1dayETCCDI',scenario)
@@ -338,55 +309,83 @@ for (region in reg.list) {
       cwdE.table <- annual.table('cwdETCCDI',scenario)
       r95.table <- annual.table('r95pETCCDI',scenario)
       r95days.table <- annual.table('r95daysETCCDI',scenario)
-      r95dist.table <- annual.table('r95distETCCDI',scenario)
-      r95sep.table <- annual.table('r95sepETCCDI',scenario)
+##      r95dist.table <- annual.table('r95distETCCDI',scenario)
+##      r95sep.table <- annual.table('r95sepETCCDI',scenario)
       r99.table <- annual.table('r99pETCCDI',scenario)
       r99days.table <- annual.table('r99daysETCCDI',scenario)
       su.table <- annual.table('suETCCDI',scenario)
-      ##s30.table <- annual.table('s30',scenario)
+      su30.table <- annual.table('su30ETCCDI',scenario)
       tr.table <- annual.table('trETCCDI',scenario)
       id.table <- annual.table('idETCCDI',scenario)
       fd.table <- annual.table('fdETCCDI',scenario)
       gsl.table <- annual.table('gslETCCDI',scenario)
-      csdi.table <- annual.table('csdiETCCDI',scenario)
-      wsdi.table <- annual.table('wsdiETCCDI',scenario)
+##      csdi.table <- annual.table('csdiETCCDI',scenario)
+##      wsdi.table <- annual.table('wsdiETCCDI',scenario)
 
       cdd.table <- annual.table('cdd',scenario)
       gdd.table <- annual.table('gdd',scenario)
       hdd.table <- annual.table('hdd',scenario)
 
-      pr.rp10.table <- annual.table('pr',scenario,rp=10)
-      tx.rp10.table <- annual.table('tasmax',scenario,rp=10)
-      tn.rp10.table <- annual.table('tasmin',scenario,rp=10)
-
       pr.rp20.table <- annual.table('pr',scenario,rp=20)
       tx.rp20.table <- annual.table('tasmax',scenario,rp=20)
       tn.rp20.table <- annual.table('tasmin',scenario,rp=20)
-      rx2.rp.table <- annual.table('rx2dayETCCDI',scenario,rp=10)
-      rx5.rp.table <- annual.table('rx5dayETCCDI',scenario,rp=10)
 
-      pr.rp10.ratio <- ratio.table('pr',scenario,rp=10)
-      tx.rp10.ratio <- ratio.table('tasmax',scenario,rp=10)
-      tn.rp10.ratio <- ratio.table('tasmin',scenario,rp=10)
 
-      pr.rp20.ratio <- ratio.table('pr',scenario,rp=20)
-      tx.rp20.ratio <- ratio.table('tasmax',scenario,rp=20)
-      tn.rp20.ratio <- ratio.table('tasmin',scenario,rp=20)
-      
-      ##snow.mar <- annual.table('snowdepth',scenario,rp=TRUE)
-      ##snow.apr <- annual.table('snowdepth',scenario,rp=TRUE)
-      ##r99days.table
-  
-      ann.data <- rbind(cddE.table,cwdE.table,r95.table,r95days.table,r95sep.table,r95dist.table,r99.table,r99days.table,
-                        su.table,tr.table,csdi.table,wsdi.table,
-                        id.table,fd.table,gsl.table,cdd.table,gdd.table,hdd.table,
-                        pr.rp20.table,tx.rp20.table,tn.rp20.table,
-                       
+##      rx2.rp.table <- annual.table('rx2dayETCCDI',scenario,rp=10)
+##      rx5.rp.table <- annual.table('rx5dayETCCDI',scenario,rp=10)
+
+##      pr.rp10.ratio <- ratio.table('pr',scenario,rp=10)
+##      tx.rp10.ratio <- ratio.table('tasmax',scenario,rp=10)
+##      tn.rp10.ratio <- ratio.table('tasmin',scenario,rp=10)
+
+##      pr.rp10.ratio <- ratio.table('pr',scenario,rp=10)
+##      tx.rp10.ratio <- ratio.table('tasmax',scenario,rp=10)
+##      tn.rp10.ratio <- ratio.table('tasmin',scenario,rp=10)
+
+if (build_code) {
+
+      pr.rp5.table <- annual.table('pr',scenario,rp=5)
+      tx.rp5.table <- annual.table('tasmax',scenario,rp=5)
+      tn.rp5.table <- annual.table('tasmin',scenario,rp=5)
+
+      pr.max.table <- annual.table('pr.maximum',scenario)
+      pr.min.table <- annual.table('pr.minimum',scenario)
+      pr.std.table <- annual.table('pr.standard_deviation',scenario)
+
+      tx.975.table <- annual.table('tasmax.annual_quantile_975',scenario)
+      tx.990.table <- annual.table('tasmax.annual_quantile_990',scenario)
+      tx.996.table <- annual.table('tasmax.annual_quantile_996',scenario)
+
+      tn.004.table <- annual.table('tasmin.annual_quantile_004',scenario)
+      tn.010.table <- annual.table('tasmin.annual_quantile_010',scenario)
+      tn.025.table <- annual.table('tasmin.annual_quantile_025',scenario)
+
+      pr.rp50.table <- annual.table('pr',scenario,rp=50)
+
+      ann.data <- rbind(cddE.table,cwdE.table,r95.table,r95days.table,r99.table,r99days.table,
+                        su.table,su30.table,tr.table,
+                        id.table,fd.table,gsl.table,cdd.table,gdd.table,hdd.table,                        
+                        pr.max.table,pr.min.table,pr.std.table,
+                        tx.975.table,tx.990.table,tx.996.table,                        
+                        tn.004.table,tn.010.table,tn.025.table,
+                        pr.rp5.table,pr.rp20.table,pr.rp50.table,
+                        tx.rp5.table,tx.rp20.table,
+                        tn.rp5.table,tn.rp20.table)                      
+} else {
+
+      ann.data <- rbind(cddE.table,cwdE.table,r95.table,r95days.table,r99.table,r99days.table,
+                        su.table,su30.table,tr.table,
+                        id.table,fd.table,gsl.table,cdd.table,gdd.table,hdd.table,                        
+                        pr.rp20.table,
+                        tx.rp20.table,
+                        tn.rp20.table)                      
+}
+
 
       group.data <- rbind(seas.data,ann.data)
 
       write.table(group.data,
-              file=paste('/storage/data/projects/rci/data/assessments/northeast/tables/',region,'_variable_table_',scenario,'.csv',sep=''),sep=',',quote=F,row.name=F,col.name=T)
+              file=paste('/storage/data/projects/rci/data/assessments/',writeloc,'/tables/',region,'_variable_table_',scenario,'.csv',sep=''),sep=',',quote=F,row.name=F,col.name=T)
 
     }
    

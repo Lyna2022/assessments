@@ -25,36 +25,39 @@ get.variable.title <- function(var.name,rperiod) {
 ##Read in the regional time series
 compute.climate.values <- function(model,ds.type,
                                    var.name,
-                                   region,type,rperiod,
+                                   region,rperiod,
                                    past.int,proj.int,
-                                   read.dir,proj.dir,
+                                   read.dir,write.dir,
                                    clip.shp) {
   
   rp.name <- paste('rp.',rperiod,sep='')
-    gcm <- model
-
-    files <- list.files(path=paste(read.dir,gcm,'/',sep=''),pattern=paste(var.name,'_',region,'_RP',rperiod,sep=''),full.name=TRUE)
-
+    file.dir <- paste0(read.dir,'/return_periods/',model)
+    all.files <- list.files(path=file.dir,pattern=var.name,full.name=TRUE)
+    files <- all.files[grep(paste0('RP',rperiod,'_'),all.files)]
+    print(files)
     ##-------------------------------------------------
     past.file <- files[grep(past.int,files)]
     print(past.file)
 
     past.brick <- subset(brick(past.file),1)   
+    past.brick[past.brick==1111] <- NA
     past.subset <- mask(past.brick,clip.shp)
-    past.avg <- cellStats(past.subset,'mean')
+    past.avg <- cellStats(past.subset,'mean',na.rm=T)
     print('Past')
     
     proj.file <- files[grep(proj.int,files)]
     proj.brick <- subset(brick(proj.file),1)
+    proj.brick[proj.brick==1111] <- NA
     print(proj.file)
     proj.subset <- mask(proj.brick,clip.shp)
-    proj.avg <- cellStats(proj.subset,'mean')
+    proj.avg <- cellStats(proj.subset,'mean',na.rm=T)
     print('Proj')
 
     abs.anoms <- proj.avg - past.avg
     prc.anoms <- (proj.avg - past.avg)/past.avg*100
     rv <- c(past.avg,proj.avg,abs.anoms,prc.anoms)
     print(rv)
+
   return(rv)
 }
 
@@ -78,39 +81,44 @@ format.tables <- function(mon.vals,models,rd,var.name,region.title,rperiod) {
 
 ##*********************************************************************
 ##*********************************************************************
-make.tables <- function(var.list,model.list,
-                        ds.type,region,region.title,clip.shp,type,rperiod,scenario,
-                        proj.dir,read.dir,write.dir,pctl,
-                        past.int,proj.int) {
+
+make.rp.tables <- function(model.list,
+                        rperiod,ds.type,region,region.title,scenario,clip.shp,
+                        past.int,proj.int,
+                        read.dir,write.dir,pctl) {                        
+  var.list <- c('pr','tasmax','tasmin')
+  if (rperiod==50) {
+    var.list <- 'pr'
+  }
+
   ##Climate parameters
   for (var.name in var.list) {
     monthly.avgs <- lapply(model.list,compute.climate.values,ds.type=ds.type,
                            var.name=var.name,
-                           region=region,type=type,rperiod=rperiod,
+                           region=region,rperiod=rperiod,
                            past.int=past.int,proj.int=proj.int,
-                           read.dir=read.dir,proj.dir=proj.dir,
+                           read.dir=read.dir,write.dir=write.dir,
                            clip.shp=clip.shp)
 
-    my.writedir <- paste(write.dir,'tables/',region,'/',ds.type,'/',scenario,'/return_periods/',var.name,'/',sep='')
-    #print(my.writedir)
+    my.writedir <- paste(write.dir,'tables/return_periods/',var.name,'/',sep='')
     if (!file.exists(my.writedir))
       dir.create(my.writedir,recursive=TRUE)
 
     past.mon.vals <- lapply(monthly.avgs,function(x) {return(x[1])})
     past.table <- format.tables(past.mon.vals,model.list,2,var.name,region.title,rperiod)
-    write.table(past.table,file=paste(my.writedir,'past.',var.name,'.rp.',rperiod,'.',past.int,'.values.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+    write.table(past.table,file=paste(my.writedir,'past.',var.name,'.',scenario,'.rp.',rperiod,'.',past.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
 
     future.mon.vals <- lapply(monthly.avgs,function(x) {return(x[2])})    
     future.table <- format.tables(future.mon.vals,model.list,2,var.name,region.title,rperiod)
-    write.table(future.table,file=paste(my.writedir,'future.',var.name,'.rp.',rperiod,'.',proj.int,'.values.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+    write.table(future.table,file=paste(my.writedir,'future.',var.name,'.',scenario,'.rp.',rperiod,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
 
     abs.mon.vals <- lapply(monthly.avgs,function(x) {return(x[3])})    
     abs.table <- format.tables(abs.mon.vals,model.list,2,var.name,region.title,rperiod)
-    write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.name,'.rp.',rperiod,'.',proj.int,'.values.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+    write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.name,'.',scenario,'.rp.',rperiod,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
 
      prc.mon.vals <- lapply(monthly.avgs,function(x) {return(x[4])})    
      prc.table <- format.tables(prc.mon.vals,model.list,2,var.name,region.title,rperiod)
-     write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.name,'.rp.',rperiod,'.',proj.int,'.values.csv',sep=''),
+     write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.name,'.',scenario,'.rp.',rperiod,'.',proj.int,'.csv',sep=''),
                  sep=',',quote=F,col.name=FALSE,row.name=FALSE)
   }
 }

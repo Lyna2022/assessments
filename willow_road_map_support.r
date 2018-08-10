@@ -88,7 +88,6 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   ##First plot the entire rectangular region with lighter transparency
   image(box.data, col=colour.ramp,breaks=class.breaks,ribbon=FALSE,xlim=plot.window.xlim, ylim=plot.window.ylim, add=TRUE)   
 
-  pos <- get.region.text.loc(region)
 
   ##-------------------------------------------------------------------------------------------------
   ##Add the region overlays to plot

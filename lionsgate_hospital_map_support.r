@@ -17,13 +17,13 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
                         shared.range=NULL,shared.box=NULL,draft=TRUE) { ##width=1000,height=800) {
 
   wg.crs <- "+init=epsg:4326"
-
+  
   box.data <-projectRaster(box.data,crs=CRS("+init=epsg:4326"))
   bounds <- extent(box.data)
-  xlim.min <- -123.5 ##bounds@xmin
-  xlim.max <- -122.75 ##bounds@xmax
+  xlim.min <- -123.55 ##bounds@xmin
+  xlim.max <- -122.45 ##bounds@xmax
   ylim.min <- 48.98 ##bounds@ymin
-  ylim.max <- 49.6 ##bounds@ymax
+  ylim.max <- 49.725 ##bounds@ymax
 
   white.box <- box.data - box.data
   white.box[is.na(white.box)] <- 0
@@ -126,8 +126,6 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   ##First plot the entire rectangular region with lighter transparency
   image(box.data, col=colour.ramp,breaks=class.breaks,ribbon=FALSE,xlim=plot.window.xlim, ylim=plot.window.ylim, add=TRUE)   
 
-  pos <- get.region.text.loc(region)
-
   ##-------------------------------------------------------------------------------------------------
   ##Add the region overlays to plot
   
@@ -147,7 +145,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   plot(coast.shp,add=TRUE,col='lightgray')                
   plot(us.shp,add=TRUE,col='gray')
   plot(bc.shp,add=TRUE)
-  plot(region.shp,add=TRUE,lwd=4)
+  ##plot(region.shp,add=TRUE,lwd=4)
   plot(richmond.shp,add=TRUE,lwd=4)
   plot(vancity.shp,add=TRUE,lwd=4)
 
@@ -169,9 +167,10 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   ##------------------------------------------------------ 
 
   my.label.units <- leg.label.units(var.name,type)
-  
-  shadowtext(-123.0,49.26,'Vancouver',adj=4,pos=4,cex=1.85,col='black',bg='white',r=0.1)
-  shadowtext(-123.4,49.18,'Richmond',adj=4,pos=3,cex=1.85,col='black',bg='white',r=0.1)
+  print(var.name)
+  print(my.label.units)
+##  shadowtext(-123.0,49.24,'Vancouver',adj=4,pos=4,cex=1.85,col='black',bg='white',r=0.1)
+##  shadowtext(-123.37,49.15,'Richmond',adj=4,pos=3,cex=1.85,col='black',bg='white',r=0.1)
 
   points(-123.0678,49.3241,pch=18,cex=2.5,col='white')
   points(-123.0678,49.3241,pch=18,cex=2.0,col='black')
@@ -179,25 +178,30 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
 
   points(-123.1468,49.1689,pch=18,cex=2.5,col='white')
   points(-123.1468,49.1689,pch=18,cex=2.0,col='black')
-  shadowtext(-123.1468,49.1589,'Richmond\nHospital',adj=4,pos=1,cex=1.5,col='black',bg='white',r=0.1) 
+  shadowtext(-123.1128,49.1589,'Richmond\nHospital',adj=4,pos=1,cex=1.5,col='black',bg='white',r=0.1) 
 
-  points(-123.2455,49.2642,pch=18,cex=2.5,col='white')
-  points(-123.2455,49.2642,pch=18,cex=2.0,col='black')
-  shadowtext(-123.2455,49.2742,'UBC',adj=4,pos=2,cex=1.5,col='black',bg='white',r=0.1) 
+##  points(-123.2455,49.2642,pch=18,cex=2.5,col='white')
+##  points(-123.2455,49.2642,pch=18,cex=2.0,col='black')
+##  shadowtext(-123.2455,49.2742,'UBC',adj=4,pos=2,cex=1.5,col='black',bg='white',r=0.1) 
 
-  points(-123.1238,49.2618,pch=18,cex=2.5,col='white')
-  points(-123.1238,49.2618,pch=18,cex=2.0,col='black')
-  shadowtext(-123.1238,49.2618,'VGH',adj=4,pos=4,cex=1.5,col='black',bg='white',r=0.1) 
+##  points(-123.1238,49.2618,pch=18,cex=2.5,col='white')
+##  points(-123.1238,49.2618,pch=18,cex=2.0,col='black')
+##  shadowtext(-123.1238,49.2618,'VGH',adj=4,pos=4,cex=1.5,col='black',bg='white',r=0.1) 
 
-  points(-123.1214,49.2180,pch=18,cex=2.5,col='white')
-  points(-123.1214,49.2180,pch=18,cex=2.0,col='black')
-  shadowtext(-123.1214,49.2180,'GPC',adj=4,pos=4,cex=1.5,col='black',bg='white',r=0.1) 
+##  points(-123.1214,49.2180,pch=18,cex=2.5,col='white')
+##  points(-123.1214,49.2180,pch=18,cex=2.0,col='black')
+##  shadowtext(-123.1214,49.2180,'GPC',adj=4,pos=4,cex=1.5,col='black',bg='white',r=0.1) 
 
-  points(-123.1256,49.2474,pch=18,cex=2.5,col='white')
-  points(-123.1256,49.2474,pch=18,cex=2.0,col='black')
-  shadowtext(-123.1256,49.2374,'GFSC',adj=4,pos=4,cex=1.5,col='black',bg='white',r=0.1) 
+##  points(-123.1256,49.2474,pch=18,cex=2.5,col='white')
+##  points(-123.1256,49.2474,pch=18,cex=2.0,col='black')
+##  shadowtext(-123.1256,49.2374,'GFSC',adj=4,pos=4,cex=1.5,col='black',bg='white',r=0.1) 
 
+  points(-123.1617,49.6948,pch=18,cex=2.5,col='white')
+  points(-123.1617,49.6948,pch=18,cex=2.0,col='black')
+  shadowtext(-123.1617,49.6548,'Squamish\n Hospital',adj=4,pos=4,cex=1.5,col='black',bg='white',r=0.1) 
 
+##  lower.title <- gsub('\n','',plot.title)
+##  mtext(side=1,at=-123.0,line=5,lower.title,cex=0.8) 
 
   par(xpd=NA)
   legend(leg.loc, col = "black", legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),

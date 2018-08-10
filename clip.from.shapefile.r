@@ -85,7 +85,7 @@ gcm.netcdf.climatologies <- function(nc.fname,var.name,gcm.name,rcm.name,clip.sh
   clipped <- nc.grid[i,]
 
   coord.list <- clipped@data
-  contig <- find.continuous.columns(coord.list)
+  contig <- find.continuous.coords(coord.list)
   spatial.coords <- clipped@coords
   ts <- netcdf.calendar(nc)
 
@@ -124,7 +124,7 @@ gcm.netcdf.climatologies <- function(nc.fname,var.name,gcm.name,rcm.name,clip.sh
 
 ##This clips the netcdf file to the provided shapefile
 gcm.region.extract <- function(nc.fname,var.name,gcm.name,rcm.name,clip.shp) {
-
+print('In Region Clip')
   nc <- nc_open(nc.fname, readunlim=F)
 
   prj <- "+init=epsg:4326"
@@ -145,7 +145,7 @@ gcm.region.extract <- function(nc.fname,var.name,gcm.name,rcm.name,clip.shp) {
   lat.ix <- coord.list$yi
   ix.uni <- unique(lat.ix)
   lon.cols <- lapply(ix.uni,function(x) { return(lon.ix[lat.ix==x])})
-
+browser()
   rm(nc.grid)
   data <- NULL
   for (i in 1:length(ix.uni)){

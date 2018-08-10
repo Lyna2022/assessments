@@ -145,11 +145,11 @@ for(i in 1:length(args)){
     eval(parse(text=args[[i]]))
 }
 
-##gcm <- 'MIROC5'
-##run <- 'r3i1p1'
-##tmpdir <- '/local_temp/ssobie/extract/'
+###gcm <- 'MIROC5'
+###run <- 'r3i1p1'
+###tmpdir <- '/local_temp/ssobie/extract/'
 
-##data.dir <- '/storage/data/climate/downscale/CMIP5_delivery/bccaqv2_with_metadata/'
+##data.dir <- '/storage/data/climate/downscale/CMIP5_delivery/qdm_files/'
 meta.dir <- '/storage/data/climate/downscale/BCCAQ2/bccaqv2_with_metadata/'
 data.dir <- '/storage/data/climate/downscale/BCCAQ2/qdm_files/'
 
@@ -159,7 +159,7 @@ tmp.dir <- '/local_temp/ssobie/extract/'
 if (!file.exists(tmp.dir))
    dir.create(tmp.dir,recursive=TRUE)      
  
-var.list <- 'tasmax' ##c('tasmax','tasmin','pr')  ##c('pr','tasmax','tasmin') ##c('tasmax','tasmin','pr')
+var.list <- c('pr','tasmax','tasmin') ##c('tasmax','tasmin','pr')
 scenario <- 'rcp85'
 
 for (var.name in var.list) {
@@ -178,10 +178,10 @@ for (var.name in var.list) {
   if (!file.exists(hist.dir)) {
     dir.create(hist.dir,recursive=TRUE)      
   }
-  past <- extract.gcm(gcm,var.name,scenario,run,type='BCCAQ',
+  past <- extract.gcm(gcm,var.name,scenario,run,type='BCCAQ2',
                       lon.bnds,lat.bnds,interval='1951-2000',
                       meta.dir,data.file.read,hist.dir,tmp.dir)
-  proj <- extract.gcm(gcm,var.name,scenario,run,type='BCCAQ',
+  proj <- extract.gcm(gcm,var.name,scenario,run,type='BCCAQ2',
                       lon.bnds,lat.bnds,interval='2001-2100',
                       meta.dir,data.file.read,hist.dir,tmp.dir)
 
@@ -190,7 +190,7 @@ for (var.name in var.list) {
   if (!file.exists(base.dir)) {
     dir.create(base.dir,recursive=TRUE)      
   }
-  base <- extract.gcm(gcm,var.name,scenario='rcp85',run,type='BCCAQ',
+  base <- extract.gcm(gcm,var.name,scenario='rcp85',run,type='BCCAQ2',
                       lon.bnds,lat.bnds,interval='1981-2010',
                       meta.dir,data.file.read,base.dir,tmp.dir)
 

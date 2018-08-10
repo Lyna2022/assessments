@@ -176,7 +176,7 @@ get.color.ramp <- function(map.class.breaks, var.name, grey.zones, choose.ramp="
         grey <- "#CCCCCC"
         ramp.left.len <- left.len - 1
         ramp.right.len <- right.len
-        if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|pas)", var.name)){
+        if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|pas|r10|r20)", var.name)){
           ##rv <- c(dark.brown.to.light.brown(ramp.left.len), grey, light.blue.to.dark.blue(ramp.right.len))
           rv <- c(dark.brown.to.light.brown(ramp.left.len), grey, yellow.green.blue(ramp.right.len))
         } else if (grepl('(snowdepth|swe)',var.name)) {
@@ -185,7 +185,7 @@ get.color.ramp <- function(map.class.breaks, var.name, grey.zones, choose.ramp="
           rv <- c(dark.blue.to.light.blue(ramp.left.len), grey, yellow.to.dark.red(ramp.right.len))
         }
       } else {
-        if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|pas|snowdepth)", var.name)){
+        if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|pas|snowdepth|r10|r20)", var.name)){
           ##rv <- c(dark.brown.to.light.brown(ramp.left.len), light.blue.to.dark.blue(ramp.right.len))
           rv <- c(dark.brown.to.light.brown(ramp.left.len), yellow.green.blue(ramp.right.len))
         } else if (grepl('(snowdepth|swe)',var.name)) {
@@ -230,7 +230,7 @@ get.color.ramp <- function(map.class.breaks, var.name, grey.zones, choose.ramp="
         rv <- color.ramp.lookup[[choose.ramp]]$right(ramp.length)
       }
     } else {
-      if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|cwdE)", var.name)){
+      if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|cwdE|r10|r20)", var.name)){
         if (left.len==0)
           rv <- yellow.green.blue(ramp.length) ####light.blue.to.dark.blue(ramp.length)
         if (right.len==0)
@@ -285,9 +285,9 @@ get.legend.colourbar <- function(var.name,map.range,my.bp,class.breaks,type='cli
 
 leg.label.units <- function(var.name,type) {
   leg.label <- NA
-  if (grepl("(tas|txx|tnn|tmax|tmin)", var.name))
+  if (grepl("(tas|txx|tnn|txn|tnx|tmax|tmin)", var.name))
     leg.label <- '\u00B0C'
-  if (grepl("(pr|rx|r9|RP|rp)", var.name))
+  if (grepl("(pr|rx|r9|RP|rp|sdii)", var.name))
     leg.label <- 'mm'
   if (grepl("(pas|snowdepth)", var.name))
     leg.label <- 'm'
@@ -297,11 +297,10 @@ leg.label.units <- function(var.name,type) {
     leg.label <- '% change'
   if (type == 'increases')
     leg.label <- '# of Models'
-  if (grepl("(dd)", var.name))
+  if (grepl("dd", var.name))
     leg.label <- 'Degree days'
-  if (grepl("(fd|cdd|cwd|su|gsl|id|trE|s30)", var.name))
+  if (grepl("(fdE|cddE|cwd|su|gsl|id|trE|s30|r10|r20)", var.name))
     leg.label <- 'days'
-  
   return(leg.label)
 }   
 

@@ -8,8 +8,7 @@ library(rgeos)
 library(ncdf4)
 
 ##source('/storage/data/projects/rci/assessments/code/new.northeast.map.support.r',chdir=T)       
-source('/storage/data/projects/rci/assessments/code/resource.region.map.support.r',chdir=T)       
-##source('/storage/data/projects/rci/bcgov/moti/nrcan-precip_case_studies/code/moti.climdex.robjects.r',chdir=TRUE)
+source('/storage/home/ssobie/code/repos/assessments/resource.region.map.support.r',chdir=T)       
 
 ##-------------------------------------------------------------------------
 ##Plotting functions
@@ -141,30 +140,13 @@ get.region.shape <- function(region,shape.dir) {
   return(region.shp)
 }
 
-get.bounding.box <- function(region,shape.dir) {
+get.crop.box <- function(region) {
 
-  region.shp <- spTransform(get.region.shape(region,shape.dir),CRS("+init=epsg:4326"))
-  
-  ##  ##Bounding box data for rectangular region
-  xlim.min <- region.shp@bbox[1,1]
-  xlim.max <- region.shp@bbox[1,2]
-  ylim.min <- region.shp@bbox[2,1]
-  ylim.max <- region.shp@bbox[2,2]
-  
-  ##Set plot boundaries
-  xlim.adj <- (xlim.max - xlim.min) * 0.15 ##0.5 ##0.075
-  ylim.adj <- (ylim.max - ylim.min) * 0.15 ##0.25 ##0.075
-  plot.window.xlim <- c((xlim.min - xlim.adj), (xlim.max + xlim.adj))
-  plot.window.ylim <- c((ylim.min - ylim.adj), (ylim.max + ylim.adj))
-  e <- extent(c(plot.window.xlim,plot.window.ylim))
-  if (region=='van_coastal_health')
-    e <- extent(c(-125.2,-122.0,48.9,51.1))
-  if (region=='thompson') {
-    e <- extent(c(c((xlim.min - xlim.adj*5), (xlim.max + xlim.adj)),
-                  c((ylim.min - ylim.adj), (ylim.max + ylim.adj*5))))
-  }
-  box.extent <- e
-  return(box.extent)
+  rv <- switch(region,
+        van_coastal_health=extent(c(-125.0,-121.75),c(48.25,51.0)),
+        lionsgate_hospital=extent(c(-123.5,-122.75),c(48.25,49.6)),
+        willow_road=c())
+  return(rv)
 }
 
 get.shp.buffer <- function(region,shape.dir,proj) {
@@ -358,13 +340,15 @@ make.ensemble.plots <- function(past.box,proj.box,anoms.box,prct.box,
 
   }
 
+  box.extent <- get.crop.box(region)
+  past.crop <- crop(past.box,box.extent)
+  proj.crop <- crop(proj.box,box.extent)
 
+  region.range <- range(as.matrix(past.crop),na.rm=T)
+  box.range <-  range(as.matrix(past.crop),na.rm=T)
 
-  region.range <- range(as.matrix(past.box),na.rm=T)
-  box.range <-  range(as.matrix(past.box),na.rm=T)
-
-  shared.range <- range(range(as.matrix(past.box),na.rm=T),range(as.matrix(proj.box),na.rm=T))
-  shared.box <- range(range(as.matrix(past.box),na.rm=T),range(as.matrix(proj.box),na.rm=T))
+  shared.range <- range(range(as.matrix(past.crop),na.rm=T),range(as.matrix(proj.crop),na.rm=T))
+  shared.box <- range(range(as.matrix(past.crop),na.rm=T),range(as.matrix(proj.crop),na.rm=T))
 
 if(1==1) {
   reg.ds.maps(past.box,region,region.range,box.range,
@@ -374,8 +358,8 @@ if(1==1) {
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
 
   ##Future
-  region.range <- range(as.matrix(proj.box),na.rm=T)
-  box.range <-  range(as.matrix(proj.box),na.rm=T)
+  region.range <- range(as.matrix(proj.crop),na.rm=T)
+  box.range <-  range(as.matrix(proj.crop),na.rm=T)
 
   reg.ds.maps(proj.box,region,region.range,box.range,
               var.name,type,ds.type,region.shp,shp.buffer,
@@ -384,8 +368,8 @@ if(1==1) {
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
 }
 
-  region.range <- range(as.matrix(anoms.box),na.rm=T)
-  box.range <-  range(as.matrix(anoms.box),na.rm=T)
+  region.range <- range(as.matrix(crop(anoms.box,box.extent)),na.rm=T)
+  box.range <-  range(as.matrix(crop(anoms.box,box.extent)),na.rm=T)
 
 print(region.range)
 print(box.range)
@@ -397,8 +381,8 @@ print(box.range)
   if (grepl("(pr|snm|snd|prcptot|rx|r9|snowdepth)", var.name)) {
     ##Percent Change
 
-  region.range <- range(as.matrix(prct.box),na.rm=T)
-  box.range <-  range(as.matrix(prct.box),na.rm=T)
+  region.range <- range(as.matrix(crop(prct.box,box.extent)),na.rm=T)
+  box.range <-  range(as.matrix(crop(prct.box,box.extent)),na.rm=T)
 
     reg.ds.maps(prct.box,region,region.range,box.range,
                 var.name,type='percent',ds.type,region.shp,shp.buffer,
@@ -421,6 +405,7 @@ rcp26.list <- c('CanESM2',
                 'MPI-ESM-LR',
                 'MRI-CGCM3')
  
+
 gcm.list <- c('ACCESS1-0',
               'CanESM2',
               'CCSM4',
@@ -433,8 +418,6 @@ gcm.list <- c('ACCESS1-0',
               'MIROC5',
               'MPI-ESM-LR',
               'MRI-CGCM3')
-
-gcm.list <- c('CNRM-CM5','CanESM2','ACCESS1-0','inmcm4')
 
 
 seasonal.directories <- function(var.name,region,scenario,seas,time.dir,grep.name,meta) {
@@ -525,12 +508,12 @@ plot.single.seasonal <- function(region,scenario,proj.int,
   region.shp <- spTransform(get.region.shape(region,shape.dir),CRS("+init=epsg:4326")) ##Keep this projection to extract the data from lat/lon
 
   ##Bounding box data for rectangular region
-  box.extent <- get.bounding.box(region,shape.dir)
 
-  if (!file.exists(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_seasonal_past_ensemble_',past.int,'.RData',sep=''))) {
+  if (1==1) { ###!file.exists(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_seasonal_past_ensemble_',past.int,'.RData',sep=''))) {
 
 
     ##Prep for the ensemble files
+    print('Make new ensemble')
     past.box.ens <- c()
     proj.box.ens <- c()
     anoms.box.ens <- c()
@@ -542,6 +525,7 @@ plot.single.seasonal <- function(region,scenario,proj.int,
       clim.files <- list.files(path=paste0(read.dir,gcm),pattern=grep.name,full.name=TRUE)
       past.file <- clim.files[grep(past.int,clim.files)]
       proj.file <- clim.files[grep(proj.int,clim.files)]    
+      print(clim.files)
 
       past.box <- brick(past.file)
       print('Past box')
@@ -658,8 +642,6 @@ plot.return.periods <- function(region,scenario,proj.int,
 
   region.shp <- spTransform(get.region.shape(region,shape.dir),CRS("+init=epsg:4326")) ##Keep this projection to extract the data from lat/lon
 
-  ##Bounding box data for rectangular region
-  box.extent <- get.bounding.box(region,shape.dir)
   ##-------------------------------------------
   
   dirs <- return.period.directories(var.name,scenario,time.dir,region,meta)
@@ -669,7 +651,7 @@ plot.return.periods <- function(region,scenario,proj.int,
   if (!file.exists(plot.dir))
     dir.create(plot.dir,recursive=TRUE)
 
-  if (!file.exists(paste(read.dir,'data_files/',var.name,'_rp',rp,'_',region,'_return_periods_past_ensemble_',past.int,'.RData',sep=''))) {
+  if (1==1) { ##!file.exists(paste(read.dir,'data_files/',var.name,'_rp',rp,'_',region,'_return_periods_past_ensemble_',past.int,'.RData',sep=''))) {
   
     ##Ensemble files
     past.box.ens <- c()
@@ -750,7 +732,7 @@ climdex.directories <- function(var.name,scenario,time.dir,meta,draft) {
   read.dir <- paste('/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/assessment_subsets/',meta$subset,'/',scenario,'/climdex/',sep='')
   plot.dir <- paste('/storage/data/projects/rci/data/assessments/',meta$area,'/production/plots/climdex/',var.name,'/',sep='')
 
-  if (grepl('(ffd|dd|s30)',var.name) & !grepl('ETCCDI',var.name)) {
+  if (grepl('(ffd|dd)',var.name) & !grepl('ETCCDI',var.name)) {
     read.dir <- paste('/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/assessment_subsets/',meta$subset,'/',scenario,'/degree_days/',sep='')
     ##plot.dir <- paste('/storage/data/projects/rci/data/forestry/regional_summaries/region_maps/degree_days/',var.name,'/',sep='')
       plot.dir <- paste('/storage/data/projects/rci/data/assessments/',meta$area,'/production/plots/degree_days/',var.name,'/',sep='')
@@ -800,14 +782,12 @@ plot.climdex <- function(region,scenario,proj.int,
   leg.loc <- get.leg.loc(region)
   region.shp <- spTransform(get.region.shape(region,shape.dir),CRS("+init=epsg:4326"))
 
-  ##Bounding box data for rectangular region
-  box.extent <- get.bounding.box(region,shape.dir)
 
   box.function <- function(x,fac,fx) {
     return(tapply(x,fac,fx))
   }
 
-  if (!file.exists(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_climdex_past_ensemble_',past.int,'.RData',sep=''))) {
+  if (1==1) { ##!file.exists(paste(read.dir,'data_files/',var.name,'_',seas,'_',region,'_climdex_past_ensemble_',past.int,'.RData',sep=''))) {
  
     ##Prep for the ensemble files
     past.box.ens <- c()
@@ -818,6 +798,7 @@ plot.climdex <- function(region,scenario,proj.int,
       clim.files <- list.files(path=paste0(read.dir,gcm),pattern=paste('^',grep.name,sep=''),full.name=TRUE)
       past.file <- clim.files[grep(past.int,clim.files)]
       proj.file <- clim.files[grep(proj.int,clim.files)]
+      print(clim.files)
 
       ##Outer raster box
       past.box <- brick(past.file)
@@ -841,8 +822,6 @@ plot.climdex <- function(region,scenario,proj.int,
         past.seas.fac <- as.factor(format(past.seas.time,'%Y'))
         proj.seas.fac <- as.factor(format(proj.seas.time,'%Y'))
         
-        clim.seas.past <- t(apply(all.data[,past.subset],1,function(x,fac,fx){tapply(x,fac,fx)},past.seas.fac,seas.fx))
-        clim.seas.proj <- t(apply(all.data[,proj.subset],1,function(x,fac,fx){tapply(x,fac,fx)},proj.seas.fac,seas.fx))
         clim.past <- apply(clim.seas.past,1,mean,na.rm=TRUE)
         clim.proj <- apply(clim.seas.proj,1,mean,na.rm=TRUE)
         
@@ -916,25 +895,26 @@ plot.climdex <- function(region,scenario,proj.int,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region.list <- 'van_coastal_health' ##'lionsgate_hospital' ####c('cariboo','kootenay','northeast','omineca','skeena','south','thompson','west')
+region.list <- 'lionsgate_hospital' ##  ##c('cariboo','kootenay','northeast','omineca','skeena','south','thompson','west')
+source(paste0('/storage/home/ssobie/code/repos/assessments/lionsgate_hospital_map_support.r'),chdir=T)       
+
 scenario.list <- 'rcp85' ##c('rcp26','rcp45','rcp85')
 proj.intervals <- c('2041-2070') ##c('2011-2040','2041-2070','2071-2100')
 
-source(paste0('/storage/home/ssobie/code/repos/assessments/van_coastal_health_map_support.r'),chdir=T)       
 ##source(paste0('/storage/home/ssobie/code/repos/assessments/lionsgate_hospital_map_support.r'),chdir=T)       
 ##source(paste0('/storage/home/ssobie/code/repos/assessments/willow_road_map_support.r'),chdir=T)       
 
 ##Single Season
 run.season <- function() {
-  var.name <- 'tasmax' ##'snowdepth'
-  seas.list <-  c('Winter','Spring','Summer','Fall') ##'Winter' 
+  var.name <- 'tasmin' ##'snowdepth'
+  seas.list <-  'Annual' ##c('Winter','Spring','Summer','Fall') ##'Winter' 
                 ##c('January','February','March','April','May','June','July','August','September','October','November','December') ##
                 ###'January' ##c('Winter','Spring','Summer','Fall','Annual') ##'APRIL1' 
   ##
   for (region in region.list) {
     print(region)
     ##grep.name <- paste0(var.name,'_',region,'_seasonal_average_climatology') ##'snowdepth_seas'
-    grep.name <- paste0(var.name,'_van_coastal_health_seasonal_average_climatology') ##'snowdepth_seas'
+    grep.name <- paste0(var.name,'_van_coastal_health_annual_average_climatology') ##'snowdepth_seas'
     for (seas in seas.list) {
       print(seas)
       for (scenario in scenario.list) {
@@ -953,7 +933,7 @@ run.season <- function() {
 ##Return Periods
 run.return.periods <- function() {
   for (region in region.list) {
-    var.list <- c('tasmin')
+    var.list <- c('pr','tasmax','tasmin')
     for (var.name in var.list) {
       for (scenario in scenario.list) {
         for (proj.int in proj.intervals) {        
@@ -975,13 +955,12 @@ run.climdex <- function() {
   ##var.names <- c('r95pETCCDI','r99pETCCDI')
 ##'gslETCCDI',
 ##'cwdETCCDI',
-  var.names <- c('fdETCCDI','suETCCDI','su30ETCCDI','idETCCDI','trETCCDI','txxETCCDI','txnETCCDI',
-                 'tnnETCCDI','tnxETCCDI',
-                 'dtrETCCDI','rx1dayETCCDI','rx5dayETCCDI','sdiiETCCDI',                  
-                 'r10mmETCCDI','r20mmETCCDI','cddETCCDI','r95pETCCDI','r99pETCCDI',
-                 'prcptotETCCDI')
-##  var.names <- c('r95daysETCCDI','r99daysETCCDI')
-  var.names <- 'sdiiETCCDI'
+##  var.names <- c('fdETCCDI','suETCCDI','su30ETCCDI','idETCCDI','trETCCDI','txxETCCDI','txnETCCDI',
+##                 'tnnETCCDI','tnxETCCDI',
+##                 'gslETCCDI','dtrETCCDI','rx1dayETCCDI','rx5dayETCCDI','sdiiETCCDI',                  
+##                 'r10mmETCCDI','r20mmETCCDI','cwdETCCDI','cddETCCDI','r95pETCCDI','r99pETCCDI','sdiiETCCDI',
+##                 'prcptotETCCDI','r95daysETCCDI','r99daysETCCDI')
+  var.names <- c('suETCCDI','rx5dayETCCDI')
   seas.list <- c('Annual') ##,'Spring','Summer','Fall')
   for (region in region.list) {
     for (seas in seas.list) {

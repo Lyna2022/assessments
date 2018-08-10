@@ -3,14 +3,14 @@
 
 library(raster)
 library(ncdf4)
-library(rgdal)
 library(rgeos)
 library(PCICt)
-
+library(rgdal)
 
 ##-----------------------------------------------------------------------------------------------
 
 get.rounding.value <- function(var.name) {
+                   
   rd <- 1
   if (var.name=='pr')
     rd <- 0
@@ -19,7 +19,6 @@ get.rounding.value <- function(var.name) {
       
   return(rd)
 }
-
 
 get.variable.title <- function(var.name) {
   rv <- switch(var.name,
@@ -34,12 +33,11 @@ get.variable.title <- function(var.name) {
 ##Read in the regional time series
 compute.climate.values <- function(model,ds.type,
                                    var.name,
-                                   region,type,
-                                   read.dir,proj.dir,
+                                   region,
+                                   read.dir,
                                    clip.shp,
-                                   past.int,proj.int,
-                                   lonc,latc) {
-
+                                   past.int,proj.int) {
+                                   
 
   ##GCM and Regional averages grouping monthly and seasonal values - needs pre-computed seasonal and monthly files
     gcm <- model
@@ -47,7 +45,7 @@ compute.climate.values <- function(model,ds.type,
     seas.files <- list.files(path=paste(read.dir,'seasonal/',gcm,'/',sep=''),pattern=var.name,full.name=TRUE)
     mon.files <- list.files(path=paste(read.dir,'monthly/',gcm,'/',sep=''),pattern=var.name,full.name=TRUE)
     ann.files <- list.files(path=paste(read.dir,'annual/',gcm,'/',sep=''),pattern=var.name,full.name=TRUE)
-
+    ann.files <-  ann.files[grep('annual_average',ann.files)]
     ##-------------------------------------------------
     past.seas.file <- seas.files[grep(past.int,seas.files)]
     past.mon.file <- mon.files[grep(past.int,mon.files)]
@@ -102,14 +100,13 @@ compute.climate.values <- function(model,ds.type,
     prc.anoms <- (proj.values - past.values)/past.values*100    
   rv <- rbind(past.values,proj.values,abs.anoms,prc.anoms)
   print(rv)
-
   return(rv)
 }
 
 ##Correct the table formatting
 format.tables <- function(mon.vals,models,rd,pctl=FALSE,var.name,region.title) {
   vals.avg <- apply(mon.vals,2,mean,na.rm=T)
-  table.vals <- rbind(mon.vals,vals.avg)
+  table.vals <- rbind(mon.vals,vals.avg)       
   if (pctl) {
     vals.10 <- apply(mon.vals,2,quantile,0.1,na.rm=T)
     vals.50 <- apply(mon.vals,2,quantile,0.5,na.rm=T)
@@ -138,11 +135,13 @@ format.tables <- function(mon.vals,models,rd,pctl=FALSE,var.name,region.title) {
 ##*********************************************************************
 ##*********************************************************************
 
-make.tables <- function(var.list,model.list,
-                        ds.type,region,region.title,clip.shp,type,scenario,
-                        proj.dir,read.dir,write.dir,
-                        past.int,proj.int,pctl,lonc,latc) {
-  
+make.tables <- function(model.list,
+                        ds.type,region,region.title,scenario,clip.shp,
+                        past.int,proj.int,
+                        read.dir,write.dir,pctl) {
+
+
+  var.list <- c('pr','tasmax','tasmin')  
   ##Climate parameters
   for (var.name in var.list) {
     print('------------------------------')
@@ -150,10 +149,10 @@ make.tables <- function(var.list,model.list,
 
     monthly.avgs <- lapply(model.list,compute.climate.values,ds.type=ds.type,
                            var.name=var.name,
-                           region=region,type=type,
-                           read.dir=read.dir,proj.dir=proj.dir,
-                           clip.shp=clip.shp,past.int=past.int,proj.int=proj.int,
-                           lonc=lonc,latc=latc)
+                           region=region,
+                           read.dir=read.dir,
+                           clip.shp=clip.shp,past.int=past.int,proj.int=proj.int)
+                           
 
     rd <- get.rounding.value(var.name)    
     col.val <- switch(var.name,
@@ -163,31 +162,27 @@ make.tables <- function(var.list,model.list,
                       tas=17,
                       snowdepth=7)
     
-    my.writedir <- paste(write.dir,'tables/',region,'/',ds.type,'/',scenario,'/',var.name,'/',sep='')
-    
+    my.writedir <- paste(write.dir,'tables/',var.name,'/',sep='')
+
     if (!file.exists(my.writedir))
       dir.create(my.writedir,recursive=TRUE)
 
     past.mon.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {return(x[1,])})),nrow=length(monthly.avgs),ncol=col.val,byrow=TRUE)    
     past.table <- format.tables(past.mon.vals,model.list,rd,pctl,var.name,region.title)
-    write.table(past.table,file=paste(my.writedir,'past.',var.name,'.',past.int,'.values.csv',sep=''),sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
+    write.table(past.table,file=paste(my.writedir,'past.',var.name,'.',scenario,'.',past.int,'.csv',sep=''),sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
 
-    if (type != 'obs') {
       future.mon.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {return(x[2,])})),nrow=length(monthly.avgs),ncol=col.val,byrow=TRUE)
       future.table <- format.tables(future.mon.vals,model.list,rd,pctl,var.name,region.title)
-      write.table(future.table,file=paste(my.writedir,'future.',var.name,'.',proj.int,'.values.csv',sep=''),sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
+      write.table(future.table,file=paste(my.writedir,'future.',var.name,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
       
       abs.mon.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {return(x[3,])})),nrow=length(monthly.avgs),ncol=col.val,byrow=TRUE)
       abs.table <- format.tables(abs.mon.vals,model.list,rd,pctl,var.name,region.title)
-      write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.name,'.',proj.int,'.values.csv',sep=''),sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
+      write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.name,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
       
-##      if (var.name=='pr'|var.name=='snowdepth') {
-        prc.mon.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {return(x[4,])})),nrow=length(monthly.avgs),ncol=col.val,byrow=TRUE)
-        prc.table <- format.tables(prc.mon.vals,model.list,1,pctl,var.name,region.title)
-        write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.name,'.',proj.int,'.values.csv',sep=''),
-                    sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
-##      }
-    }
+      prc.mon.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {return(x[4,])})),nrow=length(monthly.avgs),ncol=col.val,byrow=TRUE)
+      prc.table <- format.tables(prc.mon.vals,model.list,1,pctl,var.name,region.title)
+      write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.name,'.',scenario,'.',proj.int,'.csv',sep=''),
+                  sep=',',quote=FALSE,col.name=FALSE,row.name=FALSE)
 
   }
 }

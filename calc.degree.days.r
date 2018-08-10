@@ -6,10 +6,9 @@ library(rgeos)
 library(PCICt)
 
 
-
 ##-----------------------------------------------------------------------------------------------
 
-dd.list <- c('cdd','hdd','gdd','fdd')
+
 
 get.degree.title <- function(var.name) {
 
@@ -27,14 +26,17 @@ get.degree.title <- function(var.name) {
 compute.degree.values <- function(model,ds.type,
                                   var.class,
                                   region,type,
-                                  read.dir,proj.dir,
+                                  read.dir,
                                   past.int,proj.int,
                                   clip.shp) {
   gcm <- model 
   var.name <- var.class 
   print(var.name)
-  file.dir <- paste(read.dir,model,sep='')
+  file.dir <- paste0(read.dir,'/degree_days/',model)
   base.files <- list.files(path=file.dir,pattern=paste('^',var.name,sep=''),full.names=TRUE)
+  print(var.name)
+  print(file.dir)
+  print(base.files)
   past.file <- base.files[grep(past.int,base.files)]
   proj.file <- base.files[grep(proj.int,base.files)]
 
@@ -77,39 +79,41 @@ format.dd.tables <- function(mon.vals,models,pctl=FALSE,var.name,region.title) {
   return(new.table)
 }
 
-make.dd.tables <- function(model.list,ds.type,region,region.title,scenario,clip.shp,
+make.dd.tables <- function(model.list,
+                        ds.type,region,region.title,scenario,clip.shp,
                         past.int,proj.int,
-                        proj.dir,read.dir,pctl) {
+                        read.dir,write.dir,pctl) {
   
-  ##Climdex parameters
+  ##Degree Day parameters
+  dd.list <- c('cdd','hdd','gdd','fdd')
   for (var.name in dd.list) {    
     var.class <- strsplit(var.name,'_')[[1]][1]
-    my.writedir <- paste(proj.dir,'tables/',region,'/',ds.type,'/',scenario,'/degree_days/',var.class,'/',sep='')
+    my.writedir <- paste0(write.dir,'tables/degree_days/',var.class,'/')
     if (!file.exists(my.writedir))
       dir.create(my.writedir,recursive=TRUE)
     
     annual.avgs <- lapply(model.list,compute.degree.values,ds.type,
                           var.class,
                           region,type,
-                          read.dir,proj.dir,
+                          read.dir,
                           past.int,proj.int,
                           clip.shp)
-                             
+
     past.yr.vals <- matrix(unlist(lapply(annual.avgs,function(x) {return(x[1])})),nrow=length(annual.avgs),ncol=1,byrow=TRUE)
     past.table <- format.dd.tables(past.yr.vals,model.list,pctl,var.name,region.title)
-    write.table(past.table,file=paste(my.writedir,'past.',var.class,'.',past.int,'.values.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+    write.table(past.table,file=paste(my.writedir,'past.',var.class,'.',scenario,'.',past.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
     
     future.yr.vals <- matrix(unlist(lapply(annual.avgs,function(x) {return(x[2])})),nrow=length(annual.avgs),ncol=1,byrow=TRUE)                   
     future.table <- format.dd.tables(future.yr.vals,model.list,pctl,var.name,region.title)
-    write.table(future.table,file=paste(my.writedir,'future.',var.class,'.',proj.int,'.values.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+    write.table(future.table,file=paste(my.writedir,'future.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
     
     abs.yr.vals <- matrix(unlist(lapply(annual.avgs,function(x) {return(x[3])})),nrow=length(annual.avgs),ncol=1,byrow=TRUE)  
     abs.table <- format.dd.tables(abs.yr.vals,model.list,pctl,var.name,region.title)
-    write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.class,'.',proj.int,'.values.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+    write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
     
     prc.yr.vals <- matrix(unlist(lapply(annual.avgs,function(x) {return(x[4])})),nrow=length(annual.avgs),ncol=1,byrow=TRUE)                     
     prc.table <- format.dd.tables(prc.yr.vals,model.list,pctl,var.name,region.title)
-    write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.class,'.',proj.int,'.values.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)      
+    write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)      
   }##var.list loop
 }##make.tables function
 

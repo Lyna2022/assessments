@@ -19,6 +19,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   wg.crs <- "+init=epsg:4326"
 
   box.data <-projectRaster(box.data,crs=CRS("+init=epsg:4326"))
+
   bounds <- extent(box.data)
   xlim.min <- bounds@xmin
   xlim.max <- bounds@xmax
@@ -36,6 +37,9 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   plot.window.xlim <- c((xlim.min + xlim.adj*1), (xlim.max - xlim.adj*1))
   plot.window.ylim <- c((ylim.min - ylim.adj), (ylim.max + ylim.adj))
   plot.window.ylim <- c((ylim.min + ylim.adj*1), (ylim.max - ylim.adj*1))
+
+  plot.window.xlim <- c(-125.0,-121.75)
+  plot.window.ylim <- c(48.25,51.0)
 
   e <- extent(c(plot.window.xlim,plot.window.ylim))
 
@@ -101,6 +105,8 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
     }
   }
 
+##  class.breaks <- c(-20,0,10,20,30,40,50)
+  map.class.breaks.labels <- get.class.break.labels(class.breaks,lesser.sign=TRUE)
   colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
                                       my.bp=0,class.breaks=class.breaks,
                                       type)        
@@ -125,8 +131,6 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   
   ##First plot the entire rectangular region with lighter transparency
   image(box.data, col=colour.ramp,breaks=class.breaks,ribbon=FALSE,xlim=plot.window.xlim, ylim=plot.window.ylim, add=TRUE)   
-
-  pos <- get.region.text.loc(region)
 
   ##-------------------------------------------------------------------------------------------------
   ##Add the region overlays to plot
@@ -205,6 +209,9 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   points(-123.7545,49.4742,pch=18,cex=2.4,col='white')
   points(-123.7545,49.4742,pch=18,cex=1.6,col='black')
   shadowtext(-123.7545,49.40,'Sechelt',adj=4,pos=2,cex=1.25,col='black',bg='white',r=0.1) 
+
+##  lower.title <- gsub('\n','',plot.title)
+##  mtext(side=1,at=-123.0,line=5,lower.title,cex=0.8)
 
   par(xpd=NA)
   legend(leg.loc, col = "black", legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),
