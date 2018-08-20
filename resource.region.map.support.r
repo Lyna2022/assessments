@@ -301,6 +301,8 @@ leg.label.units <- function(var.name,type) {
     leg.label <- 'Degree days'
   if (grepl("(fdE|cddE|cwd|su|gsl|id|trE|s30|r10|r20)", var.name))
     leg.label <- 'days'
+  if (grepl("(wspd)", var.name))
+    leg.label <- 'm/s'
   return(leg.label)
 }   
 

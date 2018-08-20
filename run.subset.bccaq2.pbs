@@ -1,14 +1,14 @@
 #!/bin/bash 
-#PBS -l nodes=1:ppn=1
+#PBS -l nodes=1:ppn=2
 #PBS -l pmem=8000mb                                                                                                                       
 #PBS -l walltime=48:00:00                                                                                                                 
 #PBS -d /storage/home/ssobie/code/repos/assessments/                                                                                      
-#PBS -o /storage/home/ssobie/code/repos/assessments/sub.mir.stdout.log 
-#PBS -e /storage/home/ssobie/code/repos/assessments/sub.mir.stderr.log                                                                    
-#PBS -N sub_mir
+#PBS -o /storage/home/ssobie/code/repos/assessments/sub.inm.stdout.log 
+#PBS -e /storage/home/ssobie/code/repos/assessments/sub.inm.stderr.log
+#PBS -N sub_inm
 
-gcm='MIROC5'
-run='r3i1p1'
+gcm='inmcm4'
+run='r1i1p1'
 
 cd /storage/home/ssobie/code/repos/assessments/
 echo "Current working directory is `pwd`"

@@ -8,9 +8,11 @@ library(rgeos)
 library(ncdf4)
 
 source('/storage/home/ssobie/code/repos/assessments/resource.region.map.support.r',chdir=T)       
+source('/storage/home/ssobie/code/repos/assessments/bc_albers_map_support.r',chdir=T)
 
 ##-------------------------------------------------------------------------
 ##Plotting functions
+
 get.region.title <- function(region) {
   rv <- switch(region,
                skeena='Skeena',
@@ -230,7 +232,7 @@ if(1==1) {
               past.plot.file,past.plot.title,coords=NULL,proj=proj,
               overlays=overlays,leg.loc=leg.loc,
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
-
+  browser()
   ##Future
   region.range <- range(as.matrix(proj.crop),na.rm=T)
   box.range <-  range(as.matrix(proj.crop),na.rm=T)
@@ -558,8 +560,8 @@ plot.climdex <- function(region,scenario,proj.int,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region <- 'northeast'
-readloc <- 'northeast'
+region <- 'kootenays'
+readloc <- 'kootenays'
 
 source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
 scenario <- 'rcp85'
