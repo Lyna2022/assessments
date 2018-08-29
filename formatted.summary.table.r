@@ -322,8 +322,8 @@ create.title.panes <- function(wb,var.name,start.row) {
 ##
 ##*******************************************************************
 
-
-reg.list <- list(c('north_rockies_muni','northeast/north_rockies_muni'))
+##(region,readloc)
+reg.list <- list(c('central','agriculture/central'))
 
 
 table.vars <- list(c('pr','seasonal','PR'),
@@ -374,6 +374,8 @@ row.locs <- find.row.locations(sorted.vars)
 
 ##------------------------------------------------------------------------
 
+
+
 for (i in seq_along(reg.list)) {
   region.info <- reg.list[[i]]
   region <- region.info[1]
@@ -391,6 +393,8 @@ for (i in seq_along(reg.list)) {
   create.title.panes(wb,var.name='tas',start.row=row.locs$tas[[1]][1])
   write.variables(wb,sorted.vars$tas,row.locs$tas,'tas')
   freezePane(wb,sheet=1,firstCol=TRUE,firstRow=TRUE)
-  saveWorkbook(wb, paste0('/storage/home/ssobie/general/assessment_tables/',region,'_variable_table_rcp85.xlsx'), overwrite = TRUE)
+  ##saveWorkbook(wb, paste0('/storage/home/ssobie/general/assessment_tables/',region,'_variable_table_rcp85.xlsx'), overwrite = TRUE)
+  saveWorkbook(wb, paste0('/storage/data/projects/rci/data/assessments/',readloc,'/tables/',region,'_variable_table_rcp85.xlsx'), overwrite = TRUE)
+
 }
 

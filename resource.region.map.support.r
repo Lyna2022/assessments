@@ -64,10 +64,10 @@ get.class.breaks <- function(var.name,type,map.range, manual.breaks=""){
         class.rv <- ceiling(class.width/0.1)*0.1
         class.rv <- max(c(0.1,class.rv))        
       }
-      #if (class.width < 0.1) {
-      #  class.rv <- ceiling(class.width/0.01)*0.01
-      #  class.rv <- max(c(0.01,class.rv))
-      #}
+      if (class.width < 0.251) {
+        class.rv <- ceiling(class.width/0.05)*0.05
+        class.rv <- max(c(0.05,class.rv))
+      }
       
       if (class.width >= 5) {
         class.rv <- round(class.width/5)*5
@@ -285,7 +285,7 @@ get.legend.colourbar <- function(var.name,map.range,my.bp,class.breaks,type='cli
 
 leg.label.units <- function(var.name,type) {
   leg.label <- NA
-  if (grepl("(tas|txx|tnn|txn|tnx|tmax|tmin)", var.name))
+  if (grepl("(tas|txx|tnn|txn|tnx|tmax|tmin|t2m)", var.name))
     leg.label <- '\u00B0C'
   if (grepl("(pr|rx|r9|RP|rp|sdii)", var.name))
     leg.label <- 'mm'
@@ -302,7 +302,9 @@ leg.label.units <- function(var.name,type) {
   if (grepl("(fdE|cddE|cwd|su|gsl|id|trE|s30|r10|r20)", var.name))
     leg.label <- 'days'
   if (grepl("(wspd)", var.name))
-    leg.label <- 'm/s'
+    leg.label <- 'km/h'
+  if (grepl("(insol)", var.name))
+    leg.label <- 'W m-2'
   return(leg.label)
 }   
 

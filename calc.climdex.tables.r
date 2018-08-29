@@ -130,7 +130,7 @@ compute.climdex.values <- function(model,ds.type,
   ##For Annual Files
   base.files <- list.files(path=file.dir,pattern=paste('^',var.name,sep=''),full.names=TRUE)
   ann.files <- base.files[grep('annual',base.files)]
-  print(base.files)  
+  ##print(base.files)  
   past.ann.file <- ann.files[grep(past.int,ann.files)]
   proj.ann.file <- ann.files[grep(proj.int,ann.files)]
 
@@ -214,13 +214,19 @@ make.climdex.tables <- function(model.list,ds.type,region,region.title,scenario,
                      'rx1dayETCCDI','rx2dayETCCDI','rx5dayETCCDI')
 
 
-  climdex.list <- c('idETCCDI','trETCCDI','fdETCCDI',
-                    'txxETCCDI','tnxETCCDI','txnETCCDI','tnnETCCDI','dtrETCCDI',
-                    'rx1dayETCCDI','rx2dayETCCDI','rx5dayETCCDI',
+###  climdex.list <- c('idETCCDI','trETCCDI','fdETCCDI',
+###                     'txxETCCDI','tnxETCCDI','txnETCCDI','tnnETCCDI','dtrETCCDI',
+###                    'rx1dayETCCDI','rx2dayETCCDI','rx5dayETCCDI',
+###                    'suETCCDI','su30ETCCDI','gslETCCDI',
+###                    'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI','cddETCCDI','cwdETCCDI',
+###                    'r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI',
+###                    'prcptotETCCDI')
+  climdex.list <- c('rx2dayETCCDI','rx5dayETCCDI',
                     'suETCCDI','su30ETCCDI','gslETCCDI',
                     'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI','cddETCCDI','cwdETCCDI',
                     'r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI',
                     'prcptotETCCDI')
+
   rvfx <- function(x,ix,seas.flag) {
      if (seas.flag) {
        return(x[ix,])

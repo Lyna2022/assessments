@@ -6,7 +6,7 @@ library(graticule)
 ##------------------------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------------------------
 
-convert.to.alb.coords <- function(lon,lat,alb.crs=CRS("+init=epsg:3005")) {
+convert.to.alb.coords <- function(lon,lat,alb.crs="+init=epsg:3005") {
  
   d <- data.frame(lon=lon,lat=lat)
   coordinates(d) <- c('lon','lat')
@@ -16,10 +16,8 @@ convert.to.alb.coords <- function(lon,lat,alb.crs=CRS("+init=epsg:3005")) {
   return(rv)
 }
 
-
-
 reg.ds.maps <- function(box.data,region,region.range,box.range,
-                        var.name,type,ds.type,region.shp,shp.buffer,
+                        var.name,type,ds.type,region.shp,
                         plot.file,plot.title,
                         make.plot.window=NULL,
                         set.breaks=NULL,
@@ -27,7 +25,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
                         add.cities=NULL,
                         add.districts=NULL,
                         add.graticules=NULL,
-                        leg.loc='topright',width=800,height=800,                        
+                        leg.loc='topright',width=1200,height=1000,                        
                         shared.range=NULL,shared.box=NULL,draft=TRUE) { 
 
   alb.crs <- "+init=epsg:3005"
@@ -107,22 +105,33 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
                                       type)        
 
   map.class.breaks.labels <- rev(map.class.breaks.labels)
-  class.breaks <- rev(class.breaks)
+  class.breaks <- class.breaks
   colour.ramp < rev(colour.ramp)
 
-  grats <- add.gratucules(alb.crs)
-
+  grats <- add.graticules(alb.crs)
+  file.type <- get.file.type(region)
+  plot.size <- get.plot.size(region)
+  width <- plot.size[1]
+  height <- plot.size[2]
   ##------------------------------------------------------------------------------------------------
 
   ##Set up plot image
-  png(file=plot.file,width=width,height=height,bg='gray94')
-  par(mar=c(6,6,7,6))    
+  if (grepl('pdf',file.type)) {
+    pdf(file=plot.file,width=8,height=7,pointsize=6,bg='gray98')
+  }
+  if (grepl('tiff',file.type)) {
+    tiff(file=plot.file,width=15,height=15,units='cm',res=150,bg='gray98')
+  } 
+  if (grepl('png',file.type)) {
+    png(file=plot.file,width=width,height=height,bg='gray98')
+  }
+  par(mar=c(4.5,4.75,5.2,4))    
   plot(c(),xlim=plot.window$xlim,ylim=plot.window$ylim,xaxs='i',yaxs='i',
      bg='lightgray',axes=FALSE,
        xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main=plot.title,
-       cex.axis=2,cex.lab=2,cex.main=2.1)
-  axis(1,at=unclass(grats$labs@coords)[1:7,1],label=grats$lons,cex.axis=2)  
-  axis(2,at=unclass(grats$labs@coords)[8:14,2],label=grats$lats,cex.axis=2)  
+       cex.axis=1.75,cex.lab=1.75,cex.main=1.75)
+  axis(1,at=unclass(grats$labs@coords)[1:7,1],label=grats$lons,cex.axis=1.75)  
+  axis(2,at=unclass(grats$labs@coords)[8:14,2],label=grats$lats,cex.axis=1.75)  
 
   rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col='lightgray')
   
@@ -151,10 +160,10 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
 ##plot(spTransform(rivers.shp,CRS(alb.crs)),add=TRUE,col='lightblue')
 
   ##Plot additional overlays if necessay
-  add.plot.overlays(crs)
+  add.plot.overlays(alb.crs)
 
   ##Add the lon/lat lines
-  plot(grats$grat,add=TRUE,lty=3,col='gray')
+  plot(grats$grat,add=TRUE,lty=3,col='gray',lwd=2)
 
   if (draft) {
     text(x = grconvertX(0.5, from = "npc"),  # align to center of plot X axis
@@ -170,12 +179,12 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   my.label.units <- leg.label.units(var.name,type)
 
   ##Functions to add city and regional district lines
-  add.cities(crs)
-  add.districts(crs)
+  add.cities(alb.crs)
+  add.districts(alb.crs)
 
   par(xpd=NA)
   legend(leg.loc, col = "black", legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),
-         pt.cex=2.0, y.intersp=0.8, title.adj=0.2, title=my.label.units, xjust=0, cex=1.7)
+         pt.cex=1.95, y.intersp=0.8, title.adj=0.2, title=my.label.units, xjust=0, cex=1.95)
 
   box(which='plot',lwd=3)
 

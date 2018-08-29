@@ -11,60 +11,6 @@ source('/storage/home/ssobie/code/repos/assessments/resource.region.map.support.
 source('/storage/home/ssobie/code/repos/assessments/bc_albers_map_support.r',chdir=T)
 
 ##-------------------------------------------------------------------------
-##Plotting functions
-
-get.region.title <- function(region) {
-  rv <- switch(region,
-               skeena='Skeena',
-               northeast='Northeast',
-               kootenay='Kootenay-Boundary',
-               omineca='Omineca',
-               west='West Coast',
-               cariboo='Cariboo',
-               thompson='Thompson-Okanagan',
-               south='South Coast',
-               van_coastal_health='Vancouver Coastal Health',
-               lionsgate_hospital='Vancouver Coastal Health',
-               willow_road='Willow Forestry Road',
-               bella_health='Bella Bella Health')
-  return(rv)
-}
-
-get.region.names <- function(region) {
- rv <- switch(region,
-              metro_van=list(area='metro_van',subset='van_whistler',region='metro_van'),
-              metro_van_fraser_valley=list(area='metro_van',subset='van_whistler',region='metro_van_fraser_valley'),
-              metro_van_lower_fraser=list(area='metro_van',subset='van_whistler',region='metro_van_lower_fraser'),
-              van_city=list(area='metro_van',subset='van_whistler',region='van_city'),
-              north_van=list(area='metro_van',subset='van_whistler',region='north_van'),
-              WhistlerLU_WGS84=list(area='whistler',subset='van_whistler',region='WhistlerLU_WGS84'),
-              okanagan=list(area='okanagan',subset='okanagan',region='okanagan'),
-              nanaimo=list(area='nanaimo',subset='nanaimo',region='nanaimo'),
-              van_coastal_health=list(area='van_coastal_health/van_coastal_health',subset='van_coastal_health',region='van_coastal_health'),
-              bella_health=list(area='van_coastal_health/bella_health',subset='bella_health',region='bella_health'),
-              lionsgate_hospital=list(area='van_coastal_health/lionsgate_hospital',subset='van_coastal_health',region='lionsgate_hospital'),
-              willow_road=list(area='willow_road',subset='willow_road',region='willow_road'),
-              northeast=list(area='northeast',subset='northeast',region='northeast'))
-  return(rv)
-}
-
-get.leg.loc <- function(region) {
-
-  rv <- switch(region,
-               skeena='bottomleft',
-               northeast='bottomleft',
-               kootenay='topright',
-               omineca='topright',
-               west='bottomleft',
-               cariboo='bottomright',
-               thompson='topleft',
-               south='topright',
-               van_coastal_health='bottomright',
-               lionsgate_hospital='bottomleft',
-               willow_road='topright',
-               bella_health='topright')
-  return(rv)
-}
 
 get.var.title <- function(var.name,rp=NULL) {
 
@@ -139,16 +85,6 @@ get.region.shape <- function(region,shape.dir) {
   return(region.shp)
 }
 
-get.crop.box <- function(region) {
-
-  rv <- switch(region,
-        van_coastal_health=extent(c(-125.0,-121.75),c(48.25,51.0)),
-        lionsgate_hospital=extent(c(-123.55,-122.45),c(48.25,49.725)),
-        willow_road=c(c(-122.90,-121.50),c(53.1,54.1)),
-        northeast=c(c(-128.8,-120.0),c(54.04,60.00)))
-  return(rv)
-}
-
 get.shp.buffer <- function(region,shape.dir,proj) {
 
   ##Lat Lon - "+init=epsg:4326"
@@ -179,16 +115,18 @@ make.ensemble.plots <- function(past.box,proj.box,anoms.box,prct.box,
 
   var.title <- get.var.title(var.name)                            
   leg.loc <- get.leg.loc(region)                              
+  file.type <- get.file.type(region)
+
                               
   ##Individual models
   if (!is.null(seas)) {
-    past.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.',past.int,'.png',sep='')
+    past.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.',past.int,file.type,sep='')
     past.plot.title <- paste(get.region.title(region),' \n', seas,' ',var.title,' Past \n CMIP5 Ensemble ',toupper(scenario),' (',past.int,')',sep='')
-    proj.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.',proj.int,'.png',sep='')
+    proj.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.',proj.int,file.type,sep='')
     proj.plot.title <- paste(get.region.title(region),' \n', seas,' ',var.title,' Projections \n CMIP5 Ensemble ',toupper(scenario),' (',proj.int,')',sep='')
-    anoms.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.abs.anoms.',past.int,'.',proj.int,'.png',sep='')
+    anoms.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.abs.anoms.',past.int,'.',proj.int,file.type,sep='')
     anoms.plot.title <- paste(get.region.title(region),' \n', seas,' ',var.title,' Anomalies \n CMIP5 Ensemble ',toupper(scenario),' (',proj.int,')',sep='')
-    prct.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.prc.anoms.',past.int,'.',proj.int,'.png',sep='')
+    prct.plot.file <- paste(plot.dir,region,'.',var.name,'.',ds.type,'.ensemble.',scenario,'.',seas,'.prc.anoms.',past.int,'.',proj.int,file.type,sep='')
     prct.plot.title <- paste(get.region.title(region),' \n', seas,' ',var.title,' Percent Change \n CMIP5 Ensemble ',toupper(scenario),' (',proj.int,')',sep='')
   }
   ##Return Periods
@@ -221,49 +159,59 @@ make.ensemble.plots <- function(past.box,proj.box,anoms.box,prct.box,
   proj.crop <- crop(proj.box,box.extent)
 
   region.range <- range(as.matrix(past.crop),na.rm=T)
-  box.range <-  range(as.matrix(past.crop),na.rm=T)
+  box.range <-  range(as.matrix(past.box),na.rm=T)
 
   shared.range <- range(range(as.matrix(past.crop),na.rm=T),range(as.matrix(proj.crop),na.rm=T))
-  shared.box <- range(range(as.matrix(past.crop),na.rm=T),range(as.matrix(proj.crop),na.rm=T))
+  shared.box <- range(range(as.matrix(past.box),na.rm=T),range(as.matrix(proj.box),na.rm=T))
 
 if(1==1) {
   reg.ds.maps(past.box,region,region.range,box.range,
-              var.name,type='past',ds.type,region.shp,shp.buffer,
-              past.plot.file,past.plot.title,coords=NULL,proj=proj,
-              overlays=overlays,leg.loc=leg.loc,
+              var.name,type='past',ds.type,region.shp,
+              past.plot.file,past.plot.title,
+              add.overlays=add.overlays,
+              add.cities=add.cities,add.districts=add.districts,
+              add.graticules=add.graticules,leg.loc=leg.loc,
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
-  browser()
+##browser()
   ##Future
   region.range <- range(as.matrix(proj.crop),na.rm=T)
-  box.range <-  range(as.matrix(proj.crop),na.rm=T)
+  box.range <-  range(as.matrix(proj.box),na.rm=T)
 
   reg.ds.maps(proj.box,region,region.range,box.range,
-              var.name,type='proj',ds.type,region.shp,shp.buffer,
-              proj.plot.file,proj.plot.title,coords=NULL,proj=proj,
-              overlays=overlays,leg.loc=leg.loc,
+              var.name,type='proj',ds.type,region.shp,
+              proj.plot.file,proj.plot.title,
+              add.overlays=add.overlays,
+              add.cities=add.cities,add.districts=add.districts,
+              add.graticules=add.graticules,leg.loc=leg.loc,
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
 }
 
   region.range <- range(as.matrix(crop(anoms.box,box.extent)),na.rm=T)
-  box.range <-  range(as.matrix(crop(anoms.box,box.extent)),na.rm=T)
+  box.range <-  range(as.matrix(anoms.box),na.rm=T)
 
 print(region.range)
 print(box.range)
   reg.ds.maps(anoms.box,region,region.range,box.range,
-              var.name,type='anomaly',ds.type,region.shp,shp.buffer,
-              anoms.plot.file,anoms.plot.title,coords=NULL,proj=proj,
-              overlays=overlays,leg.loc=leg.loc,draft=FALSE)
+              var.name,type='anomaly',ds.type,region.shp,
+              anoms.plot.file,anoms.plot.title,
+              add.overlays=add.overlays,
+              add.cities=add.cities,add.districts=add.districts,
+              add.graticules=add.graticules,leg.loc=leg.loc,
+              draft=FALSE)
 
   if (grepl("(pr|snm|snd|prcptot|rx|r9|snowdepth)", var.name)) {
     ##Percent Change
 
   region.range <- range(as.matrix(crop(prct.box,box.extent)),na.rm=T)
-  box.range <-  range(as.matrix(crop(prct.box,box.extent)),na.rm=T)
+  box.range <-  range(as.matrix(prct.box),na.rm=T)
 
     reg.ds.maps(prct.box,region,region.range,box.range,
-                var.name,type='percent',ds.type,region.shp,shp.buffer,
-                prct.plot.file,prct.plot.title,coords=NULL,proj=proj,
-                overlays=overlays,leg.loc=leg.loc,draft=FALSE)
+                var.name,type='percent',ds.type,region.shp,
+                prct.plot.file,prct.plot.title,
+                add.overlays=add.overlays,
+                add.cities=add.cities,add.districts=add.districts,
+                add.graticules=add.graticules,leg.loc=leg.loc,
+                draft=FALSE)
    }
 
 }##Ensemble plot function
@@ -560,8 +508,8 @@ plot.climdex <- function(region,scenario,proj.int,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region <- 'kootenays'
-readloc <- 'kootenays'
+region <- 'peace_ecoregion'
+readloc <- 'northeast'
 
 source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
 scenario <- 'rcp85'
@@ -582,7 +530,7 @@ run.season <- function(region) {
                              var.name,grep.name,'Annual')
      }
   }
-
+browser()
   ##Seasonal
   ##c('January','February','March','April','May','June','July','August','September','October','November','December') ##
   seas.list <-  c('Winter','Spring','Summer','Fall')
@@ -602,12 +550,12 @@ run.season <- function(region) {
 
 ##Return Periods
 run.return.periods <- function(region) {
-  var.list <- c('pr') ##,'tasmax','tasmin')
+  var.list <- c('pr','tasmax','tasmin')
   for (var.name in var.list) {
      for (proj.int in proj.intervals) {        
        print(region)
        plot.return.periods(region,scenario,proj.int,
-                           var.name,rp='50')
+                           var.name,rp='20')
      }
   }
 }
@@ -621,7 +569,7 @@ run.climdex <- function(region) {
                  'rx1dayETCCDI','rx5dayETCCDI',
                  'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI','cwdETCCDI','cddETCCDI','prcptotETCCDI',
                  'r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI')
-   var.names <- c('tnnETCCDI','tnxETCCDI','txnETCCDI')
+   ##var.names <- c('tnnETCCDI','tnxETCCDI','txnETCCDI')
    for (var.name in var.names) {
       for (proj.int in proj.intervals) {                
          plot.climdex(region,scenario,proj.int,
