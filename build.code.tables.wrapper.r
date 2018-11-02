@@ -19,7 +19,7 @@ past.int <- '1971-2000'
 proj.list <- c('2011-2040','2041-2070','2071-2100')
 pctl <- TRUE ##Controls whether the percentiles (10,50,90) are added to the ensemble
 
-shape.dir <- paste0('/storage/data/projects/rci/data/assessments/shapefiles/',region,'/')
+shape.dir <- paste0('/storage/data/projects/rci/data/assessments/shapefiles/',readloc,'/')
 read.dir <- paste0('/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/assessment_subsets/',readloc,'/',scenario,'/')
 write.dir <-  paste0('/storage/data/projects/rci/data/assessments/',writeloc,'/')
 

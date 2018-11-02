@@ -2,16 +2,16 @@
 
 source('/storage/home/ssobie/code/repos/assessments/calc.climdex.tables.r',chdir=TRUE)
 ##-----------------------------------------------------------------------------------------------
-
+if (1==1) {
 args <- commandArgs(trailingOnly=TRUE)
 for(i in 1:length(args)){
     eval(parse(text=args[[i]]))
 }
-
-##region <- 'lionsgate_site'
-##title <- "LionsgateSite"
-##readloc <- 'van_coastal_health'
-##writeloc <- 'van_coastal_health/lionsgate_site'
+}
+##region <- 'peace_highlands'
+##title <- "PeaceHighlands"
+##readloc <- 'northeast'
+##writeloc <- 'northeast/peace_highlands'
 
 ds.type <- 'bccaq2' 
 scenario <- 'rcp85'
@@ -28,12 +28,10 @@ gcm.list <- c('ACCESS1-0','CanESM2','CCSM4','CNRM-CM5','CSIRO-Mk3-6-0','GFDL-ESM
 
 clip.shp <- spTransform(readOGR(shape.dir,region, stringsAsFactors=F),CRS("+init=epsg:4326"))
 
-for (proj.int in proj.list) {
-      print(proj.int)
-      make.climdex.tables(gcm.list,ds.type,region,title,scenario,clip.shp,
-                          past.int=past.int,proj.int=proj.int,
-                          read.dir=read.dir,write.dir=write.dir,pctl)
-}
+make.climdex.tables(gcm.list,varname,ds.type,region,title,scenario,clip.shp,
+                    past.int=past.int,proj.list=proj.list,
+                    read.dir=read.dir,write.dir=write.dir,pctl)
+
 warnings()
 print(warnings())
 

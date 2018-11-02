@@ -2,9 +2,12 @@
 
 ##------------------------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------------------------
+get.projection <- function(region) {
+  return("+init=epsg:3005")
+}
 
 get.region.title <- function(region) {
-  return('Central British Columbia')
+  return('Central Interior')
 }
 
 get.region.names <- function(region) {
@@ -70,7 +73,11 @@ add.plot.overlays <- function(crs) {
   bulkley.shp <- readOGR(shape.dir,'bulkley_nechako',stringsAsFactors=F, verbose=F)
   ffg.shp <- readOGR(shape.dir,'fraser_fort_george',stringsAsFactors=F, verbose=F)
   road.shp <- readOGR('/storage/data/gis/basedata/BC_Roads/','bc_hwy_geo',stringsAsFactors=F, verbose=F)
+  rivers.shp <- readOGR('/storage/data/projects/rci/data/assessments/bc/shapefiles/','bc_rivers',stringsAsFactors=F, verbose=F)
+  lakes.shp <- readOGR('/storage/data/gis/basedata/base_layers/','bc_lakes',stringsAsFactors=F, verbose=F)
 
+  plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
+  plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=2,col='gray')
   plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=4)
   plot(spTransform(bulkley.shp,CRS(crs)),add=TRUE,lwd=2,lty=2)
@@ -80,14 +87,20 @@ add.plot.overlays <- function(crs) {
 add.cities <- function(crs) {
   ##Coordinates of cities to plot on the map
 
+  ##list(name='Chetwynd',lon=-121.6297,lat=55.6977,xoffset=-8000,yoffset=4000),
+  ##list(name='Dawson Creek',lon=-120.2377,lat=55.7596,xoffset=-8000,yoffset=8000))
+
   city.coords <- list(
-                     list(name='New Hazelton',lon=-127.5916,lat=55.2476,xoffset=0,yoffset=8000),
-                     list(name='Houston',lon=-126.6482,lat=54.3980,xoffset=0,yoffset=4000),
-                     list(name='Telkwa',lon=-127.0476,lat=54.6950,xoffset=-4000,yoffset=4000),
+                     list(name='New Hazelton',lon=-127.5916,lat=55.2476,xoffset=-10000,yoffset=8000),
+                     list(name='Houston',lon=-126.6482,lat=54.3980,xoffset=4000,yoffset=4000),
+                     list(name='Telkwa',lon=-127.0476,lat=54.6950,xoffset=-4000,yoffset=-14000),
                      list(name='Vanderhoof',lon=-124.0130,lat=54.0140,xoffset=-10000,yoffset=4000),
-                     list(name='Prince George',lon=-122.7497,lat=53.9171,xoffset=-2000,yoffset=4000),
-                     list(name='Chetwynd',lon=-121.6297,lat=55.6977,xoffset=-8000,yoffset=4000),
-                     list(name='Dawson Creek',lon=-120.2377,lat=55.7596,xoffset=-8000,yoffset=8000))
+                     list(name='Prince George',lon=-122.7497,lat=53.9171,xoffset=-1000,yoffset=4000),
+                     list(name='Fort St. James',lon=-124.2510,lat=55.4426,xoffset=-22000,yoffset=4000),
+                     list(name='Smithers',lon=-127.1686,lat=54.7824,xoffset=-2000,yoffset=4000),
+                     list(name='Burns Lake',lon=-125.7636,lat=54.2334,xoffset=8000,yoffset=4000),
+                     list(name='McBride',lon=-120.1685,lat=53.3013,xoffset=-2000,yoffset=4000),
+                     list(name='Valemount',lon=-119.2643,lat=52.8312,xoffset=-2000,yoffset=4000))
                      ##list(name='Kitimat',lon=-128.6284,lat=54.0495,xoffset=4000,yoffset=-8000),                       
 
   for (cc in seq_along(city.coords)) {
@@ -117,6 +130,25 @@ add.districts <- function(crs) {
       district.name <- district$name      
       text(cx,cy,district.name,font=2,adj=4,pos=1,cex=1.75,col='black',bg='white')
   }
+}
+
+get.title.info <- function(crs,plot.title) {
+  ##Upper Title
+  lower <- FALSE
+  title.mar <- c(4.5,4.75,5.2,4)
+  upper.title <- plot.title
+  lower.title <- ''
+
+  ##lower <- TRUE
+  ##title.mar <- c(6,4.75,4,4)
+  ##upper.title <- ''
+  ##lower.title <- gsub('\n','',plot.title)
+
+  rv <- list(lower=lower,
+             mar=title.mar,
+             upper.title=upper.title,
+             lower.title=lower.title)
+  return(rv)
 }
 
 

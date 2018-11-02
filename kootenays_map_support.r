@@ -3,12 +3,17 @@
 ##------------------------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------------------------
 
+get.projection <- function(region) {
+  return("+init=epsg:3005")
+}
+
+
 get.region.title <- function(region) {
   return('Kootenays')
 }
 
 get.region.names <- function(region) {
-  return(list(area='kootenays',subset='kootenays',region='kootenays'))
+  return(list(area='agriculture/kootenays',subset='kootenays',region='kootenays'))
 }
 
 get.leg.loc <- function(region) {
@@ -21,6 +26,10 @@ get.crop.box <- function(region) {
 
 get.file.type <- function(region) {
   return('.png')
+}
+
+get.plot.size <- function(region) {
+  return(c(1200,1000))
 }
 
 
@@ -70,7 +79,11 @@ add.plot.overlays <- function(crs) {
   central.shp <- readOGR(shape.dir,'central_kootenay',stringsAsFactors=F, verbose=F)
   east.shp <- readOGR(shape.dir,'east_kootenay',stringsAsFactors=F, verbose=F)
   road.shp <- readOGR(shape.dir,'bc_hwy_geo',stringsAsFactors=F, verbose=F)
+  rivers.shp <- readOGR('/storage/data/projects/rci/data/assessments/bc/shapefiles/','bc_rivers',stringsAsFactors=F, verbose=F)
+  lakes.shp <- readOGR('/storage/data/gis/basedata/base_layers/','bc_lakes',stringsAsFactors=F, verbose=F)
 
+  plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
+  plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=2,col='gray')
   plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=4)
   plot(spTransform(boundary.shp,CRS(crs)),add=TRUE,lwd=2,lty=2)
@@ -84,18 +97,21 @@ add.cities <- function(crs) {
   ##Coordinates of cities to plot on the map
 
   city.coords <- list(
-                     list(name='Golden',lon=-116.9631,lat=51.2961,xoffset=0,yoffset=-10000),
+                     list(name='Golden',lon=-116.9631,lat=51.2961,xoffset=0,yoffset=-12000),
                      list(name='Invermere',lon=-116.0291,lat=50.5065,xoffset=0,yoffset=4000),
                      list(name='Elkford',lon=-114.935,lat=50.0246,xoffset=-4000,yoffset=4000),
                      list(name='Sparwood',lon=-114.8797,lat=49.7345,xoffset=-8000,yoffset=4000),
                      list(name='Fernie',lon=-115.0631,lat=49.5040,xoffset=-6000,yoffset=4000),
                      list(name='Kimberley',lon=-115.9967,lat=49.6652,xoffset=-6000,yoffset=4000),
-                     list(name='Cranbrook',lon=-115.7694,lat=49.5130,xoffset=4000,yoffset=-8000),
+                     list(name='Cranbrook',lon=-115.7694,lat=49.5130,xoffset=4000,yoffset=-12000),
                      list(name='Nelson',lon=-117.2948,lat=49.4928,xoffset=-6000,yoffset=4000),
                      list(name='Creston',lon=-116.5135,lat=49.0955,xoffset=-6000,yoffset=4000),
                      list(name='Castlegar',lon=-117.6593,lat=49.3237,xoffset=-8000,yoffset=4000),
                      list(name='Trail',lon=-117.7117,lat=49.0966,xoffset=-8000,yoffset=4000),
                      list(name='Greenwood',lon=-118.6781,lat=49.0879,xoffset=-12000,yoffset=4000),
+                     list(name='Kaslo',lon=-116.9155,lat=49.9142,xoffset=-2000,yoffset=4000),
+                     list(name='Nakusp',lon=-117.8011,lat=50.2399,xoffset=-2000,yoffset=4000),
+                     list(name='Beaverdell',lon=-119.0883,lat=49.4342,xoffset=10000,yoffset=-12000),
                      list(name='Grand Forks',lon=-118.4451,lat=49.0301,xoffset=12000,yoffset=2000))
                        
   for (cc in seq_along(city.coords)) {
@@ -116,7 +132,7 @@ add.districts <- function(crs) {
   district.coords <- list(
                          list(name='East Kootenay',lon=-115.5539,lat=50.0183),
                          list(name='Central Kootenay',lon=-117.4463,lat=49.8286),
-                         list(name='Kootenay\nBoundary',lon=-118.7035,lat=49.543))
+                         list(name='Kootenay\nBoundary',lon=-118.7035,lat=49.743))
 
   for (dc in seq_along(district.coords)) {
       district <- unclass(district.coords[[dc]])
@@ -127,6 +143,26 @@ add.districts <- function(crs) {
       text(cx,cy,district.name,font=2,adj=4,pos=1,cex=1.75,col='black',bg='white')
   }
 }
+
+get.title.info <- function(crs,plot.title) {
+  ##Upper Title
+  lower <- FALSE
+  title.mar <- c(4.5,4.75,5.2,4)
+  upper.title <- plot.title
+  lower.title <- ''
+
+  ##lower <- TRUE
+  ##title.mar <- c(6,4.75,4,4)
+  ##upper.title <- ''
+  ##lower.title <- gsub('\n','',plot.title)
+
+  rv <- list(lower=lower,
+             mar=title.mar,
+             upper.title=upper.title,
+             lower.title=lower.title)
+  return(rv)
+}
+
 
 
 ##-------------------------------------------------------

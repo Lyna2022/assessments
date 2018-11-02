@@ -26,6 +26,8 @@ get.variable.title <- function(var.name) {
                       r10mmETCCDI='Heavy Precipitation Days',
                       r20mmETCCDI='Very Heavy Precipitation Days',
                       cddETCCDI='Consecutive Dry Days',
+                      cddmaxETCCDI='Maximum Consecutive Dry Days',
+                      cdd90ETCCDI='90th % Consecutive Dry Days',
                       cwdETCCDI='Consecutive Wet Days',
                       r95pETCCDI='Very Wet Days',
                       r95daysETCCDI='Number of Very Wet Days',
@@ -82,6 +84,8 @@ get.rounding.value <- function(var.name) {
                  'r10mmETCCDI',
                  'r20mmETCCDI',
                  'cddETCCDI',
+                 'cdd90ETCCDI',
+                 'cddmaxETCCDI',
                  'cwdETCCDI',
                  'r95pETCCDI',  
                  'r95daysETCCDI',
@@ -119,7 +123,7 @@ compute.climdex.values <- function(model,ds.type,
                                    seas.fx,
                                    region,
                                    read.dir,write.dir,
-                                   past.int,proj.int,
+                                   interval,
                                    clip.shp) {
   gcm <- model 
   print(gcm)
@@ -131,45 +135,25 @@ compute.climdex.values <- function(model,ds.type,
   base.files <- list.files(path=file.dir,pattern=paste('^',var.name,sep=''),full.names=TRUE)
   ann.files <- base.files[grep('annual',base.files)]
   ##print(base.files)  
-  past.ann.file <- ann.files[grep(past.int,ann.files)]
-  proj.ann.file <- ann.files[grep(proj.int,ann.files)]
-
-  past.ann.brick <- brick(past.ann.file)
-  past.ann.sub <- subset(past.ann.brick,1)
-  past.ann.subset <- mask(past.ann.sub,clip.shp)
-  past.ann.avg <- cellStats(past.ann.subset,'mean')
-
-  proj.ann.brick <- brick(proj.ann.file)
-  proj.ann.sub <- subset(proj.ann.brick,1)
-  proj.ann.subset <- mask(proj.ann.sub,clip.shp)
-  proj.ann.avg <- cellStats(proj.ann.subset,'mean')
-
-  past.values <- past.ann.avg
-  proj.values <- proj.ann.avg
-
+  ann.file <- ann.files[grep(interval,ann.files)]
+  print(ann.file)
+  ann.brick <- brick(ann.file)
+  ann.sub <- subset(ann.brick,1)
+  ann.subset <- mask(ann.sub,clip.shp)
+  ann.avg <- cellStats(ann.subset,'mean')
+  rv <- ann.avg
   if (seas.flag) {
     seas.files <- base.files[grep('seasonal',base.files)]
-    past.seas.file <- seas.files[grep(past.int,seas.files)]
-    proj.seas.file <- seas.files[grep(proj.int,seas.files)]
+    seas.file <- seas.files[grep(interval,seas.files)]
 
     ##Function to extract subset of data for moti region
-    past.seas.brick <- brick(past.seas.file)
-    past.seas.subset <- mask(past.seas.brick,clip.shp)
-    past.seas.avg <- cellStats(past.seas.subset,'mean')
+    seas.brick <- brick(seas.file)
+    seas.subset <- mask(seas.brick,clip.shp)
+    seas.avg <- cellStats(seas.subset,'mean')
 
-    ##Function to extract subset of data for moti region
-    proj.seas.brick <- brick(proj.seas.file)
-    proj.seas.subset <- mask(proj.seas.brick,clip.shp)
-    proj.seas.avg <- cellStats(proj.seas.subset,'mean')
-
-    past.values <- c(past.seas.avg,past.ann.avg)
-    proj.values <- c(proj.seas.avg,proj.ann.avg)
+    all.values <- c(seas.avg,ann.avg)
+    rv <- all.values
   } 
-
-  abs.anoms <- proj.values - past.values
-  prc.anoms <- (proj.values - past.values)/past.values*100
-
-  rv <- rbind(past.values,proj.values,abs.anoms,prc.anoms)
   return(rv)
 }
 
@@ -202,9 +186,9 @@ format.tables <- function(mon.vals,models,rd,pctl=FALSE,var.name,seas.flag,regio
 }
 
 
-make.climdex.tables <- function(model.list,ds.type,region,region.title,scenario,clip.shp,
-                        past.int,proj.int,
-                        read.dir,write.dir,pctl) {
+make.climdex.tables <- function(model.list,var.name,ds.type,region,region.title,scenario,clip.shp,
+                                past.int,proj.list,
+                                read.dir,write.dir,pctl) {
 
 ##Not included in current round of BC-PRISM downscaling
 ##                  'tn10pETCCDI','tx10pETCCDI','tn90pETCCDI','tx90pETCCDI',
@@ -226,57 +210,68 @@ make.climdex.tables <- function(model.list,ds.type,region,region.title,scenario,
                     'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI','cddETCCDI','cwdETCCDI',
                     'r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI',
                     'prcptotETCCDI')
+##  climdex.list <- 'suETCCDI'
 
-  rvfx <- function(x,ix,seas.flag) {
-     if (seas.flag) {
-       return(x[ix,])
-     } else {
-       return(x[ix])
-     }
-  }  
  
   ##Climdex parameters
-  for (var.name in climdex.list) {
+##  for (var.name in climdex.list) {
     seas.flag <- var.name %in% seasonal.list    
     var.class <- strsplit(var.name,'_')[[1]][1]
     seas.fx <- get.seas.fx(var.class)
     print(var.class)
 
-    my.writedir <- paste(write.dir,'tables/climdex/',var.class,'/',sep='')
-    if (!file.exists(my.writedir))
-      dir.create(my.writedir,recursive=TRUE)
-    
-    monthly.avgs <- lapply(model.list,compute.climdex.values,ds.type,
-                           var.class,
-                           seas.flag=seas.flag,
-                           seas.fx=seas.fx,
-                           region,
-                           read.dir,write.dir,
-                           past.int,proj.int,
-                           clip.shp)
     rd <- get.rounding.value(var.class)
-
     if (seas.flag) {
       ncol <- 5     
     } else {
       ncol <- 1
     }
-    past.yr.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {rvfx(x,1,seas.flag)})),nrow=length(monthly.avgs),ncol=ncol,byrow=TRUE)
+
+    my.writedir <- paste(write.dir,'tables/climdex/',var.class,'/',sep='')
+    if (!file.exists(my.writedir))
+      dir.create(my.writedir,recursive=TRUE)
+
+    past.values <- lapply(model.list,compute.climdex.values,ds.type,
+                          var.class,
+                          seas.flag=seas.flag,
+                          seas.fx=seas.fx,
+                          region,
+                          read.dir,write.dir,
+                          interval=past.int,
+                          clip.shp)
+
+    past.yr.vals <- matrix(unlist(lapply(past.values,
+                           function(x) {return(x)})),nrow=length(past.values),ncol=ncol,byrow=TRUE)
     past.table <- format.tables(past.yr.vals,model.list,rd,pctl,var.name,seas.flag,region.title)
-    write.table(past.table,file=paste(my.writedir,'past.',var.class,'.',scenario,'.',past.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
-    
-    future.yr.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {rvfx(x,2,seas.flag)})),nrow=length(monthly.avgs),ncol=ncol,byrow=TRUE)                   
-    future.table <- format.tables(future.yr.vals,model.list,rd,pctl,var.name,seas.flag,region.title)
-    write.table(future.table,file=paste(my.writedir,'future.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
-    
-    abs.yr.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {rvfx(x,3,seas.flag)})),nrow=length(monthly.avgs),ncol=ncol,byrow=TRUE)  
-    abs.table <- format.tables(abs.yr.vals,model.list,1,pctl,var.name,seas.flag,region.title)
-    write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)
-    
-    prc.yr.vals <- matrix(unlist(lapply(monthly.avgs,function(x) {rvfx(x,4,seas.flag)})),nrow=length(monthly.avgs),ncol=ncol,byrow=TRUE)                     
-    prc.table <- format.tables(prc.yr.vals,model.list,1,pctl,var.name,seas.flag,region.title)
-    write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),sep=',',quote=F,col.name=FALSE,row.name=FALSE)      
-  }##var.list loop
+    write.table(past.table,file=paste(my.writedir,'past.',var.class,'.',scenario,'.',past.int,'.csv',sep=''),
+                sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+
+    for (proj.int in proj.list) {
+      proj.values <- lapply(model.list,compute.climdex.values,ds.type,
+                            var.class,
+                            seas.flag=seas.flag,
+                            seas.fx=seas.fx,
+                            region,
+                            read.dir,write.dir,
+                            interval=proj.int,
+                            clip.shp)
+
+      future.yr.vals <- matrix(unlist(lapply(proj.values,function(x) {return(x)})),nrow=length(proj.values),ncol=ncol,byrow=TRUE)
+      future.table <- format.tables(future.yr.vals,model.list,rd,pctl,var.name,seas.flag,region.title)
+      write.table(future.table,file=paste(my.writedir,'future.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),
+                  sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+
+      abs.yr.anoms <- future.yr.vals - past.yr.vals
+      abs.table <- format.tables(abs.yr.anoms,model.list,1,pctl,var.name,seas.flag,region.title)
+      write.table(abs.table,file=paste(my.writedir,'abs.anomalies.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),
+                  sep=',',quote=F,col.name=FALSE,row.name=FALSE)
+
+      prc.yr.anoms <- (future.yr.vals - past.yr.vals)/past.yr.vals*100
+      prc.table <- format.tables(prc.yr.anoms,model.list,1,pctl,var.name,seas.flag,region.title)
+      write.table(prc.table,file=paste(my.writedir,'percent.anomalies.',var.class,'.',scenario,'.',proj.int,'.csv',sep=''),
+                  sep=',',quote=F,col.name=FALSE,row.name=FALSE)      
+    }##proj.list loop
+##  }##var.list loop
 }##make.tables function
 
 

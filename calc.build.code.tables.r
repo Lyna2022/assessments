@@ -72,7 +72,7 @@ format.bc.tables <- function(mon.vals,models,pctl=FALSE,var.name,var.sub,region.
     vals.90 <- apply(all.vals,2,quantile,0.9,na.rm=T)
     table.vals <- rbind(table.vals,vals.10,vals.50,vals.90)
   }
-  new.table <- round(table.vals)
+  new.table <- round(table.vals,1)
   if (pctl) {
     new.table <- cbind(c(models,'Ens. Avg.','10th %ile','Median','90th %ile'),new.table) 
   } else {

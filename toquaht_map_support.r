@@ -3,12 +3,16 @@
 ##------------------------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------------------------
 
+get.projection <- function(region) {
+  return("+init=epsg:4326")
+}
+
 get.region.title <- function(region) {
-  return('Northeast Highlands')
+  return('Toquaht Traditional Territory')
 }
 
 get.region.names <- function(region) {
-  return(list(area='northeast/peace_highlands',subset='northeast',region='peace_highlands'))
+  return(list(area='toquaht',subset='toquaht',region='Toquaht_Traditional_Territory'))
 }
 
 get.leg.loc <- function(region) {
@@ -16,8 +20,7 @@ get.leg.loc <- function(region) {
 }
 
 get.crop.box <- function(region) {
-  return(c(-126,-120.0,55,60))
-##  return(c(-122.5,-120.0,57.5,60))
+  return(c(-125.6,-125.2,48.7,49.11))
 }
 
 get.file.type <- function(region) {
@@ -25,18 +28,17 @@ get.file.type <- function(region) {
 }
 
 get.plot.size <- function(region) {
-  return(c(1200,1000))
+  return(c(1200,800))
 }
-
 
 ##Set plot boundaries
 
 make.plot.window <- function(bounds) {
 
-  xleft  <- 0.1
-  xright <- -0.016
+  xleft  <- 0.05
+  xright <- -0.05
   ybot   <- 0.05
-  ytop   <- -0.00
+  ytop   <- -0.1
 
   xlim.min <- bounds@xmin
   xlim.max <- bounds@xmax
@@ -54,8 +56,8 @@ make.plot.window <- function(bounds) {
 }
 
 add.graticules <- function(crs) {   
-  lons <- c(-128,-126,-124,-122,-120,-118,-116)
-  lats <- c(54,55,56,57,58,59,60)
+  lons <- c(-126.0,-125.8,-125.6,-125.4,-125.2,-125.0,-124.8)
+  lats <- c(48.6,48.7,48.8,48.9,49.0,49.1,49.2)
 
   grat <- graticule(lons, lats, proj = CRS(crs))
   labs <- graticule_labels(lons = lons, lats = lats, xline = -129, yline = 54, proj = CRS(crs))
@@ -66,27 +68,24 @@ add.graticules <- function(crs) {
 
 ##Additional overlays to add specific to the region
 add.plot.overlays <- function(crs) {
-  shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/northeast/'
-  region.shp <- readOGR(shape.dir,'peace_highlands',stringsAsFactors=F, verbose=F)
-  nrrd.shp <- readOGR(shape.dir,'northern_rockies_muni',stringsAsFactors=F, verbose=F)
-  tumbler.shp <- readOGR(shape.dir,'tumbler_ridge',stringsAsFactors=F, verbose=F)
-  ##road.shp <- readOGR('/storage/data/gis/basedata/BC_Roads/','bc_hwy_geo',stringsAsFactors=F, verbose=F)
+  shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/toquaht/'
+  region.shp <- readOGR(shape.dir,'Toquaht_Traditional_Territory',stringsAsFactors=F, verbose=F)
+  road.shp <- readOGR('/storage/data/gis/basedata/BC_Roads/','bc_hwy_geo',stringsAsFactors=F, verbose=F)
+  rivers.shp <- readOGR('/storage/data/projects/rci/data/assessments/bc/shapefiles/','bc_rivers',stringsAsFactors=F, verbose=F)
+  lakes.shp <- readOGR('/storage/data/gis/basedata/base_layers/','bc_lakes',stringsAsFactors=F, verbose=F)
 
-  ##plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=2,col='gray')
+  plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
+  plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
+  plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=2,col='gray')
   plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=4)
-  plot(spTransform(nrrd.shp,CRS(crs)),add=TRUE,lwd=2,lty=2)
-  plot(spTransform(tumbler.shp,CRS(crs)),add=TRUE,lwd=2,lty=2)  
 }
 
 add.cities <- function(crs) {
   ##Coordinates of cities to plot on the map
 
   city.coords <- list(
-                     list(name='Fort St. John',lon=-120.84773,lat=56.25600,xoffset=0,yoffset=12000),
-                     list(name='Fort Nelson',lon=-122.68722,lat=58.80452,xoffset=0,yoffset=8000),
-                     list(name='Dawson Creek',lon=-120.23144,lat=55.76058,xoffset=-4000,yoffset=4000),
-                     list(name='Chetwynd',lon=-121.62955,lat=55.70771,xoffset=-30000,yoffset=0),
-                     list(name='Pouce Coupe',lon=-120.13359,lat=55.71034,xoffset=-2000,yoffset=-20000))
+                     list(name='Ucluelet',lon=-125.54606,lat=48.94201,xoffset=-0.05,yoffset=-0.05),
+                     list(name='Salmon\nBeach',lon=-125.433827,lat=48.959508,xoffset=0,yoffset=-0.05))
 
   for (cc in seq_along(city.coords)) {
       city <- unclass(city.coords[[cc]])
@@ -104,8 +103,7 @@ add.cities <- function(crs) {
 add.districts <- function(crs) {
 
   district.coords <- list(
-                         list(name='Northern Rockies Regional Municipality',lon=-122.649,lat=59.4),
-                         list(name='Tumbler Ridge',lon=-120.994,lat=55.126))
+                         list(name='Interior Health',lon=-119.8,lat=51.435))
 
   for (dc in seq_along(district.coords)) {
       district <- unclass(district.coords[[dc]])
@@ -113,11 +111,28 @@ add.districts <- function(crs) {
       cx <- coords[1]
       cy <- coords[2]
       district.name <- district$name      
-      text(cx,cy,district.name,font=2,adj=4,pos=1,cex=1.75,col='black',bg='white')
+      ##text(cx,cy,district.name,font=2,adj=4,pos=1,cex=1.75,col='black',bg='white')
   }
 }
 
+get.title.info <- function(crs,plot.title) {
+  ##Upper Title
+  lower <- FALSE
+  title.mar <- c(4.5,4.75,5.2,4)   
+  upper.title <- plot.title
+  lower.title <- ''
 
+  ##lower <- TRUE
+  ##title.mar <- c(6,4.75,4,4)   
+  ##upper.title <- ''
+  ##lower.title <- gsub('\n','',plot.title) 
+  
+  rv <- list(lower=lower,
+             mar=title.mar,
+             upper.title=upper.title,
+             lower.title=lower.title)
+  return(rv)
+}
 ##-------------------------------------------------------
 
 

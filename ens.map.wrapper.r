@@ -34,6 +34,8 @@ get.var.title <- function(var.name,rp=NULL) {
                  s30='Summer Hot Days',
                  gslETCCDI='Growing Season Length',
                  cddETCCDI='Consecutive Dry Days',
+                 cdd90ETCCDI='Consecutive Dry Days 90th%',
+                 cddmaxETCCDI='Consecutive Dry Days Max',
                  cwdETCCDI='Consecutive Wet Days',
                  suETCCDI='Summer Days',
                  fdETCCDI='Frost Days',
@@ -165,6 +167,7 @@ make.ensemble.plots <- function(past.box,proj.box,anoms.box,prct.box,
   shared.box <- range(range(as.matrix(past.box),na.rm=T),range(as.matrix(proj.box),na.rm=T))
 
 if(1==1) {
+  print('Past')
   reg.ds.maps(past.box,region,region.range,box.range,
               var.name,type='past',ds.type,region.shp,
               past.plot.file,past.plot.title,
@@ -176,7 +179,7 @@ if(1==1) {
   ##Future
   region.range <- range(as.matrix(proj.crop),na.rm=T)
   box.range <-  range(as.matrix(proj.box),na.rm=T)
-
+  print('Future')
   reg.ds.maps(proj.box,region,region.range,box.range,
               var.name,type='proj',ds.type,region.shp,
               proj.plot.file,proj.plot.title,
@@ -191,6 +194,7 @@ if(1==1) {
 
 print(region.range)
 print(box.range)
+  print('Anomalies')
   reg.ds.maps(anoms.box,region,region.range,box.range,
               var.name,type='anomaly',ds.type,region.shp,
               anoms.plot.file,anoms.plot.title,
@@ -204,7 +208,7 @@ print(box.range)
 
   region.range <- range(as.matrix(crop(prct.box,box.extent)),na.rm=T)
   box.range <-  range(as.matrix(prct.box),na.rm=T)
-
+  print('Percent')
     reg.ds.maps(prct.box,region,region.range,box.range,
                 var.name,type='percent',ds.type,region.shp,
                 prct.plot.file,prct.plot.title,
@@ -282,7 +286,7 @@ plot.single.seasonal <- function(region,scenario,proj.int,
   print(paste(toupper(var.name),' ',scenario,' ',time.dir,' ',seas,sep=''))
   
   ##Directories
-  shape.dir <- paste('/storage/data/projects/rci/data/assessments/shapefiles/',meta$region,'/',sep='')
+  shape.dir <- paste('/storage/data/projects/rci/data/assessments/shapefiles/',meta$subset,'/',sep='')
   dirs <- seasonal.directories(var.name,region,scenario,seas,time.dir,grep.name,meta)
   read.dir <- dirs$read.dir
   plot.dir <- dirs$plot.dir
@@ -508,8 +512,8 @@ plot.climdex <- function(region,scenario,proj.int,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region <- 'peace_ecoregion'
-readloc <- 'northeast'
+region <- 'kootenays'
+readloc <- 'kootenays'
 
 source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
 scenario <- 'rcp85'
@@ -520,8 +524,9 @@ proj.intervals <- '2041-2070' ##c('2011-2040','2041-2070','2071-2100')
 run.season <- function(region) {
 
   ##Annual Maps
-  var.list <- c('pr','tasmax','tasmin')
+  var.list <- 'tas' ##c('pr','tasmax','tasmin')
   for (var.name in var.list) {
+
      grep.name <- paste0(var.name,'_',readloc,'_annual_average_climatology')
      for (proj.int in proj.intervals) {
         print(proj.int)
@@ -530,7 +535,7 @@ run.season <- function(region) {
                              var.name,grep.name,'Annual')
      }
   }
-browser()
+##browser()
   ##Seasonal
   ##c('January','February','March','April','May','June','July','August','September','October','November','December') ##
   seas.list <-  c('Winter','Spring','Summer','Fall')
@@ -567,16 +572,18 @@ run.climdex <- function(region) {
   var.names <- c('fdETCCDI','suETCCDI','su30ETCCDI','idETCCDI','trETCCDI','gslETCCDI',
                  'txxETCCDI','txnETCCDI','tnnETCCDI','tnxETCCDI','dtrETCCDI',
                  'rx1dayETCCDI','rx5dayETCCDI',
-                 'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI','cwdETCCDI','cddETCCDI','prcptotETCCDI',
-                 'r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI')
-   ##var.names <- c('tnnETCCDI','tnxETCCDI','txnETCCDI')
+                 'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI',
+                 'cwdETCCDI','cddETCCDI','cdd90ETCCDI','cddmaxETCCDI',
+                 'prcptotETCCDI','r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI')
+##   var.names <- c('cdd90ETCCDI','cddmaxETCCDI')
+
    for (var.name in var.names) {
       for (proj.int in proj.intervals) {                
          plot.climdex(region,scenario,proj.int,
                          var.name,seas='Annual')        
       }
    }
-
+##browser()
 ##Seasonal Climdex Maps
   var.names <- c('txxETCCDI','txnETCCDI','tnnETCCDI','tnxETCCDI','dtrETCCDI',
                  'rx1dayETCCDI','rx5dayETCCDI')                

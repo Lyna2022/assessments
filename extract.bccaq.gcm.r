@@ -61,7 +61,6 @@ extract.gcm <- function(gcm,rcm=NULL,var.name,scenario,type,
       lon.offset <- 0
       write.hist.name <- paste(var.name,'_day_PRISM_observation_1981-2010.nc',sep='')
       write.proj.name <- NULL
-
       
       hist.dir <- write.dir
       if (!file.exists(hist.dir))
@@ -188,7 +187,7 @@ if (1==1) {
   ##--------------------------------------------------------------
   ##Create new netcdf file for the future
 
-if (1==0) {
+if (1==1) {
   x.geog <- ncdim_def('lon', 'degrees_east', lon.sub)
   y.geog <- ncdim_def('lat', 'degrees_north', lat.sub)
   t.geog <- ncdim_def('time', time.units, proj.time.sub,
@@ -336,16 +335,17 @@ gcm.list <- c('CCSM4',
               'MIROC5',
               'MPI-ESM-LR',
               'MRI-CGCM3')
-gcm.list <- 'CNRM-CM5'
+
+gcm.list <- 'CanESM2'
 
 extract.bccaq.gcms <- function() {
   ##data.dir <- '/storage/data/climate/downscale/CMIP5/BCCAQ/'
   data.dir <- '/storage/data/climate/downscale/BCCAQ2/bccaqv2_with_metadata/'
   ##write.dir <- '/storage/data/scratch/ssobie/bccaq_gcm_van_whistler_subset/'
-  write.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/baseline/'
+  write.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/'
   var.list <- c('tasmax','tasmin','pr')  ##c('pr','tasmax','tasmin') ##c('tasmax','tasmin','pr')
-  scenario <- 'rcp85'
-  past.int <- '1981-2010'
+  scenario <- 'rcp45'
+  past.int <- '1951-2000'
   proj.int <- '2001-2100'
 
   for (var.name in var.list) {

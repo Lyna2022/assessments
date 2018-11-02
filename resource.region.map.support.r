@@ -54,7 +54,7 @@ get.class.breaks <- function(var.name,type,map.range, manual.breaks=""){
       class.rv <- min(c(class.rv,500))
       class.rv <- max(c(class.rv,1))
     } else {
-      if (class.width < 5 & class.width > 1) {
+      if (class.width < 5 & class.width >= 1) {
         class.rv <- ceiling(class.width/1)*1
         if (type=='anomaly') {
           class.rv <- max(c(1,class.rv))
@@ -79,7 +79,6 @@ get.class.breaks <- function(var.name,type,map.range, manual.breaks=""){
       }
     }
   }
-
   if (manual.breaks[1] != ""){
     class.breaks <- manual.breaks
   } else {
@@ -87,11 +86,10 @@ get.class.breaks <- function(var.name,type,map.range, manual.breaks=""){
       map.max <- ceiling(map.range[2]/class.rv) * class.rv
       class.breaks <-seq(from=map.min, to=map.max, by=class.rv)
  }
-
   return(class.breaks)
 }
  
-get.class.break.labels <- function(class.breaks,greater.sign=FALSE,lesser.sign=FALSE,fixed=FALSE) {
+get.class.break.labels <- function(class.breaks,type,greater.sign=FALSE,lesser.sign=FALSE,fixed=FALSE) {
  
   map.class.breaks.labels <- sapply(1:(length(class.breaks)-1), function(x){
     paste(class.breaks[x], "to", class.breaks[x+1])})
@@ -107,7 +105,6 @@ get.class.break.labels <- function(class.breaks,greater.sign=FALSE,lesser.sign=F
   }
   print(class.breaks)
   print(map.class.breaks.labels)
-
   return(map.class.breaks.labels)
 }
  
@@ -200,7 +197,7 @@ get.color.ramp <- function(map.class.breaks, var.name, grey.zones, choose.ramp="
             rv <- c(dark.red.to.yellow(ramp.left.len),light.blue.to.dark.blue(ramp.right.len))
           if (grepl("cwdE",var.name))
             rv <- c(dark.brown.to.light.brown(ramp.left.len),light.blue.to.dark.blue(ramp.right.len))
-          if (grepl("cddE",var.name))
+          if (grepl("(cddE|cdd90|cddmax)",var.name))
             rv <- c(dark.blue.to.light.blue(ramp.left.len),light.brown.to.dark.brown(ramp.right.len))
           
         }
@@ -259,7 +256,7 @@ get.color.ramp <- function(map.class.breaks, var.name, grey.zones, choose.ramp="
           if (right.len==0)
             rv <- dark.red.to.yellow(ramp.length)
         }
-        if (grepl("(cddE)",var.name)) {
+        if (grepl("(cddE|cdd90|cddmax)",var.name)) {
           if (left.len==0)
             rv <- light.brown.to.dark.brown(ramp.length)            
           if (right.len==0)
@@ -285,7 +282,7 @@ get.legend.colourbar <- function(var.name,map.range,my.bp,class.breaks,type='cli
 
 leg.label.units <- function(var.name,type) {
   leg.label <- NA
-  if (grepl("(tas|txx|tnn|txn|tnx|tmax|tmin|t2m)", var.name))
+  if (grepl("(tas|txx|tnn|txn|tnx|tmax|tmin|t2m|dewpoint)", var.name))
     leg.label <- '\u00B0C'
   if (grepl("(pr|rx|r9|RP|rp|sdii)", var.name))
     leg.label <- 'mm'
@@ -299,7 +296,7 @@ leg.label.units <- function(var.name,type) {
     leg.label <- '# of Models'
   if (grepl("dd", var.name))
     leg.label <- 'Degree days'
-  if (grepl("(fdE|cddE|cwd|su|gsl|id|trE|s30|r10|r20)", var.name))
+  if (grepl("(fdE|cddE|cdd90|cddmax|cwd|su|gsl|id|trE|s30|r10|r20)", var.name))
     leg.label <- 'days'
   if (grepl("(wspd)", var.name))
     leg.label <- 'km/h'

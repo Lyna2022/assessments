@@ -125,9 +125,10 @@ extract.gcm <- function(gcm,var.name,scenario,run,type,
   print(paste0(tmp.dir,write.new.name))
   print(hist.dir)
 
-  clean.up <- paste0('rm ',tmp.dir,write.new.name)
-  print(clean.up)
-  system(clean.up)
+  file.remove(paste0(tmp.dir,write.new.name))
+  ##clean.up <- paste0('rm ',tmp.dir,write.new.name)
+  ##print(clean.up)
+  ##system(clean.up)
 
 }
 
@@ -145,13 +146,13 @@ for(i in 1:length(args)){
     eval(parse(text=args[[i]]))
 }
 
-###gcm <- 'MIROC5'
-###run <- 'r3i1p1'
-###tmpdir <- '/local_temp/ssobie/extract/'
+##gcm <- 'ACCESS1-0'
+##run <- 'r1i1p1'
+##tmpdir <- '/local_temp/ssobie/extract/'
 
-##data.dir <- '/storage/data/climate/downscale/CMIP5_delivery/qdm_files/'
+data.dir <- '/storage/data/climate/downscale/CMIP5_delivery/qdm_files/'
 meta.dir <- '/storage/data/climate/downscale/BCCAQ2/bccaqv2_with_metadata/'
-data.dir <- '/storage/data/climate/downscale/BCCAQ2/qdm_files/'
+##data.dir <- '/storage/data/climate/downscale/BCCAQ2/qdm_files/'
 
 write.dir <- '/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/'
 
@@ -160,7 +161,7 @@ if (!file.exists(tmp.dir))
    dir.create(tmp.dir,recursive=TRUE)      
  
 var.list <- c('pr','tasmax','tasmin') ##c('tasmax','tasmin','pr')
-scenario <- 'rcp85'
+scenario <- 'rcp45'
 
 for (var.name in var.list) {
   print(var.name)
@@ -190,15 +191,16 @@ for (var.name in var.list) {
   if (!file.exists(base.dir)) {
     dir.create(base.dir,recursive=TRUE)      
   }
-  base <- extract.gcm(gcm,var.name,scenario='rcp85',run,type='BCCAQ2',
-                      lon.bnds,lat.bnds,interval='1981-2010',
-                      meta.dir,data.file.read,base.dir,tmp.dir)
+  ##base <- extract.gcm(gcm,var.name,scenario='rcp85',run,type='BCCAQ2',
+  ##                    lon.bnds,lat.bnds,interval='1981-2010',
+  ##                    meta.dir,data.file.read,base.dir,tmp.dir)
 
 
   ##Clean up
-  clean.up <- paste0('rm ',tmp.dir,data.file.read)
-  print(clean.up)
-  system(clean.up)
+  file.remove(paste0(tmp.dir,data.file.read))
+  ##clean.up <- paste0('rm ',tmp.dir,data.file.read)
+  ##print(clean.up)
+  ##system(clean.up)
   
 }
  

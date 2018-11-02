@@ -8,10 +8,10 @@ for(i in 1:length(args)){
     eval(parse(text=args[[i]]))
 }
 
-##region <- 'lionsgate_site'
-##title <- "LionsgateSite"
-##readloc <- 'van_coastal_health'
-##writeloc <- 'van_coastal_health/lionsgate_site'
+##region <- 'interior_health'
+##title <- "InteriorHealth"
+##readloc <- 'interior_health'
+##writeloc <- 'interior_health'
 
 
 ds.type <- 'bccaq2'

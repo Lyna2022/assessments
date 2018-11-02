@@ -5,7 +5,6 @@
 #PBS -d /storage/home/ssobie/code/repos/assessments/
 #PBS -o /storage/home/ssobie/code/repos/assessments/climdex.stdout.log                                                           
 #PBS -e /storage/home/ssobie/code/repos/assessments/climdex.stderr.log                                                           
-#PBS -N climdex_tables
 
 cd /storage/home/ssobie/code/repos/assessments/
 echo "Current working directory is `pwd`"
@@ -15,4 +14,4 @@ module load netcdf-bin
 module load cdo-bin
 module load gdal/2.0.1
 
-nohup R CMD BATCH --no-save --no-restore "--args region='$region' title='$title' readloc='$readloc' writeloc='$writeloc'" climdex.tables.wrapper.r "./${region}.cx.tables.out"
+nohup R CMD BATCH --no-save --no-restore "--args varname='$varname' region='$region' title='$title' readloc='$readloc' writeloc='$writeloc'" climdex.tables.wrapper.r "./${region}.cx.tables.${varname}.out"

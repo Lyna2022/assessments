@@ -42,9 +42,10 @@ compute.climate.values <- function(model,ds.type,
   ##GCM and Regional averages grouping monthly and seasonal values - needs pre-computed seasonal and monthly files
     gcm <- model
     print(gcm)
-    seas.files <- list.files(path=paste(read.dir,'seasonal/',gcm,'/',sep=''),pattern=var.name,full.name=TRUE)
-    mon.files <- list.files(path=paste(read.dir,'monthly/',gcm,'/',sep=''),pattern=var.name,full.name=TRUE)
-    ann.files <- list.files(path=paste(read.dir,'annual/',gcm,'/',sep=''),pattern=var.name,full.name=TRUE)
+    seas.files <- list.files(path=paste(read.dir,'seasonal/',gcm,'/',sep=''),pattern=paste0(var.name,'_'),full.name=TRUE)
+    mon.files <- list.files(path=paste(read.dir,'monthly/',gcm,'/',sep=''),pattern=paste0(var.name,'_'),full.name=TRUE)
+    ann.files <- list.files(path=paste(read.dir,'annual/',gcm,'/',sep=''),pattern=paste0(var.name,'_'),full.name=TRUE)
+
     ann.files <-  ann.files[grep('annual_average',ann.files)]
     ##-------------------------------------------------
     past.seas.file <- seas.files[grep(past.int,seas.files)]
@@ -141,7 +142,7 @@ make.tables <- function(model.list,
                         read.dir,write.dir,pctl) {
 
 
-  var.list <- c('pr','tasmax','tasmin')  
+  var.list <- c('pr','tasmax','tasmin','tas')  
   ##Climate parameters
   for (var.name in var.list) {
     print('------------------------------')

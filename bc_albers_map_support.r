@@ -28,7 +28,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
                         leg.loc='topright',width=1200,height=1000,                        
                         shared.range=NULL,shared.box=NULL,draft=TRUE) { 
 
-  alb.crs <- "+init=epsg:3005"
+  alb.crs <- get.projection(region) ##"+init=epsg:3005"
 
   box.data <-projectRaster(box.data,crs=CRS(alb.crs))
   bounds <- extent(box.data)
@@ -62,7 +62,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
                                         type)    
   }
 
-  map.class.breaks.labels <- get.class.break.labels(class.breaks)
+  map.class.breaks.labels <- get.class.break.labels(class.breaks,type)
 
   ##------------------------------------------------------------------------------------------------
   ##Fix the colour.ramp to include greater or less than breaks for the bounding
@@ -76,7 +76,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
     colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
                                         my.bp=0,class.breaks=class.breaks,
                                         type)        
-    map.class.breaks.labels <- get.class.break.labels(class.breaks,lesser.sign=TRUE,greater.sign=TRUE)
+    map.class.breaks.labels <- get.class.break.labels(class.breaks,type,lesser.sign=TRUE,greater.sign=TRUE)
   } else {  
     ##Greater than
     if (box.range[2] > map.range[2]) {
@@ -85,7 +85,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
       colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
                                           my.bp=0,class.breaks=class.breaks,
                                           type)        
-      map.class.breaks.labels <- get.class.break.labels(class.breaks,greater.sign=TRUE)
+      map.class.breaks.labels <- get.class.break.labels(class.breaks,type,greater.sign=TRUE)
     }
     ##Less than
     if ((box.range[1] < map.range[1]) & (class.breaks[1] !=0) ) {
@@ -94,12 +94,11 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
       colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
                                           my.bp=0,class.breaks=class.breaks,
                                           type)        
-      map.class.breaks.labels <- get.class.break.labels(class.breaks,lesser.sign=TRUE)
+      map.class.breaks.labels <- get.class.break.labels(class.breaks,type,lesser.sign=TRUE)
 
     }
   }
-
-  map.class.breaks.labels <- get.class.break.labels(class.breaks,lesser.sign=FALSE,greater.sign=TRUE)
+  ##map.class.breaks.labels <- get.class.break.labels(class.breaks,type,lesser.sign=FALSE,greater.sign=TRUE)
   colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
                                       my.bp=0,class.breaks=class.breaks,
                                       type)        
@@ -125,11 +124,17 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   if (grepl('png',file.type)) {
     png(file=plot.file,width=width,height=height,bg='gray98')
   }
-  par(mar=c(4.5,4.75,5.2,4))    
+
+  title.info <- get.title.info(alb.crs,plot.title)
+  
+  par(mar=title.info$mar)    
   plot(c(),xlim=plot.window$xlim,ylim=plot.window$ylim,xaxs='i',yaxs='i',
      bg='lightgray',axes=FALSE,
-       xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main=plot.title,
+       xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='',
        cex.axis=1.75,cex.lab=1.75,cex.main=1.75)
+  title(main=strsplit(title.info$upper.title,'\n')[[1]][1],line=3.5,cex.main=1.95)
+  title(main=strsplit(title.info$upper.title,'\n')[[1]][2],line=1.75,cex.main=1.95)
+  title(main=strsplit(title.info$upper.title,'\n')[[1]][3],line=0.5,cex.main=1)
   axis(1,at=unclass(grats$labs@coords)[1:7,1],label=grats$lons,cex.axis=1.75)  
   axis(2,at=unclass(grats$labs@coords)[8:14,2],label=grats$lats,cex.axis=1.75)  
 
@@ -181,6 +186,10 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   ##Functions to add city and regional district lines
   add.cities(alb.crs)
   add.districts(alb.crs)
+
+  if (title.info$lower) {
+     mtext(side=1,adj=0.5,line=4,title.info$lower.title,cex=0.9)
+  }
 
   par(xpd=NA)
   legend(leg.loc, col = "black", legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),
