@@ -15,11 +15,11 @@ get.units.pane <- function(var.name) {
     leg.label <- c(rep('mm',7),rep('%',6))
   if (grepl("(dd)", var.name))
     leg.label <- c(rep('degree days',7),rep('%',6))
-  if (grepl("(fdE|cddE|cdd90|cddmax|cwd|su|gsl|id|trE|su30)", var.name))
+  if (grepl("(fdE|cddE|cdd90|cddmax|cwd|su|gsl|id|trE|su30|r95daysE|r99daysE)", var.name))
     leg.label <- c(rep('days',7),rep('%',6))
   if (grepl("(dtr)", var.name))
     leg.label <- c(rep('degC',7),rep('%',6))
-  if (grepl("(r95sep|r95dist)", var.name))
+  if (grepl("(r95sep|r95dist|r95days|r99days)", var.name))
     leg.label <- c(rep('days',7),rep('%',6))
   return(leg.label)
 } 
@@ -29,9 +29,9 @@ get.round.val <- function(var.name) {
   rd <- 0
   if (grepl("(dd)", var.name))
     rd <- 0    
-  if (grepl("(tas|txx|tnn|tnx|txn|tmax|tmin|trE|cddE|cdd90|cddmax|cwdE|idE|dtrE|wsdiE|csdiE|r95sep)", var.name))
+  if (grepl("(tas|txx|tnn|tnx|txn|tmax|tmin)", var.name))
     rd <- 1
-  if (grepl("(pr|rx|r9|RP|rp|tx90|tn10)", var.name))
+  if (grepl("(pr|rx|r9|RP|rp|tx90|tn10|trE|cddE|cdd90|cddmax|cwdE|idE|dtrE|wsdiE|csdiE|r95sep)", var.name))
     rd <- 0
   if (grepl("(pas|snowdepth)", var.name))
     rd <- 0
@@ -152,9 +152,9 @@ get.seasonal.data <- function(var.name,scenario) {
               round(get.data(var.name,seas,'2011-2040','abs.anomalies',scenario),rd),
               round(get.data(var.name,seas,'2041-2070','abs.anomalies',scenario),rd),
               round(get.data(var.name,seas,'2071-2100','abs.anomalies',scenario),rd),              
-              round(get.data(var.name,seas,'2011-2040','percent.anomalies',scenario),1),
-              round(get.data(var.name,seas,'2041-2070','percent.anomalies',scenario),1),
-              round(get.data(var.name,seas,'2071-2100','percent.anomalies',scenario),1))
+              round(get.data(var.name,seas,'2011-2040','percent.anomalies',scenario),rd),
+              round(get.data(var.name,seas,'2041-2070','percent.anomalies',scenario),rd),
+              round(get.data(var.name,seas,'2071-2100','percent.anomalies',scenario),rd))
     lower <- vals[names(vals)=='10%']
     upper <- vals[names(vals)=='90%']
     brackets <- paste('(',paste(lower,upper,sep=' to '),')',sep='')
@@ -180,9 +180,9 @@ get.annual.data <- function(var.name,scenario,rp) {
             round(get.data(var.name,seas,'2011-2040','abs.anomalies',scenario,rp),rd),
             round(get.data(var.name,seas,'2041-2070','abs.anomalies',scenario,rp),rd),
             round(get.data(var.name,seas,'2071-2100','abs.anomalies',scenario,rp),rd),              
-            round(get.data(var.name,seas,'2011-2040','percent.anomalies',scenario,rp),1),
-            round(get.data(var.name,seas,'2041-2070','percent.anomalies',scenario,rp),1),
-            round(get.data(var.name,seas,'2071-2100','percent.anomalies',scenario,rp),1))
+            round(get.data(var.name,seas,'2011-2040','percent.anomalies',scenario,rp),rd),
+            round(get.data(var.name,seas,'2041-2070','percent.anomalies',scenario,rp),rd),
+            round(get.data(var.name,seas,'2071-2100','percent.anomalies',scenario,rp),rd))
   lower <- vals[names(vals)=='10%']
   upper <- vals[names(vals)=='90%']
   brackets <- paste('(',paste(lower,upper,sep=' to '),')',sep='')
@@ -243,6 +243,7 @@ write.variables <- function(wb,sorted.vars,row.locs,type) {
     } else {                      
       var.entry <- seas.fx(var.name)                      
     }
+
     pane.colour <- switch(type,pr='lightblue',tas='tan1')             
 
     hdstyle <- createStyle(fgFill = pane.colour, halign = "CENTER", textDecoration = "Bold",
@@ -429,16 +430,40 @@ reg.list <- list(c('abbotsford_regional_hospital_site','van_coastal_health/vch_f
                  c('royal_columbian_hospital_site','van_coastal_health/vch_fraser/royal_columbian_hospital_site'), 
                  c('surrey_memorial_hospital_site','van_coastal_health/vch_fraser/surrey_memorial_hospital_site'))
 
+##Interior Health                
+reg.list <- list(c('golden','interior_health/golden'),
+                 c('golden_hospital_site','interior_health/golden_hospital_site'),
+                 c('interior_health','interior_health/interior_health'))
+
+##reg.list <- list(c('invermere','agriculture/invermere'))
+##reg.list <- list(c('terrace','terrace'))
+
+reg.list <- list(c('abbotsford','fraser_municipal/abbotsford'),
+                 c('chilliwack','fraser_municipal/chilliwack'),
+                 c('FVRDelectoralG','fraser_municipal/FVRDelectoralG'),
+                 c('FVRDelectoralH','fraser_municipal/FVRDelectoralH'),
+                 c('kent','fraser_municipal/kent'),
+                 c('mission','fraser_municipal/mission'))   
+
+
 ##Okanagan
 reg.list <- list(c('vernon','okanagan/vernon'),
                  c('central_okanagan','okanagan/central_okanagan'),                 
                  c('north_okanagan','okanagan/north_okanagan'),
                  c('okanagan_similkameen','okanagan/okanagan_similkameen'))                                  
+reg.list <- list(c('okanagan','okanagan/okanagan'))
 
-##Interior Health                
-reg.list <- list(c('golden','interior_health/golden'),
-                 c('golden_hospital_site','interior_health/golden_hospital_site'),
-                 c('interior_health','interior_health/interior_health'))
+##Toquaht
+##reg.list <- list(c('toquaht','toquaht/toquaht_coastal'),
+##                 c('toquaht','toquaht/toquaht_mountains'))
+
+##Van City
+##reg.list <- list(c('van_city','van_city'))
+
+reg.list <- list(c('skeena_hydro','skeena_hydro/skeena_cap_bank1'),
+                 c('skeena_hydro','skeena_hydro/skeena_cap_bank2'),
+                 c('skeena_hydro','skeena_hydro/skeena_cap_bank3'),
+                 c('skeena_hydro','skeena_hydro/skeena_cap_substation'))
 
 table.vars <- list(c('pr','seasonal','PR'),
                    c('rx1dayETCCDI','seasonal','RX1DAY'),
@@ -447,8 +472,8 @@ table.vars <- list(c('pr','seasonal','PR'),
                    c('r95daysETCCDI','annual','R95DAYS'),
                    c('r99pETCCDI','annual','R99P'),
                    c('r99daysETCCDI','annual','R99DAYS'),
-                   c('pr_rp5','annual','RP5 PR'),
                    c('pr_rp20','annual','RP20 PR'),
+                   c('pr_rp5','annual','RP5 PR'),
                    c('pr_rp50','annual','RP50 PR'),
                    c('cddETCCDI','annual','CDD'),
                    c('cwdETCCDI','annual','CWD'),
@@ -471,26 +496,32 @@ table.vars <- list(c('pr','seasonal','PR'),
                    c('hdd','annual','HDD'),
                    c('fdd','annual','FDD'),
                    c('tasmax_rp20','annual','RP20 TX'),
-                   c('tasmin_rp20','annual','RP20 TN'),                          
+                   c('tasmin_rp20','annual','RP20 TN'),
                    c('tasmax_rp5','annual','RP5 TX'),
                    c('tasmin_rp5','annual','RP5 TN'),
-                   c('pr_rp5','annual','RP5 PR'),
-                   c('pr.maximum','annual','ANN PR MAX'),
-                   c('pr.minimum','annual','ANN PR MIN'),
-                   c('pr.standard_deviation','annual','ANN PR SD'),
                    c('tasmax.annual_quantile_975','annual','TX 97.5%'),
                    c('tasmax.annual_quantile_990','annual','TX 99.0%'),
                    c('tasmax.annual_quantile_996','annual','TX 99.6%'),
                    c('tasmin.annual_quantile_004','annual','TN 0.4%'),
                    c('tasmin.annual_quantile_010','annual','TN 1.0%'),
-                   c('tasmin.annual_quantile_025','annual','TN 2.5%'))
+                   c('tasmin.annual_quantile_025','annual','TN 2.5%'),                          
+                   c('pr_rp5','annual','RP5 PR'),
+                   c('pr.maximum','annual','ANN PR MAX'),
+                   c('pr.minimum','annual','ANN PR MIN'),
+                   c('pr.standard_deviation','annual','ANN PR SD'))
+
+
+##bc.vars <-    list(
+
 ##                   c('cdd90ETCCDI','annual','CDD90'),
 ##                   c('cddmaxETCCDI','annual','CDDMAX'),
+
 
 ##table.vars <- list(c('tasmax_rp20','annual','RP20 TX'),
 ##                   c('txxETCCDI','seasonal','TXX'),                 
 ##                   c('r99pETCCDI','annual','R99P'),
 ##                    c('pr','seasonal','PR'))
+
 
 sorted.vars <- filter.input.variables(table.vars) 
 

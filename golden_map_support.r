@@ -12,7 +12,7 @@ get.region.title <- function(region) {
 }
 
 get.region.names <- function(region) {
-  return(list(area='interior_health/golden',subset='interior_health',region='golden'))
+  return(list(area='interior_health/golden',subset='interior_health',region='interior_health'))
 }
 
 get.leg.loc <- function(region) {

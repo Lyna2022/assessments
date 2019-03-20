@@ -8,15 +8,17 @@ for(i in 1:length(args)){
     eval(parse(text=args[[i]]))
 }
 }
-##region <- 'peace_highlands'
-##title <- "PeaceHighlands"
-##readloc <- 'northeast'
-##writeloc <- 'northeast/peace_highlands'
+##region <- 'terrace'
+##title <- "Terrace"
+##readloc <- 'terrace'
+##writeloc <- 'terrace'
+##varname <- 'rx1dayETCCDI'
 
 ds.type <- 'bccaq2' 
 scenario <- 'rcp85'
 past.int <- '1971-2000'
 proj.list <- c('2011-2040','2041-2070','2071-2100')
+
 pctl <- TRUE
 
 shape.dir <- paste0('/storage/data/projects/rci/data/assessments/shapefiles/',readloc,'/')

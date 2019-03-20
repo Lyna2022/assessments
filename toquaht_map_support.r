@@ -12,7 +12,7 @@ get.region.title <- function(region) {
 }
 
 get.region.names <- function(region) {
-  return(list(area='toquaht',subset='toquaht',region='Toquaht_Traditional_Territory'))
+  return(list(area='toquaht',subset='toquaht',region='toquaht'))
 }
 
 get.leg.loc <- function(region) {
@@ -33,7 +33,7 @@ get.plot.size <- function(region) {
 
 ##Set plot boundaries
 
-make.plot.window <- function(bounds) {
+make.plot.window <- function(bounds,region.shp) {
 
   xleft  <- 0.05
   xright <- -0.05
@@ -67,25 +67,54 @@ add.graticules <- function(crs) {
 }
 
 ##Additional overlays to add specific to the region
-add.plot.overlays <- function(crs) {
+add.plot.overlays <- function(crs,region) {
   shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/toquaht/'
   region.shp <- readOGR(shape.dir,'Toquaht_Traditional_Territory',stringsAsFactors=F, verbose=F)
   road.shp <- readOGR('/storage/data/gis/basedata/BC_Roads/','bc_hwy_geo',stringsAsFactors=F, verbose=F)
-  rivers.shp <- readOGR('/storage/data/projects/rci/data/assessments/bc/shapefiles/','bc_rivers',stringsAsFactors=F, verbose=F)
-  lakes.shp <- readOGR('/storage/data/gis/basedata/base_layers/','bc_lakes',stringsAsFactors=F, verbose=F)
+  rivers.shp <- readOGR(shape.dir,'Watercourse',stringsAsFactors=F, verbose=F)
+  lakes.shp <- readOGR(shape.dir,'toquaht_lakes',stringsAsFactors=F, verbose=F)
+  forest.shp <- readOGR(shape.dir,'Community Forest',stringsAsFactors=F, verbose=F)
+  coast.shp <- readOGR(shape.dir,'toquaht_coast',stringsAsFactors=F, verbose=F)
+  land.shp <- readOGR(shape.dir, 'toquaht_land', stringsAsFactors=F, verbose=F)
+  watershed.shp <- readOGR(shape.dir, 'Community Watershed', stringsAsFactors=F, verbose=F)
+  hydro.shp <- readOGR(shape.dir, 'hydro_line', stringsAsFactors=F, verbose=F)
+  culture.shp <- readOGR(shape.dir, 'Cultural_SiteFeatures', stringsAsFactors=F, verbose=F)
+  parcels.shp <- readOGR(shape.dir, 'Toquaht_Treaty_Parcels', stringsAsFactors=F, verbose=F)
+  flands.shp <- readOGR(shape.dir, 'Toquaht_Future_Lands', stringsAsFactors=F, verbose=F)
 
+
+  plot(spTransform(coast.shp,CRS(crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')  
+  plot(spTransform(land.shp,CRS(crs)),add=TRUE)
+  plot(spTransform(forest.shp,CRS(crs)),add=TRUE,lwd=3,border='darkgray')
+  plot(spTransform(parcels.shp,CRS(crs)),add=TRUE,lwd=2,border='black')
+  plot(spTransform(flands.shp,CRS(crs)),add=TRUE,lwd=2,border='black')
   plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
-  plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
+  plot(spTransform(hydro.shp,CRS(crs)),add=TRUE,col='darkblue',lwd=4)
+  plot(spTransform(hydro.shp,CRS(crs)),add=TRUE,col='lightblue',lwd=2)
+##  plot(spTransform(culture.shp,CRS(crs)),add=TRUE,col='white',pch=18,cex=1.3)
+##  plot(spTransform(culture.shp,CRS(crs)),add=TRUE,col='black',pch=18)
+##  plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=2,col='gray')
-  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=4)
+  plot(spTransform(watershed.shp,CRS(crs)),add=TRUE,col='lightblue',border='darkblue',pch=18)
+  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=2,lty=2)
+
 }
 
-add.cities <- function(crs) {
+add.cities <- function(crs,region) {
   ##Coordinates of cities to plot on the map
 
   city.coords <- list(
-                     list(name='Ucluelet',lon=-125.54606,lat=48.94201,xoffset=-0.05,yoffset=-0.05),
-                     list(name='Salmon\nBeach',lon=-125.433827,lat=48.959508,xoffset=0,yoffset=-0.05))
+                     list(name='Ucluelet',lon=-125.54606,lat=48.94201,xoffset=-0.05,yoffset=-0.03,        
+                          xline=c(0,-0.05),yline=c(0.0,-0.01)),
+                     list(name='Bamfield',lon=-125.14280,lat=48.83330,xoffset=0.06,yoffset=0,
+                          xline=c(0,+0.025),yline=c(0.0,0.009)),
+                     list(name='Salmon\nBeach',lon=-125.433827,lat=48.959508,xoffset=0,yoffset=-0.05,
+                          xline=c(0,0.0),yline=c(0.0,-0.02)),   
+                     list(name='Macoah',lon=-125.376,lat=48.99,xoffset=0.02,yoffset=-0.03,
+                          xline=c(0,0.01),yline=c(0.005,-0.015)),
+                     list(name='Secret\nBeach',lon=-125.38,lat=49.01,xoffset=0,yoffset=0.02,
+                          xline=c(0.01,0.0),yline=c(0.00,0.025)), 
+                     list(name='Stuart\nBay',lon=-125.51,lat=48.93,xoffset=0,yoffset=-0.08,                                                    xline=c(0,0.0),yline=c(0.0,-0.04)))                    
 
   for (cc in seq_along(city.coords)) {
       city <- unclass(city.coords[[cc]])
@@ -95,15 +124,17 @@ add.cities <- function(crs) {
       xoffset <- city$xoffset
       yoffset <- city$yoffset
       city.name <- city$name
-      points(cx,cy,pch=17,cex=1.5,col='black')
-      shadowtext(cx+xoffset,cy+yoffset,city.name,adj=4,pos=3,cex=1.75,col='black',bg='white',r=0.1)
+      ##points(cx,cy,pch=17,cex=1.5,col='black')
+      lines(city$lon+city$xline,city$lat+city$yline,col='white',lwd=3)
+      shadowtext(cx+xoffset,cy+yoffset,city.name,adj=4,pos=3,cex=1.55,col='black',bg='white',r=0.1)
   }
 }
 
-add.districts <- function(crs) {
+add.districts <- function(crs,region) {
 
   district.coords <- list(
-                         list(name='Interior Health',lon=-119.8,lat=51.435))
+                         list(name='Community\nForest',lon=-125.52,lat=49.02,size=1),
+                         list(name='Toquaht\nNation',lon=-125.34,lat=49.14,size=1.5))
 
   for (dc in seq_along(district.coords)) {
       district <- unclass(district.coords[[dc]])
@@ -111,7 +142,7 @@ add.districts <- function(crs) {
       cx <- coords[1]
       cy <- coords[2]
       district.name <- district$name      
-      ##text(cx,cy,district.name,font=2,adj=4,pos=1,cex=1.75,col='black',bg='white')
+      text(cx,cy,district.name,font=2,adj=4,pos=1,cex=district$size,col='black',bg='white')
   }
 }
 

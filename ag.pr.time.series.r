@@ -55,10 +55,10 @@ read.gcm.data <- function(gcm.list,scenario,type,season,region) {
 ##---------------------------------------------------------------------
 ##PCDS Data
 
-area <- 'KOOTENAYS' ##'CENTRAL' ##
-area.title <- 'Kootenay' ##'Central Interior' ##
+area <- 'ALBERNI-CLAYOQUOT' ##'CENTRAL' ##
+area.title <- 'Alberni-Clayoquot' ##'Central Interior' ##
 ##regions <- list(c('BULKLEY-NECHAKO','0.6'),c('FRASER-FORT GEORGE','0.4'))
-regions <- list(c('CENTRAL KOOTENAY','0.39'),c('EAST KOOTENAY','0.47'),c('KOOTENAY BOUNDARY','0.14'))
+regions <- list(c('ALBERNI-CLAYOQUOT','1'))  ##list(c('CENTRAL KOOTENAY','0.39'),c('EAST KOOTENAY','0.47'),c('KOOTENAY BOUNDARY','0.14'))
 
 seasons <- 'annual' ##c('winter','spring','summer','fall') ##'annual' ##
 season.titles <- 'Annual' ##c('Winter','Spring','Summer','Fall') ##'Annual' ##
@@ -86,11 +86,11 @@ for (s in seq_along(seasons)) {
   rcp45.list <- c('ACCESS1-0','CanESM2','CCSM4','CNRM-CM5','CSIRO-Mk3-6-0','GFDL-ESM2G','HadGEM2-CC','HadGEM2-ES','inmcm4','MIROC5','MPI-ESM-LR','MRI-CGCM3')
   rcp85.list <- c('ACCESS1-0','CanESM2','CCSM4','CNRM-CM5','CSIRO-Mk3-6-0','GFDL-ESM2G','HadGEM2-CC','HadGEM2-ES','inmcm4','MIROC5','MPI-ESM-LR','MRI-CGCM3')
 
-  ##rcp26.data <- read.gcm.data(rcp26.list,'rcp26',type,season,tolower(area))
+  rcp26.data <- read.gcm.data(rcp26.list,'rcp26',type,season,tolower(area))
   rcp45.data <- read.gcm.data(rcp45.list,'rcp45',type,season,tolower(area))
   rcp85.data <- read.gcm.data(rcp85.list,'rcp85',type,season,tolower(area))
 
-  ##save(rcp26.data,file=paste0('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/pr.',tolower(area),'.',season,'.rcp26.gcm.RData'))
+  save(rcp26.data,file=paste0('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/pr.',tolower(area),'.',season,'.rcp26.gcm.RData'))
   save(rcp45.data,file=paste0('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/pr.',tolower(area),'.',season,'.rcp45.gcm.RData'))
   save(rcp85.data,file=paste0('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/pr.',tolower(area),'.',season,'.rcp85.gcm.RData'))
 
@@ -98,7 +98,7 @@ for (s in seq_along(seasons)) {
   ##load(paste0('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/pr.',tolower(area),'.',season,'.rcp45.gcm.RData'))
   ##load(paste0('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/pr.',tolower(area),'.',season,'.rcp85.gcm.RData'))
 
-  ##rcp26.series <- apply(rcp26.data,1,mean,na.rm=T)
+  rcp26.series <- apply(rcp26.data,1,mean,na.rm=T)
   rcp45.series <- apply(rcp45.data,1,mean,na.rm=T)
   rcp85.series <- apply(rcp85.data,1,mean,na.rm=T)
 
@@ -109,15 +109,15 @@ for (s in seq_along(seasons)) {
   yrs <- 2007:2095
   hys <- 1956:2007
 
-  ##rcp26.mean <- rollmean(rcp26.series,rx)
+  rcp26.mean <- rollmean(rcp26.series,rx)
   rcp45.mean <- rollmean(rcp45.series,rx)
   rcp85.mean <- rollmean(rcp85.series,rx)
 
   hist.90 <- rollmean(apply(rcp45.data,1,quantile,0.9,na.rm=T),rx)[px]
   hist.10 <- rollmean(apply(rcp45.data,1,quantile,0.1,na.rm=T),rx)[px]
 
-  ##rcp26.90 <- rollmean(apply(rcp26.data,1,quantile,0.9),rx)[ix]
-  ##rcp26.10 <- rollmean(apply(rcp26.data,1,quantile,0.1),rx)[ix]
+  rcp26.90 <- rollmean(apply(rcp26.data,1,quantile,0.9),rx)[ix]
+  rcp26.10 <- rollmean(apply(rcp26.data,1,quantile,0.1),rx)[ix]
 
   rcp45.90 <- rollmean(apply(rcp45.data,1,quantile,0.9,na.rm=T),rx)[ix]
   rcp45.10 <- rollmean(apply(rcp45.data,1,quantile,0.1,na.rm=T),rx)[ix]
@@ -129,18 +129,18 @@ for (s in seq_along(seasons)) {
 
   png(plot.file,width=1200,height=900)
   par(mar=c(5,5,5,3))
-  plot(1951:2100,rcp45.series,type='l',lwd=4,col='white',ylim=c(-75,75.0),
+  plot(1951:2100,rcp45.series,type='l',lwd=4,col='white',ylim=c(-45,45.0),xlim=c(1950,2095),
   main=paste0(season.title,' Average Precipitation Anomalies in ',area.title),xlab='Year',ylab='Precipitation Change (%)',
   cex.axis=2,cex.lab=2,cex.main=2.5)
 
-  polygon(c(yrs,rev(yrs)),c(rcp85.10,rev(rcp85.90)),col=alpha('blue',0.3),border=alpha('red',0.2))
-  polygon(c(yrs,rev(yrs)),c(rcp45.10,rev(rcp45.90)),col=alpha('green',0.3),border=alpha('orange',0.2))
-  ##polygon(c(yrs,rev(yrs)),c(rcp26.10,rev(rcp26.90)),col=alpha('blue',0.3),border=alpha('blue',0.2))
+  polygon(c(yrs,rev(yrs)),c(rcp85.10,rev(rcp85.90)),col=alpha('blue',0.3),border=alpha('blue',0.2))
+  polygon(c(yrs,rev(yrs)),c(rcp45.10,rev(rcp45.90)),col=alpha('green',0.3),border=alpha('green',0.2))
+  polygon(c(yrs,rev(yrs)),c(rcp26.10,rev(rcp26.90)),col=alpha('yellow',0.3),border=alpha('yellow',0.2))
   polygon(c(hys,rev(hys)),c(hist.10,rev(hist.90)),col=alpha('gray',0.3),border=alpha('gray',0.5))
 
   lines(yrs,rcp85.mean[ix],lwd=4,col='blue')
   lines(yrs,rcp45.mean[ix],lwd=4,col='green')
-  ##lines(yrs,rcp26.mean[ix],lwd=4,col='blue')
+  lines(yrs,rcp26.mean[ix],lwd=4,col='yellow')
   lines(hys,rcp45.mean[px],lwd=4,col='darkgray')
 
   lines(c(1985,2010),rep(mean(rcp45.series[35:60]),2),col='black',lwd=6)

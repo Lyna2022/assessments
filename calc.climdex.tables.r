@@ -145,13 +145,18 @@ compute.climdex.values <- function(model,ds.type,
   if (seas.flag) {
     seas.files <- base.files[grep('seasonal',base.files)]
     seas.file <- seas.files[grep(interval,seas.files)]
-
     ##Function to extract subset of data for moti region
     seas.brick <- brick(seas.file)
     seas.subset <- mask(seas.brick,clip.shp)
     seas.avg <- cellStats(seas.subset,'mean')
 
-    all.values <- c(seas.avg,ann.avg)
+    mon.files <- base.files[grep('monthly',base.files)]
+    mon.file <- mon.files[grep(interval,mon.files)]
+    ##Function to extract subset of data for moti region
+    mon.brick <- brick(mon.file)
+    mon.subset <- mask(mon.brick,clip.shp)
+    mon.avg <- cellStats(mon.subset,'mean')
+    all.values <- c(mon.avg,seas.avg,ann.avg)
     rv <- all.values
   } 
   return(rv)
@@ -175,8 +180,9 @@ format.tables <- function(mon.vals,models,rd,pctl=FALSE,var.name,seas.flag,regio
     new.table <- cbind(c(models,'Ens. Avg.'),new.table)
   }
   if (seas.flag) {
-     new.table <- rbind(c('Model','Winter','Spring','Summer','Fall','Annual'),new.table)
-     title <- c(paste('Table: CLIMDEX ',get.variable.title(var.name),' for ',region.title,sep=''),rep(' ',5))
+     ##new.table <- rbind(c('Model','Winter','Spring','Summer','Fall','Annual'),new.table)
+     new.table <- rbind(c('Model',month.abb,'Winter','Spring','Summer','Fall','Annual'),new.table)
+     title <- c(paste('Table: CLIMDEX ',get.variable.title(var.name),' for ',region.title,sep=''),rep(' ',17))
   } else {
      new.table <- rbind(c('Model','Annual'),new.table)
      title <- c(paste('Table: CLIMDEX ',get.variable.title(var.name),' for ',region.title,sep=''),rep(' ',1))
@@ -222,7 +228,7 @@ make.climdex.tables <- function(model.list,var.name,ds.type,region,region.title,
 
     rd <- get.rounding.value(var.class)
     if (seas.flag) {
-      ncol <- 5     
+      ncol <- 17     
     } else {
       ncol <- 1
     }

@@ -39,8 +39,20 @@ sites <- list(list(region='abbotsford_regional_hospital_site',lon=-122.3120961,l
               list(region='surrey_memorial_hospital_site',lon=-122.8413973,lat=49.1759547,dir=shape.dir))
 
 
-shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/okanagan'
-sites <- list(list(region='golden_hospital_site',lon=-116.96696,lat=51.297043,dir=shape.dir))
+##shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/okanagan'
+##sites <- list(list(region='golden_hospital_site',lon=-116.96696,lat=51.297043,dir=shape.dir))
+
+##shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/kootenays'
+##sites <- list(list(region='invermere',lon=-116.0291,lat=50.5065,dir=shape.dir))
+
+##shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/terrace'
+##sites <- list(list(region='terrace',lon=-128.6032,lat=54.5182,dir=shape.dir))
+
+shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/skeena_hydro'
+sites <- list(list(region='skeena_cap_bank1',lon=-124.0044,lat=53.9819,dir=shape.dir),
+              list(region='skeena_cap_bank2',lon=-125.8561,lat=54.3283,dir=shape.dir),
+              list(region='skeena_cap_bank3',lon=-127.1750,lat=54.6406,dir=shape.dir),
+              list(region='skeena_cap_substation',lon=-128.6319,lat=54.4522,dir=shape.dir))
 
 for (site in sites) {
     make.shape.file(site)

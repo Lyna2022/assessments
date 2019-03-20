@@ -88,6 +88,21 @@ add.cities <- function(crs) {
   ##list(name='Dawson Creek',lon=-120.2377,lat=55.7596,xoffset=-8000,yoffset=8000))
 
   city.coords <- list(
+                     list(name='Williams Lake',lon=-122.1417,lat=52.1417,xoffset=0.05,yoffset=0.04),
+                     list(name='Clearwater',lon=-120.0382,lat=51.6511,xoffset=0,yoffset=0.04),
+                     list(name='Lillooet',lon=-121.9368,lat=50.6863,xoffset=0,yoffset=0.04),
+                     list(name='Merritt',lon=-120.7862,lat=50.1113,xoffset=0,yoffset=0.04),
+                     list(name='Salmon Arm',lon=-119.2838,lat=50.7001,xoffset=0,yoffset=0.04),
+                     list(name='Kelowna',lon=-119.4960,lat=49.8880,xoffset=0,yoffset=0.04),
+                     list(name='Oliver',lon=-119.5504,lat=49.1823,xoffset=0,yoffset=0.04),
+                     list(name='Princeton',lon=-120.5062,lat=49.4590,xoffset=0,yoffset=0.04),
+                     list(name='Grand Forks',lon=-118.4451,lat=49.0301,xoffset=-0.05,yoffset=0.04),
+                     list(name='Trail',lon=-117.7117,lat=49.0966,xoffset=0.05,yoffset=0.04),
+                     list(name='Creston',lon=-116.5135,lat=49.0955,xoffset=0,yoffset=0.04),
+                     list(name='Fernie',lon=-115.0631,lat=49.5040,xoffset=0,yoffset=0.04),
+                     list(name='Invermere',lon=-116.0291,lat=50.5065,xoffset=0,yoffset=0.04),
+                     list(name='Golden',lon=-116.9631,lat=51.2961,xoffset=0,yoffset=0.04),
+                     list(name='Nakusp',lon=-117.8011,lat=50.2399,xoffset=0,yoffset=0.04),
                      list(name='Nelson',lon=-117.2948,lat=49.4928,xoffset=0,yoffset=0.04),
                      list(name='Vernon',lon=-119.296,lat=50.261,xoffset=0,yoffset=0.04))
 

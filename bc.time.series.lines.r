@@ -51,11 +51,11 @@ return(data)
 ##---------------------------------------------------------------------
 ##PCDS Data
 
-obs.dir <- '/storage/data/projects/rci/data/assessments/bc/pcds/'
+obs.dir <- '/storage/data/projects/rci/data/assessments/bc/pcds/annual/'
 
-obs.tx <- read.csv(paste0(obs.dir,'annual_tx_anoms_tseries_0016_BRITISH COLUMBIA.csv'),header=TRUE,as.is=TRUE)
+obs.tx <- read.csv(paste0(obs.dir,'annual_tx_anoms_tseries_0017_BRITISH COLUMBIA.csv'),header=TRUE,as.is=TRUE)
 tx.anoms <- obs.tx[,3]
-obs.tn <- read.csv(paste0(obs.dir,'annual_tn_anoms_tseries_0016_BRITISH COLUMBIA.csv'),header=TRUE,as.is=TRUE)
+obs.tn <- read.csv(paste0(obs.dir,'annual_tn_anoms_tseries_0017_BRITISH COLUMBIA.csv'),header=TRUE,as.is=TRUE)
 tn.anoms <- obs.tn[,3]
 obs.anoms <- (tx.anoms + tn.anoms)/2
 obs.years <- obs.tx[,1]
@@ -103,24 +103,26 @@ rcp85.90 <- rollmean(apply(rcp85.data,1,quantile,0.9,na.rm=T),rx)[ix]
 rcp85.10 <- rollmean(apply(rcp85.data,1,quantile,0.1,na.rm=T),rx)[ix]
 
 plot.dir <- '/storage/data/projects/rci/data/assessments/bc/'
-plot.file <- paste0(plot.dir,'bc.annual.tas.lines.rcp85.png')
+plot.file <- paste0(plot.dir,'bc.annual.tas.agu.rcp85.png')
 
-png(plot.file,width=1200,height=900)
+png(plot.file,width=1000,height=600)
 par(mar=c(5,5,5,3))
-plot(1951:2100,rcp26.series,type='l',lwd=4,col='white',ylim=c(-2.4,9),
+plot(1951:2100,rcp26.series,type='l',lwd=4,col='white',xlim=c(1950,2100),ylim=c(-2.4,9),xaxs='i',
 main='Average Temperature Anomalies in BC',xlab='Year',ylab='Temperature Change (\u00B0C)',
 cex.axis=2,cex.lab=2,cex.main=2.5)
-##polygon(c(yrs,rev(yrs)),c(rcp85.10,rev(rcp85.90)),col=alpha('red',0.3),border=alpha('red',0.2))
-##polygon(c(yrs,rev(yrs)),c(rcp45.10,rev(rcp45.90)),col=alpha('orange',0.3),border=alpha('orange',0.2))
-##polygon(c(yrs,rev(yrs)),c(rcp26.10,rev(rcp26.90)),col=alpha('blue',0.3),border=alpha('blue',0.2))
-##polygon(c(hys,rev(hys)),c(hist.10,rev(hist.90)),col=alpha('gray',0.3),border=alpha('gray',0.5))
+polygon(c(yrs,rev(yrs)),c(rcp85.10,rev(rcp85.90)),col=alpha('red',0.3),border=alpha('red',0.2))
+polygon(c(yrs,rev(yrs)),c(rcp45.10,rev(rcp45.90)),col=alpha('orange',0.3),border=alpha('orange',0.2))
+polygon(c(yrs,rev(yrs)),c(rcp26.10,rev(rcp26.90)),col=alpha('blue',0.3),border=alpha('blue',0.2))
+polygon(c(hys,rev(hys)),c(hist.10,rev(hist.90)),col=alpha('gray',0.3),border=alpha('gray',0.5))
 
-apply(rcp85.data,2,function(y,x){lines(x,y,lwd=1,col=alpha('red',0.5))},1951:2100)
+##apply(rcp85.data,2,function(y,x){lines(x,y,lwd=1,col=alpha('red',0.5))},1951:2100)
 ##apply(rcp45.data,2,function(y,x){lines(x,y,lwd=1,col=alpha('orange',0.3))},1951:2100)
 ##apply(rcp26.data,2,function(y,x){lines(x,y,lwd=1,col=alpha('blue',0.3))},1951:2100)
-##lines(1956:2095,rcp85.mean,lwd=4,col='red')
-##lines(hys,rcp85.mean[px],lwd=4,col='darkgray')
 
+lines(yrs,rcp85.mean[ix],lwd=4,col='red')
+lines(yrs,rcp45.mean[ix],lwd=4,col='orange')
+lines(yrs,rcp26.mean[ix],lwd=4,col='blue')
+lines(hys,rcp85.mean[px],lwd=4,col='darkgray')
 
 ##lines(c(1985,2010),rep(mean(rcp26.series[35:60]),2),col='black',lwd=6)
 
@@ -128,8 +130,32 @@ abline(h=seq(-2,8,2),col='gray',lty=3,lwd=2)
 
 lines(obs.years,obs.anoms,lwd=4,col='black')
 
+lines(c(1961,2000),rep(quantile(rcp26.data[11:50,],0.9),2),col='darkgreen',lty=2,lwd=6)
+lines(c(1961,2000),rep(quantile(rcp85.data[11:50,],0.1),2),col='darkgreen',lty=2,lwd=6)
+lines(c(1961,1961),c(quantile(rcp85.data[11:50,],0.1),quantile(rcp26.data[11:50,],0.9)),col='darkgreen',lty=2,lwd=6)
+lines(c(2000,2000),c(quantile(rcp85.data[11:50,],0.1),quantile(rcp26.data[11:50,],0.9)),col='darkgreen',lty=2,lwd=6)
+text(1965,1.75,'Building Code\nParameters',col='darkgreen',cex=2)
+
+lines(c(2001,2020),rep(quantile(rcp85.data[51:70,],0.9),2),col='darkgreen',lty=2,lwd=6)
+lines(c(2001,2020),rep(quantile(rcp85.data[51:70,],0.1),2),col='darkgreen',lty=2,lwd=6)
+lines(c(2001,2001),c(quantile(rcp85.data[51:70,],0.1),quantile(rcp85.data[51:70,],0.9)),col='darkgreen',lty=2,lwd=6)
+lines(c(2020,2020),c(quantile(rcp85.data[51:70,],0.1),quantile(rcp85.data[51:70,],0.9)),col='darkgreen',lty=2,lwd=6)
+text(2029,-0.9,'Current Design Parameters',col='darkgreen',cex=2)
+
+lines(c(2021,2070),rep(quantile(rcp85.data[71:120,],0.9),2),col='darkgreen',lty=2,lwd=6)
+lines(c(2021,2070),rep(quantile(rcp45.data[71:120,],0.1),2),col='darkgreen',lty=2,lwd=6)
+lines(c(2021,2021),c(quantile(rcp45.data[71:120,],0.1),quantile(rcp85.data[71:120,],0.9)),col='darkgreen',lty=2,lwd=6)
+lines(c(2070,2070),c(quantile(rcp45.data[71:120,],0.1),quantile(rcp85.data[71:120,],0.9)),col='darkgreen',lty=2,lwd=6)
+text(2030,4.9,'Expanded Design Parameters',col='darkgreen',cex=2)
+
+
+
 box(which='plot')
-##legend('topleft',legend=c('PCDS','RCP8.5','RCP4.5','RCP2.6'),col=c('black','red','orange','blue'),cex=2,pch=15)
+legend('topleft',legend=c('Historial Observations (PCDS)',
+                          '3.5\u00B0C Business as usual (RCP8.5)',
+                          '2.0\u00B0C Paris Global Limit (RCP4.5)',
+                          '1.5\u00B0C Aspirational Global Limit (RCP2.6)'),
+                          col=c('black','red','orange','blue'),cex=2,pch=15)
 dev.off()
 
 browser()

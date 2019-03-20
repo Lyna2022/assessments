@@ -33,7 +33,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   box.data <-projectRaster(box.data,crs=CRS(alb.crs))
   bounds <- extent(box.data)
 
-  plot.window <- make.plot.window(bounds)
+  plot.window <- make.plot.window(bounds,region.shp)
 
   white.box <- box.data - box.data
   white.box[is.na(white.box)] <- 0
@@ -98,10 +98,13 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
 
     }
   }
+  ##class.breaks <- c(0,25,50,75,100,150,200,250,300,350,1000) ##Past/Future
+  ##class.breaks <- c(0,10,20,40,60,80,1000) ##Anoms
+  ##class.breaks <- c(1000,1250,1500,1750,2000,2500,3000,3500,1000000)
   ##map.class.breaks.labels <- get.class.break.labels(class.breaks,type,lesser.sign=FALSE,greater.sign=TRUE)
-  colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
-                                      my.bp=0,class.breaks=class.breaks,
-                                      type)        
+  ##colour.ramp <- get.legend.colourbar(var.name=var.name,map.range=box.range,
+  ##                                    my.bp=0,class.breaks=class.breaks,
+  ##                                    type)        
 
   map.class.breaks.labels <- rev(map.class.breaks.labels)
   class.breaks <- class.breaks
@@ -135,8 +138,13 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   title(main=strsplit(title.info$upper.title,'\n')[[1]][1],line=3.5,cex.main=1.95)
   title(main=strsplit(title.info$upper.title,'\n')[[1]][2],line=1.75,cex.main=1.95)
   title(main=strsplit(title.info$upper.title,'\n')[[1]][3],line=0.5,cex.main=1)
-  axis(1,at=unclass(grats$labs@coords)[1:7,1],label=grats$lons,cex.axis=1.75)  
-  axis(2,at=unclass(grats$labs@coords)[8:14,2],label=grats$lats,cex.axis=1.75)  
+
+  glen <- dim(grats$labs@coords)[1]     
+  ghalf <- glen/2
+  
+
+  axis(1,at=unclass(grats$labs@coords)[1:ghalf,1],label=grats$lons,cex.axis=1.75)  
+  axis(2,at=unclass(grats$labs@coords)[(ghalf+1):glen,2],label=grats$lats,cex.axis=1.75)  
 
   rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col='lightgray')
   
@@ -159,13 +167,13 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   us.shp <- readOGR(shape.dir,us.overlay,stringsAsFactors=F, verbose=F)
   rivers.shp <- readOGR(shape.dir,rivers.overlay,stringsAsFactors=F, verbose=F)
 
-  plot(spTransform(coast.shp,CRS(alb.crs)),add=TRUE,col='lightgray')                
-  plot(spTransform(us.shp,CRS(alb.crs)),add=TRUE,col='gray')
-  plot(spTransform(bc.shp,CRS(alb.crs)),add=TRUE)
+  ##plot(spTransform(coast.shp,CRS(alb.crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')                
+##  plot(spTransform(us.shp,CRS(alb.crs)),add=TRUE,col='gray')
+##  plot(spTransform(bc.shp,CRS(alb.crs)),add=TRUE)
 ##plot(spTransform(rivers.shp,CRS(alb.crs)),add=TRUE,col='lightblue')
 
   ##Plot additional overlays if necessay
-  add.plot.overlays(alb.crs)
+  add.plot.overlays(alb.crs,region)
 
   ##Add the lon/lat lines
   plot(grats$grat,add=TRUE,lty=3,col='gray',lwd=2)
@@ -184,8 +192,8 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   my.label.units <- leg.label.units(var.name,type)
 
   ##Functions to add city and regional district lines
-  add.cities(alb.crs)
-  add.districts(alb.crs)
+  add.cities(alb.crs,region)
+  add.districts(alb.crs,region)
 
   if (title.info$lower) {
      mtext(side=1,adj=0.5,line=4,title.info$lower.title,cex=0.9)
@@ -194,6 +202,12 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   par(xpd=NA)
   legend(leg.loc, col = "black", legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),
          pt.cex=1.95, y.intersp=0.8, title.adj=0.2, title=my.label.units, xjust=0, cex=1.95)
+
+  if (region=='toquaht') {
+    legend('topleft', legend=c('Toquaht Parcels','Community Forest','Traditional Territory'), 
+                      lty=c(1,1,2),lwd=c(3,4,3),col=c('black','darkgray','black'),
+                      pt.cex=1.95, y.intersp=0.8, title.adj=0.2, title='Regions', xjust=0, cex=1.95)
+  }
 
   box(which='plot',lwd=3)
 

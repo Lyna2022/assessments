@@ -51,7 +51,9 @@ get.class.breaks <- function(var.name,type,map.range, manual.breaks=""){
         class.rv <- round(class.width/10)*10
       if (class.width >= 100)
         class.rv <- round(class.width/100)*100
-      class.rv <- min(c(class.rv,500))
+      if (class.width >= 500)
+        class.rv <- round(class.width/500)*500
+      class.rv <- min(c(class.rv,1000))
       class.rv <- max(c(class.rv,1))
     } else {
       if (class.width < 5 & class.width >= 1) {
