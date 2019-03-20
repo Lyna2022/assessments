@@ -512,8 +512,8 @@ plot.climdex <- function(region,scenario,proj.int,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region <- 'kootenays'
-readloc <- 'kootenays'
+region <- 'northeast'
+readloc <- 'northeast'
 
 source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
 scenario <- 'rcp85'
@@ -575,7 +575,8 @@ run.climdex <- function(region) {
                  'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI',
                  'cwdETCCDI','cddETCCDI','cdd90ETCCDI','cddmaxETCCDI',
                  'prcptotETCCDI','r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI')
-##   var.names <- c('cdd90ETCCDI','cddmaxETCCDI')
+   ##var.names <- c('cdd90ETCCDI','cddmaxETCCDI')
+   var.names <- c('r95daysETCCDI','r99daysETCCDI')
 
    for (var.name in var.names) {
       for (proj.int in proj.intervals) {                
@@ -583,7 +584,7 @@ run.climdex <- function(region) {
                          var.name,seas='Annual')        
       }
    }
-##browser()
+browser()
 ##Seasonal Climdex Maps
   var.names <- c('txxETCCDI','txnETCCDI','tnnETCCDI','tnxETCCDI','dtrETCCDI',
                  'rx1dayETCCDI','rx5dayETCCDI')                

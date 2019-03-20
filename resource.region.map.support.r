@@ -290,18 +290,18 @@ leg.label.units <- function(var.name,type) {
     leg.label <- 'm'
   if (grepl("(tx90|tn10)", var.name))
     leg.label <- '%'
-  if (type == 'percent' | grepl("percent",tolower(type)))
-    leg.label <- '% change'
   if (type == 'increases')
     leg.label <- '# of Models'
   if (grepl("dd", var.name))
     leg.label <- 'Degree days'
-  if (grepl("(fdE|cddE|cdd90|cddmax|cwd|su|gsl|id|trE|s30|r10|r20)", var.name))
+  if (grepl("(fdE|cddE|cdd90|cddmax|cwd|su|gsl|id|trE|s30|r10|r20|r95day|r99day)", var.name))
     leg.label <- 'days'
   if (grepl("(wspd)", var.name))
     leg.label <- 'km/h'
   if (grepl("(insol)", var.name))
     leg.label <- 'W m-2'
+  if (type == 'percent' | grepl("percent",tolower(type)))
+    leg.label <- '% change'
   return(leg.label)
 }   
 
