@@ -277,8 +277,6 @@ write.variables <- function(wb,sorted.vars,row.locs,type) {
     ##Monthly values
     for (j in 1:12) {
       text.col <- get.text.contrasting(cell.colours[col.ix[i,j]])
-      ##if (col.ix[i,j] %in% c(1,2,3,4,10,11,12))         
-      ##      text.col <- 'white'
       highlight <- createStyle(fgFill = cell.colours[col.ix[i,j]], halign = "CENTER", 
                                border = "TopBottomLeftRight", fontColour = text.col)  
       writeData(wb, sheet=1, var.matrix[i,j], startRow = current.row, startCol = j+1, headerStyle = highlight,
@@ -289,8 +287,7 @@ write.variables <- function(wb,sorted.vars,row.locs,type) {
 }
 
 ##----------------------------------------------------------------------------------------
-      ##Top Frozen Pane
-
+##Top Frozen Pane
 create.frozen.top.pane <- function(wb,site) {
 
       hdstyle <- createStyle(fgFill = 'gray94', halign = "CENTER", textDecoration = "Bold",

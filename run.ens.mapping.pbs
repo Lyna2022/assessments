@@ -1,0 +1,22 @@
+#!/bin/bash                                                                                                                                
+#PBS -l nodes=1:ppn=1                                                                                         
+#PBS -l pmem=1000mb                                                                                                                       
+#PBS -l walltime=12:00:00                                                                                                                  
+#PBS -d /storage/home/ssobie/code/repos/assessments/
+#PBS -o /storage/home/ssobie/code/repos/assessments/emap.stdout.log                                                           
+#PBS -e /storage/home/ssobie/code/repos/assessments/emap.stderr.log                                                           
+#PBS -N emap.cx
+
+cd /storage/home/ssobie/code/repos/assessments/
+echo "Current working directory is `pwd`"
+
+module load R/3.2.5
+module load netcdf-bin
+module load cdo-bin
+module load gdal/2.0.1
+
+region='toquaht'  ##'north_okanagan'
+readloc='toquaht'
+type='climdex'
+
+nohup R CMD BATCH --no-save --no-restore "--args region='$region' readloc='$readloc' type='$type'" ens.map.wrapper.r "./${region}.emap.${type}.out"

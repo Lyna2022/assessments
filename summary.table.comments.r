@@ -47,7 +47,13 @@ variable.comment <- function(var.name) {
                     tasmax.annual_quantile_996=c('Tasmax 99.6%\n','Warm Month Design Temperature 99.6%'),
                     tasmin.annual_quantile_004=c('Tasmin 0.4%\n','Cold Month Design Temperature 0.4%'),
                     tasmin.annual_quantile_010=c('Tasmin 1.0%\n','Cold Month Design Temperature 1.0%'),
-                    tasmin.annual_quantile_025=c('Tasmin 2.5%\n','Cold Month Design Temperature 2.5%'))
+                    tasmin.annual_quantile_025=c('Tasmin 2.5%\n','Cold Month Design Temperature 2.5%'),
+                    wetbulb.annual_quantile_975=c('Wetbulb Temperature 97.5%\n','Warm Month Wetbulb Temperature 97.5%'),
+                    wetbulb.annual_quantile_990=c('Wetbulb Temperature 99.0%\n','Warm Month Wetbulb Temperature 99.0%'),
+                    wetbulb.annual_quantile_996=c('Wetbulb Temperature 99.6%\n','Warm Month Wetbulb Temperature 99.6%'),
+                    wetbulb.annual_quantile_004=c('Wetbulb Temperature 0.4%\n','Cold Month Wetbulb Temperature 0.4%'),
+                    wetbulb.annual_quantile_010=c('Wetbulb Temperature 1.0%\n','Cold Month Wetbulb Temperature 1.0%'),
+                    wetbulb.annual_quantile_025=c('Wetbulb Temperature 2.5%\n','Cold Month Wetbulb Temperature 2.5%'))
 
 
 
