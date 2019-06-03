@@ -77,11 +77,11 @@ add.plot.overlays <- function(crs,region) {
 
   coast.shp <- readOGR(shape.dir,'west_coast_ocean',stringsAsFactors=F, verbose=F)
 
-  plot(spTransform(coast.shp,CRS(crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')  
+##  plot(spTransform(coast.shp,CRS(crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')  
   ##plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   ##plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   ##plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=1,col='gray')
-  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=1)
+  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=0.75)
 
 }
 

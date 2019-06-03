@@ -82,7 +82,7 @@ bccaq.anomalies <- function(var.name,gcm,base.dir) {
   var.data <- ncvar_get(gnc,var.name)
   var.mon <- apply(var.data,c(1,2),function(x,fac){tapply(x,fac,mean,na.rm=T)},monthly.fac)
   if (var.name=='pr') {
-    var.data[var.data <=0] <- NA    
+    var.data[var.data <=0] <- NA
     var.test <- apply(var.data,c(1,2),function(x,fac){tapply(x,fac,sum,na.rm=T)},monthly.ts.fac)
     var.mon <-  apply(var.test,c(2,3),function(x,fac){tapply(x,fac,mean,na.rm=T)},mon.facs)
   }

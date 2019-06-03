@@ -149,7 +149,7 @@ add.cities <- function(crs,region) {
 
 
   okanagan.coords <- list(
-                     list(name='Penticton',lon=-119.5937,lat=49.4991,xoffset=0,yoffset=0.01),
+                     list(name='Penticton',lon=-119.5937,lat=49.4991,xoffset=0,yoffset=-0.08),
                      list(name='Princeton',lon=-120.5062,lat=49.4590,xoffset=0,yoffset=0.01),
                      list(name='Keremeos',lon=-119.8295,lat=49.2025,xoffset=0,yoffset=0.01),
                      list(name='Oliver',lon=-119.5504,lat=49.1823,xoffset=0,yoffset=0.01),
@@ -166,7 +166,9 @@ add.cities <- function(crs,region) {
                      list(name='Merritt',lon=-120.7862,lat=50.1113,xoffset=0,yoffset=0.02),
                      list(name='Kamloops',lon=-120.3273,lat=50.6745,xoffset=0,yoffset=0.02),
                      list(name='Vernon',lon=-119.31,lat=50.261,xoffset=-0.02,yoffset=0.01),
-                     list(name='Revelstoke',lon=-118.1957,lat=50.9981,xoffset=-0.02,yoffset=-0.08))
+                     list(name='Revelstoke',lon=-118.1957,lat=50.9981,xoffset=-0.02,yoffset=-0.08),
+                     list(name='Osoyoos',lon=-119.4682,lat=49.0323,xoffset=0.0,yoffset=0.01),
+                     list(name='Summerland',lon=-119.6769,lat=49.6073,xoffset=-0.12,yoffset=0.01))                     
 
   okanagan_similkameen.coords <- list(
                      list(name='Penticton',lon=-119.5937,lat=49.4991,xoffset=0,yoffset=0.01),
@@ -175,9 +177,9 @@ add.cities <- function(crs,region) {
                      list(name='Oliver',lon=-119.5504,lat=49.1823,xoffset=0,yoffset=0.01),
                      list(name='Kelowna',lon=-119.4960,lat=49.8880,xoffset=0.12,yoffset=0.01),
                      list(name='West\nKelowna',lon=-119.5645,lat=49.8636,xoffset=-0.12,yoffset=0.01),
-                     list(name='Peachland',lon=-119.7408,lat=49.7703,xoffset=0,yoffset=0.01))
-
-
+                     list(name='Peachland',lon=-119.7408,lat=49.7703,xoffset=0,yoffset=0.01),
+                     list(name='Osoyoos',lon=-119.4682,lat=49.0323,xoffset=0.0,yoffset=0.01),
+                     list(name='Summerland',lon=-119.6769,lat=49.6073,xoffset=-0.12,yoffset=0.01))                     
 
   city.coords <- switch(region,
                         central_okanagan=central_okanagan.coords,

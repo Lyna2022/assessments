@@ -221,7 +221,7 @@ if(1==1) {
               add.cities=add.cities,add.districts=add.districts,
               add.graticules=add.graticules,leg.loc=leg.loc,
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
-browser()
+
 }
 if (1==1) {
   region.range <- range(as.matrix(crop(anoms.box,box.extent)),na.rm=T)
@@ -305,7 +305,7 @@ seasonal.directories <- function(var.name,region,scenario,seas,time.dir,grep.nam
 
 
  
-plot.single.seasonal <- function(region,scenario,proj.int,
+plot.single.seasonal <- function(region,scenario,proj.int,proj.intervals,
                                  var.name,grep.name,seas) {
 
   meta <- get.region.names(region)  
@@ -341,7 +341,8 @@ plot.single.seasonal <- function(region,scenario,proj.int,
   clim.files <- list.files(path=paste0(read.dir,'ENSEMBLE'),pattern=grep.name,full.name=TRUE)
   past.file <- clim.files[grep(past.int,clim.files)]
   proj.file <- clim.files[grep(proj.int,clim.files)]    
-  proj.files <- clim.files[grepl(paste0('(',paste0(time.intervals,collapse='|'),')'),clim.files)][2:3]   
+  proj.files <- clim.files[grepl(paste0('(',paste0(proj.intervals,collapse='|'),')'),clim.files)]
+
   print(clim.files)
 
   past.box <- brick(past.file)
@@ -386,7 +387,7 @@ return.period.directories <- function(var.name,scenario,time.dir,region,meta) {
 }
 
 
-plot.return.periods <- function(region,scenario,proj.int,
+plot.return.periods <- function(region,scenario,proj.int,proj.intervals,
                                 var.name,rp) {
   print('Return Periods')
   meta <- get.region.names(region)  
@@ -426,7 +427,7 @@ plot.return.periods <- function(region,scenario,proj.int,
 
     past.file <- clim.files[grep(past.int,clim.files)]
     proj.file <- clim.files[grep(proj.int,clim.files)]  
-    proj.files <- clim.files[grepl(paste0('(',paste0(time.intervals,collapse='|'),')'),clim.files)][2:3]   
+    proj.files <- clim.files[grepl(paste0('(',paste0(proj.intervals,collapse='|'),')'),clim.files)]   
     past.box <- brick(past.file)
     print('Past box')
     proj.box <- brick(proj.file)
@@ -479,7 +480,7 @@ climdex.directories <- function(var.name,scenario,time.dir,meta,draft) {
   return(rv)
 }
 
-plot.climdex <- function(region,scenario,proj.int,
+plot.climdex <- function(region,scenario,proj.int,proj.intervals,
                          var.name,seas) {
   meta <- get.region.names(region)
 
@@ -529,7 +530,7 @@ plot.climdex <- function(region,scenario,proj.int,
      clim.files <- all.files[grep(tolower(seas),all.files)]
      past.file <- clim.files[grep(past.int,clim.files)]
      proj.file <- clim.files[grep(proj.int,clim.files)]
-     proj.files <- clim.files[grepl(paste0('(',paste0(time.intervals,collapse='|'),')'),clim.files)][2:3]   
+     proj.files <- clim.files[grepl(paste0('(',paste0(proj.intervals,collapse='|'),')'),clim.files)]
      print(clim.files)
 
      ##Outer raster box
@@ -543,7 +544,7 @@ plot.climdex <- function(region,scenario,proj.int,
      clim.files <- all.files[grep('annual',all.files)]
      past.file <- clim.files[grep(past.int,clim.files)]
      proj.file <- clim.files[grep(proj.int,clim.files)]
-     proj.files <- clim.files[grepl(paste0('(',paste0(time.intervals,collapse='|'),')'),clim.files)][2:3]   
+     proj.files <- clim.files[grepl(paste0('(',paste0(proj.intervals,collapse='|'),')'),clim.files)]   
      print(clim.files)
 
      ##Outer raster box
@@ -574,37 +575,37 @@ plot.climdex <- function(region,scenario,proj.int,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region <- 'north_central_island'
-readloc <- 'van_coastal_health'
-type <- 'season'
+##region <- 'okanagan'
+##readloc <- 'interior_health'
+##type <- 'season'
 
-##args <- commandArgs(trailingOnly=TRUE)
-##for(i in 1:length(args)){
-##    eval(parse(text=args[[i]]))
-##}
+args <- commandArgs(trailingOnly=TRUE)
+for(i in 1:length(args)){
+    eval(parse(text=args[[i]]))
+}
 
 print(region)
 print(readloc)
 print(type)
 
-source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
-##source(paste0('/storage/home/ssobie/code/repos/assessments/okanagan_map_support.r'),chdir=T)       
+##source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
+source(paste0('/storage/home/ssobie/code/repos/assessments/okanagan_map_support.r'),chdir=T)       
 scenario <- 'rcp85'
 
-proj.intervals <- c('2041-2070','2071-2100') ##c('2011-2040','2041-2070','2071-2100')
+proj.intervals <- '2041-2070' ##c('2041-2070','2071-2100') ##c('2011-2040','2041-2070','2071-2100')
 
 ##Single Season
 run.season <- function(region) {
 
   ##Annual Maps
-  var.list <- 'tasmax' ##c('pr','tasmax','tasmin','tas')
+  var.list <- c('pr','tasmax','tasmin','tas')
   for (var.name in var.list) {
 
      grep.name <- paste0(var.name,'_',readloc,'_annual_average_climatology')
      for (proj.int in proj.intervals) {
         print(proj.int)
         print(region)
-        plot.single.seasonal(region,scenario,proj.int,
+        plot.single.seasonal(region,scenario,proj.int,proj.intervals,
                              var.name,grep.name,'Annual')
      }
   }
@@ -619,8 +620,8 @@ run.season <- function(region) {
       print(seas)
       for (proj.int in proj.intervals) {
          print(proj.int)
-##         plot.single.seasonal(region,scenario,proj.int,
-##                               var.name,grep.name,seas)
+         plot.single.seasonal(region,scenario,proj.int,proj.intervals,
+                               var.name,grep.name,seas)
       }
     }
   }
@@ -632,7 +633,7 @@ run.return.periods <- function(region) {
   for (var.name in var.list) {
      for (proj.int in proj.intervals) {        
        print(region)
-       plot.return.periods(region,scenario,proj.int,
+       plot.return.periods(region,scenario,proj.int,proj.intervals,
                            var.name,rp='20')
      }
   }
@@ -648,12 +649,12 @@ run.climdex <- function(region) {
                  'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI',
                  'cwdETCCDI','cddETCCDI','cdd90ETCCDI','cddmaxETCCDI',
                  'prcptotETCCDI','r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI')
-   ##var.names <- c('cdd90ETCCDI','cddmaxETCCDI')
+   ##var.names <- c('trETCCDI','dtrETCCDI')
    ##var.names <- c('rx1dayETCCDI','suETCCDI','fdETCCDI')
 
    for (var.name in var.names) {
       for (proj.int in proj.intervals) {                
-         plot.climdex(region,scenario,proj.int,
+         plot.climdex(region,scenario,proj.int,proj.intervals,
                          var.name,seas='Annual')        
       }
    }
@@ -661,12 +662,12 @@ run.climdex <- function(region) {
 ##Seasonal Climdex Maps
   var.names <- c('txxETCCDI','txnETCCDI','tnnETCCDI','tnxETCCDI','dtrETCCDI',
                  'rx1dayETCCDI','rx5dayETCCDI')                
-  ##var.names <- c('tnnETCCDI','txnETCCDI','tnxETCCDI')
+##  var.names <- 'dtrETCCDI'
   seas.list <-  c('Winter','Spring','Summer','Fall')
   for (var.name in var.names) {
      for (seas in seas.list) {
         for (proj.int in proj.intervals) {                
-           plot.climdex(region,scenario,proj.int,
+           plot.climdex(region,scenario,proj.int,proj.intervals,
                          var.name,seas)
         }
      }
@@ -678,7 +679,7 @@ run.dd <- function(region) {
   var.names <- c('cdd','hdd','fdd','gdd')
     for (var.name in var.names) {
         for (proj.int in proj.intervals) {                
-          plot.climdex(region,scenario,proj.int,
+          plot.climdex(region,scenario,proj.int,proj.intervals,
                      var.name,seas='Annual') 
         }
     }
@@ -690,7 +691,7 @@ run.quantiles <- function(region) {
                  'tasmin_annual_quantile_004','tasmin_annual_quantile_010','tasmin_annual_quantile_025')
     for (var.name in var.names) {
         for (proj.int in proj.intervals) {                
-          plot.climdex(region,scenario,proj.int,
+          plot.climdex(region,scenario,proj.int,proj.intervals,
                      var.name,seas='Annual')
         }
     }
@@ -704,7 +705,7 @@ run.pr.vars <- function(region) {
      for (proj.int in proj.intervals) {
         print(proj.int)
         print(region)
-        plot.single.seasonal(region,scenario,proj.int,
+        plot.single.seasonal(region,scenario,proj.int,proj.intervals,
                              var.name,grep.name,'Annual')
      }
   }
