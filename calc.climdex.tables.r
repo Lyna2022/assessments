@@ -175,9 +175,9 @@ format.tables <- function(mon.vals,models,rd,pctl=FALSE,var.name,seas.flag,regio
   }
   new.table <- round(table.vals,rd)
   if (pctl) {
-    new.table <- cbind(c(models,'Ens. Avg.','10th %ile','Median','90th %ile'),new.table) 
+    new.table <- cbind(c(models,'Ens_Avg.','10th_%ile','Median','90th_%ile'),new.table) 
   } else {
-    new.table <- cbind(c(models,'Ens. Avg.'),new.table)
+    new.table <- cbind(c(models,'Ens_Avg.'),new.table)
   }
   if (seas.flag) {
      ##new.table <- rbind(c('Model','Winter','Spring','Summer','Fall','Annual'),new.table)

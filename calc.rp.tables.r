@@ -69,7 +69,7 @@ format.tables <- function(mon.vals,models,rd,var.name,region.title,rperiod) {
   vals.50 <- quantile(vect.vals,0.5,na.rm=T)
   vals.90 <- quantile(vect.vals,0.9,na.rm=T)
   new.table <- round(c(vect.vals,vals.avg,vals.10,vals.50,vals.90),rd)
-  new.table <- cbind(c(models,'Ens. Avg.','10th %ile','Median','90th %ile'),new.table)
+  new.table <- cbind(c(models,'Ens_Avg.','10th_%ile','Median','90th_%ile'),new.table)
 ##  new.table <- rbind(c('Models','Annual'),new.table)
   new.table <- rbind(c('Models','Annual'),new.table)
   title <- c(paste('Table: ',get.variable.title(var.name,rperiod),' for ', region.title,sep=''),rep(' ',1))

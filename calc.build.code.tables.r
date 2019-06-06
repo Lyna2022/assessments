@@ -74,9 +74,9 @@ format.bc.tables <- function(mon.vals,models,pctl=FALSE,var.name,var.sub,region.
   }
   new.table <- round(table.vals,1)
   if (pctl) {
-    new.table <- cbind(c(models,'Ens. Avg.','10th %ile','Median','90th %ile'),new.table) 
+    new.table <- cbind(c(models,'Ens_Avg.','10th_%ile','Median','90th_%ile'),new.table) 
   } else {
-    new.table <- cbind(c(models,'Ens. Avg.'),new.table)
+    new.table <- cbind(c(models,'Ens_Avg.'),new.table)
   }
   new.table <- rbind(c('Model','Annual'),new.table)
   title <- c(paste('Table: ',get.build.title(var.sub),' for ',region.title,sep=''),rep(' ',1))  

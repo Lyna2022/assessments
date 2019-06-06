@@ -115,9 +115,9 @@ format.tables <- function(mon.vals,models,rd,pctl=FALSE,var.name,region.title) {
   }
   new.table <- round(table.vals,rd)
   if (pctl) {
-    new.table <- cbind(c(models,'Ens. Avg.','10th %ile','Median','90th %ile'),new.table)
+    new.table <- cbind(c(models,'Ens_Avg.','10th_%ile','Median','90th_%ile'),new.table)
   } else {
-    new.table <- cbind(c(models,'Ens. Avg.'),new.table)
+    new.table <- cbind(c(models,'Ens_Avg.'),new.table)
   }
   if (var.name=='snowdepth') {
 
