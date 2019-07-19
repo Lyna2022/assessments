@@ -447,11 +447,11 @@ reg.list <- list(c('abbotsford','fraser_municipal/abbotsford'),
 
 
 ##Okanagan
-reg.list <- list(c('vernon','okanagan/vernon'),
-                 c('central_okanagan','okanagan/central_okanagan'),                 
-                 c('north_okanagan','okanagan/north_okanagan'),
-                 c('okanagan_similkameen','okanagan/okanagan_similkameen'))                                  
-reg.list <- list(c('okanagan','okanagan/okanagan'))
+##reg.list <- list(c('vernon','okanagan/vernon'),
+##                 c('central_okanagan','okanagan/central_okanagan'),                 
+##                 c('north_okanagan','okanagan/north_okanagan'),
+##                 c('okanagan_similkameen','okanagan/okanagan_similkameen'))                                  
+##reg.list <- list(c('okanagan','okanagan/okanagan'))
 
 ##Toquaht
 ##reg.list <- list(c('toquaht','toquaht/toquaht_coastal'),
@@ -460,11 +460,45 @@ reg.list <- list(c('okanagan','okanagan/okanagan'))
 ##Van City
 ##reg.list <- list(c('van_city','van_city'))
 
-reg.list <- list(c('skeena_hydro','skeena_hydro/skeena_cap_bank1'),
-                 c('skeena_hydro','skeena_hydro/skeena_cap_bank2'),
-                 c('skeena_hydro','skeena_hydro/skeena_cap_bank3'),
-                 c('skeena_hydro','skeena_hydro/skeena_cap_substation'))
+##reg.list <- list(c('skeena_hydro','skeena_hydro/skeena_cap_bank1'),
+##                 c('skeena_hydro','skeena_hydro/skeena_cap_bank2'),
+##                 c('skeena_hydro','skeena_hydro/skeena_cap_bank3'),
+##                 c('skeena_hydro','skeena_hydro/skeena_cap_substation'))
 
+##reg.list <- list(c('cariboo','resource_regions/cariboo'),
+##                 c('northeast','resource_regions/northeast'),
+##                 c('omineca','resource_regions/omineca'),
+##                 c('skeena','resource_regions/skeena'),
+##                 c('south','resource_regions/south'),
+##                 c('thompson','resource_regions/thompson'),
+##                 c('west','resource_regions/west'))
+
+##Interior Health Sites
+reg.list <- list(c('cariboo_memorial_hospital','interior_health/cariboo_memorial_hospital'),
+                 c('helmcken_memorial_hospital','interior_health/helmcken_memorial_hospital'),
+                 c('hundred_mile_general_hospital','interior_health/hundred_mile_general_hospital'),
+                 c('lillooet_hospital','interior_health/lillooet_hospital'),
+                 c('royal_inland_hospital','interior_health/royal_inland_hospital'),
+                 c('shuswap_lake_hospital','interior_health/shuswap_lake_hospital'),
+                 c('nicola_valley_health','interior_health/nicola_valley_health'),
+                 c('queen_victoria_hospital','interior_health/queen_victoria_hospital'),
+                 c('vernon_jubilee_hospital','interior_health/vernon_jubilee_hospital'),
+                 c('kelowna_general_hospital','interior_health/kelowna_general_hospital'),
+                 c('penticton_regional_hospital','interior_health/penticton_regional_hospital'),
+                 c('princeton_general_hospital','interior_health/princeton_general_hospital'),
+                 c('south_okanagan_hospital','interior_health/south_okanagan_hospital'),
+                 c('arrow_lakes_hospital','interior_health/arrow_lakes_hospital'),
+                 c('kootenay_lake_hospital','interior_health/kootenay_lake_hospital'),
+                 c('kootenay_boundary_hospital','interior_health/kootenay_boundary_hospital'),
+                 c('boundary_hospital','interior_health/boundary_hospital'),
+                 c('golden_districts_hospital','interior_health/golden_districts_hospital'),
+                 c('invermere_district_hospital','interior_health/invermere_district_hospital'),
+                 c('east_kootenay_hospital','interior_health/east_kootenay_hospital'),
+                 c('elk_valley_hospital','interior_health/elk_valley_hospital'),
+                 c('creston_valley_hospital','interior_health/creston_valley_hospital'))
+
+reg.list <- list(c('bc','bc'))
+                    
 table.vars <- list(c('pr','seasonal','PR'),
                    c('rx1dayETCCDI','seasonal','RX1DAY'),
                    c('rx5dayETCCDI','seasonal','RX5DAY'),

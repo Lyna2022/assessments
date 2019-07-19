@@ -150,9 +150,12 @@ make.plot <- function(var.name,seasons,
     if (percent)
       plot.file <- paste0(plot.dir,'anomalies/',var.name,'_percent_',region,'_boxplots_',scenario,'.png',sep='')      
   } else {
-    plot.file <- paste0(plot.dir,'averages/',var.name,'_avgs_',region,'_boxplots_',scenario,'.png',sep='')    
+    plot.file <- paste0(plot.dir,'averages/',var.name,'_avgs_',region,'_boxplots_',scenario,'.2019.png',sep='')    
   }
-  png(file=plot.file,width=1500,height=800)
+  ##png(file=plot.file,width=1500,height=800)
+  png(file=plot.file,width=9,height=5,units='in',res=600,pointsize=6,bg='white')
+  ##pdf(file=plot.file,width=9,height=5,pointsize=6,bg='white')
+
   par(mar=c(10,5,5,5))
   if (anomalies) {
     plot(c(),xlim=c(1,length(seasons)),ylim=c(yvals[1],yvals[2]),main=paste('Projected Change of ',plot.title,'\n at ',title,sep=''),

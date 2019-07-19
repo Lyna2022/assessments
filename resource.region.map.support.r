@@ -14,7 +14,7 @@ library(RColorBrewer) # to get the sweet color ramps
 ##library(spatstat) ##to set up the color ramp values 
 library(TeachingDemos) #For shadow text
 
-rasterOptions(tmpdir='/home/data/scratch/ssobie/tmp/R_raster_tmp',
+rasterOptions(tmpdir='/local_temp/ssobie/R_raster_tmp',
                             progress='text',
                             maxmemory=1E+09,
                             chunksize=5E+08)

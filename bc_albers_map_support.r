@@ -125,7 +125,8 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
     tiff(file=plot.file,width=15,height=15,units='cm',res=150,bg='gray98')
   } 
   if (grepl('png',file.type)) {
-    png(file=plot.file,width=width,height=height,bg='gray98')
+   png(file=plot.file,width=width,height=height,units='in',res=600,pointsize=6,bg='gray94')
+   ### png(file=plot.file,width=width,height=height,bg='gray98')
   }
 
   title.info <- get.title.info(alb.crs,plot.title)
@@ -134,7 +135,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   plot(c(),xlim=plot.window$xlim,ylim=plot.window$ylim,xaxs='i',yaxs='i',
      bg='lightgray',axes=FALSE,
        xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='',
-       cex.axis=1.75,cex.lab=1.75,cex.main=1.75)
+       cex.axis=1.95,cex.lab=1.95,cex.main=1.95)
   title(main=strsplit(title.info$upper.title,'\n')[[1]][1],line=3.5,cex.main=1.95)
   title(main=strsplit(title.info$upper.title,'\n')[[1]][2],line=1.75,cex.main=1.95)
   title(main=strsplit(title.info$upper.title,'\n')[[1]][3],line=0.5,cex.main=1)
@@ -142,9 +143,8 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   glen <- dim(grats$labs@coords)[1]     
   ghalf <- glen/2
   
-
-  axis(1,at=unclass(grats$labs@coords)[1:ghalf,1],label=grats$lons,cex.axis=1.75)  
-  axis(2,at=unclass(grats$labs@coords)[(ghalf+1):glen,2],label=grats$lats,cex.axis=1.75)  
+  axis(1,at=unclass(grats$labs@coords)[1:ghalf,1],label=grats$lons,cex.axis=1.95)  
+  axis(2,at=unclass(grats$labs@coords)[(ghalf+1):glen,2],label=grats$lats,cex.axis=1.95)  
 
   rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col='lightgray')
   
@@ -176,7 +176,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   add.plot.overlays(alb.crs,region)
 
   ##Add the lon/lat lines
-  plot(grats$grat,add=TRUE,lty=3,col='gray',lwd=2)
+  plot(grats$grat,add=TRUE,lty=3,col='gray',lwd=0.75)
 
   if (draft) {
     text(x = grconvertX(0.5, from = "npc"),  # align to center of plot X axis

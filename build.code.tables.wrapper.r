@@ -16,7 +16,7 @@ for(i in 1:length(args)){
 ds.type <- 'bccaq2' 
 scenario <- 'rcp85'
 past.int <- '1971-2000'
-proj.list <- c('2011-2040','2041-2070','2071-2100')
+proj.list <- c('2011-2040','2041-2070','2071-2100') ##
 pctl <- TRUE ##Controls whether the percentiles (10,50,90) are added to the ensemble
 
 shape.dir <- paste0('/storage/data/projects/rci/data/assessments/shapefiles/',readloc,'/')

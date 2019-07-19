@@ -575,21 +575,21 @@ plot.climdex <- function(region,scenario,proj.int,proj.intervals,
 ###***********************************************************************************
 ###***********************************************************************************
 
-##region <- 'okanagan'
-##readloc <- 'interior_health'
-##type <- 'season'
+region <- 'penticton_airport'
+readloc <- 'interior_health'
+type <- 'season'
 
-args <- commandArgs(trailingOnly=TRUE)
-for(i in 1:length(args)){
-    eval(parse(text=args[[i]]))
-}
+##args <- commandArgs(trailingOnly=TRUE)
+##for(i in 1:length(args)){
+##    eval(parse(text=args[[i]]))
+##}
 
 print(region)
 print(readloc)
 print(type)
 
-##source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
-source(paste0('/storage/home/ssobie/code/repos/assessments/okanagan_map_support.r'),chdir=T)       
+source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
+##source(paste0('/storage/home/ssobie/code/repos/assessments/okanagan_map_support.r'),chdir=T)       
 scenario <- 'rcp85'
 
 proj.intervals <- '2041-2070' ##c('2041-2070','2071-2100') ##c('2011-2040','2041-2070','2071-2100')
@@ -598,7 +598,7 @@ proj.intervals <- '2041-2070' ##c('2041-2070','2071-2100') ##c('2011-2040','2041
 run.season <- function(region) {
 
   ##Annual Maps
-  var.list <- c('pr','tasmax','tasmin','tas')
+  var.list <- c('pr','tasmax','tasmin') ##,'tas')
   for (var.name in var.list) {
 
      grep.name <- paste0(var.name,'_',readloc,'_annual_average_climatology')
@@ -607,6 +607,7 @@ run.season <- function(region) {
         print(region)
         plot.single.seasonal(region,scenario,proj.int,proj.intervals,
                              var.name,grep.name,'Annual')
+
      }
   }
 
@@ -651,14 +652,14 @@ run.climdex <- function(region) {
                  'prcptotETCCDI','r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI')
    ##var.names <- c('trETCCDI','dtrETCCDI')
    ##var.names <- c('rx1dayETCCDI','suETCCDI','fdETCCDI')
-
+   var.names <- c('suETCCDI','su30ETCCDI','tnnETCCDI','idETCCDI','rx5dayETCCDI','gslETCCDI')
    for (var.name in var.names) {
       for (proj.int in proj.intervals) {                
          plot.climdex(region,scenario,proj.int,proj.intervals,
                          var.name,seas='Annual')        
       }
    }
-##browser()
+browser()
 ##Seasonal Climdex Maps
   var.names <- c('txxETCCDI','txnETCCDI','tnnETCCDI','tnxETCCDI','dtrETCCDI',
                  'rx1dayETCCDI','rx5dayETCCDI')                

@@ -4,23 +4,23 @@
 ##------------------------------------------------------------------------------------------------
 
 get.projection <- function(region) {
-  return("+init=epsg:3005")
+  return("+init=epsg:4326")
 }
 
 get.region.title <- function(region) {
-  return('Northeast')
+  return('Penticton Regional Airport')
 }
 
 get.region.names <- function(region) {
-  return(list(area='northeast',subset='northeast',region='northeast'))
+  return(list(area='okanagan/penticton_airport',subset='interior_health',region='penticton_airport'))
 }
 
 get.leg.loc <- function(region) {
-  return('bottomleft')
+  return('topright')
 }
 
 get.crop.box <- function(region) {
-  return(c(-128.0,-120.0,54.5,60.0))
+  return(c(-120.0,-119.0,49.25,49.75))
 }
 
 get.file.type <- function(region) {
@@ -35,10 +35,10 @@ get.plot.size <- function(region) {
 
 make.plot.window <- function(bounds,region.shp) {
 
-  xleft  <- 0.1
-  xright <- -0.00
-  ybot   <- 0.05
-  ytop   <- -0.00
+  xleft  <- 0.496
+  xright <- -0.465
+  ybot   <- 0.107
+  ytop   <- -0.823
 
   xlim.min <- bounds@xmin
   xlim.max <- bounds@xmax
@@ -52,13 +52,14 @@ make.plot.window <- function(bounds,region.shp) {
   plot.window.ylim <- c((ylim.min + ylim.adj*ybot),  (ylim.max + ylim.adj*ytop))
   rv <- list(xlim=plot.window.xlim,
              ylim=plot.window.ylim)
+
   return(rv)
 }
 
 add.graticules <- function(crs) {   
 
-  lons <- c(-130.0, -128.0, -126.0,-124.0,-122.0,-120.0,-118.0)
-  lats <- c(54.0,55.0,56.0,57.0,58.0,59.0,60.0)
+  lons <- c(-120.0,-119.9, -119.8, -119.7,-119.6,-119.5,-119.4,-119.3)
+  lats <- c(49.3,49.35,49.40,49.45,49.50,49.55,49.6,49.65)
 
   grat <- graticule(lons, lats, proj = CRS(crs))
   labs <- graticule_labels(lons = lons, lats = lats, xline = -129, yline = 54, proj = CRS(crs))
@@ -69,22 +70,16 @@ add.graticules <- function(crs) {
 
 ##Additional overlays to add specific to the region
 add.plot.overlays <- function(crs,region) {
-  shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/bc_common/'
-  bc.shp <- readOGR(shape.dir,'h_land_WGS84',stringsAsFactors=F, verbose=F)
 
-  shape.dir <- '/storage/data/projects/rci/data/assessments/northeast/shapefiles/'
-  region.shp <- readOGR(shape.dir,'northeast',stringsAsFactors=F, verbose=F)
-  nr.shp <- readOGR(shape.dir,'northern_rockies_muni',stringsAsFactors=F, verbose=F)
-  tr.shp <- readOGR(shape.dir,'tumbler_ridge',stringsAsFactors=F, verbose=F)
-  us.shp <- readOGR(shape.dir,'pnw_us_wgs84',stringsAsFactors=F, verbose=F)
-  coast.shp <- readOGR(shape.dir,'west_coast_ocean',stringsAsFactors=F, verbose=F)
+  shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/okanagan'
+  region.shp <- readOGR(shape.dir,'penticton_airport',stringsAsFactors=F, verbose=F)
+  lakes.shp <- readOGR(shape.dir,'penticton_airport_lakes',stringsAsFactors=F, verbose=F)
+  rivers.shp <- readOGR(shape.dir,'penticton_airport_rivers',stringsAsFactors=F, verbose=F)
 
-  plot(spTransform(coast.shp,CRS(crs)),add=TRUE,col='lightgray')
-  plot(spTransform(us.shp,CRS(crs)),add=TRUE,col='gray')
-  plot(spTransform(bc.shp,CRS(crs)),add=TRUE,lwd=1.5)  
-  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=3)
-  plot(spTransform(nr.shp,CRS(crs)),add=TRUE,lwd=1.5,lty=2)
-  plot(spTransform(tr.shp,CRS(crs)),add=TRUE,lwd=1.5,lty=2)
+
+  plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue')
+  plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue')
+  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=1.5)
 
 }
 
@@ -92,17 +87,16 @@ add.cities <- function(crs,region) {
   ##Coordinates of cities to plot on the map
 
   city.coords <- list(
-                     list(name='Fort St. John',lon=-120.84773,lat=56.25600,xoffset=-0.00,yoffset=15000,        
+                     list(name='Summerland',lon=-119.6769,lat=49.6073,xoffset=-0.0275,yoffset=0.0,        
                           xline=c(0,-0.05),yline=c(0.0,-0.01)),
-                     list(name='Fort Nelson',lon=-122.68722,lat=58.80452,xoffset=0.0,yoffset=-35000,
+                     list(name='Naramata',lon=-119.593747,lat=49.595959,xoffset=0.023,yoffset=0.0,
                           xline=c(0,+0.025),yline=c(0.0,0.009)),
-                     list(name='Dawson Creek',lon=-120.23144,lat=55.76058,xoffset=-8000,yoffset=10000,
-                          xline=c(0,0.0),yline=c(0.0,-0.02)),   
-                     list(name='Chetwynd',lon=-121.62955,lat=55.70771,xoffset=-35000,yoffset=-8000,
+                     list(name='Okanagan Falls',lon=-119.572161,lat=49.345409,xoffset=0.0275,yoffset=0.005,
                           xline=c(0,0.01),yline=c(0.005,-0.015)),
-                     list(name='Pouce Coupe',lon=-120.13359,lat=55.71034,xoffset=-10000,yoffset=-30000,
-                          xline=c(0.01,0.0),yline=c(0.00,0.025)))
-
+                     list(name='Penticton\nAirport',lon=-119.605275,lat=49.460288,xoffset=-0.025,yoffset=0,
+                          xline=c(0,0.01),yline=c(0.005,-0.015)),
+                     list(name='Penticton',lon=-119.593291,lat=49.499534,xoffset=0.025,yoffset=0,
+                          xline=c(0,0.01),yline=c(0.005,-0.015)))
 
   for (cc in seq_along(city.coords)) {
       city <- unclass(city.coords[[cc]])
@@ -121,8 +115,8 @@ add.cities <- function(crs,region) {
 add.districts <- function(crs,region) {
 
   district.coords <- list(
-                         list(name='Northern Rockies Regional Municipality',lon=-122.64943,lat=59.40487,size=1.75),
-                         list(name='Tumbler Ridge',lon=-121.1,lat=55.4,size=1.75))
+                         list(name='Okanagan\nLake',lon=-119.646560,lat=49.636493,size=1.75),
+                         list(name='Skaha\nLake',lon=-119.57644,lat=49.399468,size=1.75))
 
   for (dc in seq_along(district.coords)) {
       district <- unclass(district.coords[[dc]])

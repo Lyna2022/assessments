@@ -14,7 +14,7 @@ source('/storage/data/projects/rci/bcgov/moti/nrcan-precip_case_studies/code/mot
 read.gcm.data <- function(gcm.list,scenario) {
 
   read.dir <- paste0('/storage/data/climate/downscale/BCCAQ2+PRISM/high_res_downscaling/bccaq_gcm_bc_subset/',scenario,'/annual/')
-  clip.shp <- readOGR('/storage/data/projects/rci/data/assessments/shapefiles/kootenays','kootenays', stringsAsFactors=F)
+  clip.shp <- readOGR('/storage/data/projects/rci/data/assessments/shapefiles/northeast','northeast', stringsAsFactors=F)
 
   data <- matrix(NA,nrow=150,ncol=length(gcm.list))
        
@@ -52,11 +52,11 @@ return(data)
 ##---------------------------------------------------------------------
 ##PCDS Data
 
-obs.dir <- '/storage/data/projects/rci/data/assessments/bc/pcds/'
+obs.dir <- '/storage/data/projects/rci/data/assessments/bc/pcds/annual/'
 
-obs.tx <- read.csv(paste0(obs.dir,'annual_tx_anoms_tseries_0017_CENTRAL.csv'),header=TRUE,as.is=TRUE)
+obs.tx <- read.csv(paste0(obs.dir,'annual_tx_anoms_tseries_0018_BRITISH\ COLUMBIA.csv'),header=TRUE,as.is=TRUE)
 tx.anoms <- obs.tx[,3]
-obs.tn <- read.csv(paste0(obs.dir,'annual_tn_anoms_tseries_0017_CENTRAL.csv'),header=TRUE,as.is=TRUE)
+obs.tn <- read.csv(paste0(obs.dir,'annual_tn_anoms_tseries_0018_BRITISH\ COLUMBIA.csv'),header=TRUE,as.is=TRUE)
 tn.anoms <- obs.tn[,3]
 obs.anoms <- (tx.anoms + tn.anoms)/2
 obs.years <- obs.tx[,1]
@@ -70,14 +70,14 @@ rcp85.list <- c('ACCESS1-0','CanESM2','CCSM4','CNRM-CM5','CSIRO-Mk3-6-0','GFDL-E
 ##rcp45.data <- read.gcm.data(rcp45.list,'rcp45')
 ##rcp85.data <- read.gcm.data(rcp85.list,'rcp85')
 
-##save(rcp26.data,file='/storage/data/projects/rci/data/assessments/bc/pcds/data_files/kootenays.rcp26.gcm.RData')
-##save(rcp45.data,file='/storage/data/projects/rci/data/assessments/bc/pcds/data_files/kootenays.rcp45.gcm.RData')
-##save(rcp85.data,file='/storage/data/projects/rci/data/assessments/bc/pcds/data_files/kootenays.rcp85.gcm.RData')
+##save(rcp26.data,file='/storage/data/projects/rci/data/assessments/bc/pcds/data_files/bc.rcp26.gcm.RData')
+##save(rcp45.data,file='/storage/data/projects/rci/data/assessments/bc/pcds/data_files/bc.rcp45.gcm.RData')
+##save(rcp85.data,file='/storage/data/projects/rci/data/assessments/bc/pcds/data_files/bc.rcp85.gcm.RData')
 ##browser()
 
-load('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/central.rcp26.gcm.RData')
-load('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/central.rcp45.gcm.RData')
-load('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/central.rcp85.gcm.RData')
+load('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/northeast.rcp26.gcm.RData')
+load('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/northeast.rcp45.gcm.RData')
+load('/storage/data/projects/rci/data/assessments/bc/pcds/data_files/northeast.rcp85.gcm.RData')
 
 rcp26.series <- apply(rcp26.data,1,mean,na.rm=T)
 rcp45.series <- apply(rcp45.data,1,mean,na.rm=T)
@@ -105,31 +105,35 @@ rcp85.90 <- rollmean(apply(rcp85.data,1,quantile,0.9,na.rm=T),rx)[ix]
 rcp85.10 <- rollmean(apply(rcp85.data,1,quantile,0.1,na.rm=T),rx)[ix]
 
 plot.dir <- '/storage/data/projects/rci/data/assessments/bc/'
-plot.file <- paste0(plot.dir,'central.annual.tas.2017.png')
+##plot.file <- paste0(plot.dir,'northeast.annual.tas.2018.png')
+plot.file <- paste0(plot.dir,'bc.annual.tas.2018.pdf')
 
-png(plot.file,width=1200,height=900)
+##png(plot.file,width=1200,height=900)
+##png(file=plot.file,width=8,height=6,units='in',res=600,pointsize=6,bg='white')
+pdf(file=plot.file,width=8,height=6,bg='white')
+
 par(mar=c(5,5,5,3))
 plot(1951:2100,rcp26.series,type='l',lwd=4,col='white',ylim=c(-2.2,8),
-main='Average Temperature Anomalies in Central Interior',xlab='Year',ylab='Temperature Change (\u00B0C)',
-cex.axis=2,cex.lab=2,cex.main=2.5)
+main='Average Temperature Anomalies in British Columbia',xlab='Year',ylab='Temperature Change (\u00B0C)',
+cex.axis=1,cex.lab=1,cex.main=1.5)
 polygon(c(yrs,rev(yrs)),c(rcp85.10,rev(rcp85.90)),col=alpha('red',0.3),border=alpha('red',0.2))
 polygon(c(yrs,rev(yrs)),c(rcp45.10,rev(rcp45.90)),col=alpha('orange',0.3),border=alpha('orange',0.2))
 polygon(c(yrs,rev(yrs)),c(rcp26.10,rev(rcp26.90)),col=alpha('blue',0.3),border=alpha('blue',0.2))
 polygon(c(hys,rev(hys)),c(hist.10,rev(hist.90)),col=alpha('gray',0.3),border=alpha('gray',0.5))
 
-lines(yrs,rcp85.mean[ix],lwd=4,col='red')
-lines(yrs,rcp45.mean[ix],lwd=4,col='orange')
-lines(yrs,rcp26.mean[ix],lwd=4,col='blue')
-lines(hys,rcp85.mean[px],lwd=4,col='darkgray')
+lines(yrs,rcp85.mean[ix],lwd=2,col='red')
+lines(yrs,rcp45.mean[ix],lwd=2,col='orange')
+lines(yrs,rcp26.mean[ix],lwd=2,col='blue')
+lines(hys,rcp85.mean[px],lwd=2,col='darkgray')
 
-lines(c(1985,2010),rep(mean(rcp26.series[35:60]),2),col='black',lwd=6)
+##lines(c(1985,2010),rep(mean(rcp26.series[35:60]),2),col='black',lwd=3)
 
-abline(h=seq(-2,8,2),col='gray',lty=3,lwd=2)
+abline(h=seq(-2,8,2),col='gray',lty=3,lwd=1)
 
-lines(obs.years,obs.anoms,lwd=4,col='black')
+lines(obs.years,obs.anoms,lwd=2,col='black')
 
 box(which='plot')
-##legend('topleft',legend=c('PCDS','RCP8.5','RCP4.5','RCP2.6'),col=c('black','red','orange','blue'),cex=2,pch=15)
+legend('topleft',legend=c('PCDS','RCP8.5','RCP4.5','RCP2.6'),col=c('black','red','orange','blue'),cex=1,pch=15)
 dev.off()
 
 browser()
