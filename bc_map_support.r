@@ -16,7 +16,7 @@ get.region.names <- function(region) {
 }
 
 get.leg.loc <- function(region) {
-  return('bottomleft')
+  return('topright')
 }
 
 get.crop.box <- function(region) {
@@ -28,7 +28,7 @@ get.file.type <- function(region) {
 }
 
 get.plot.size <- function(region) {
-  return(c(900,800))
+  return(c(8,7))
 }
 
 ##Set plot boundaries
@@ -55,15 +55,22 @@ make.plot.window <- function(bounds,region.shp) {
   return(rv)
 }
 
+add.graticules <- function(lons,lats,crs) {
+
+  xl <-  range(lons)
+  yl <- range(lats)
+
+  rv <- grat
+  return(rv)
+}
+
+
 add.graticules <- function(crs) {   
 
   lons <- c(-145.0, -140.0,-135.0,-130.0,-125.0,-120.0,-115.0,-110.0)
   lats <- c(  48.0,  50.0,  52.0,  54.0,  56.0,  58.0,  60.0,  62.0)
-
-  grat <- graticule(lons, lats, proj = CRS(crs))
-  labs <- graticule_labels(lons = lons, lats = lats, xline = -129, yline = 54, proj = CRS(crs))
-
-  rv <- list(grat=grat,labs=labs,lons=lons,lats=lats)
+  grat <- graticule(lons, lats, proj = CRS(crs),xlim=c(-145,-110),ylim=c(48,62))
+  rv <- list(lons=lons,lats=lats,grats=grat)
   return(rv)
 }
 
@@ -75,13 +82,16 @@ add.plot.overlays <- function(crs,region) {
   rivers.shp <- readOGR(shape.dir,'h_rivers_WGS84',stringsAsFactors=F, verbose=F)
   ##lakes.shp <- readOGR(shape.dir,'',stringsAsFactors=F, verbose=F)
 
-  coast.shp <- readOGR(shape.dir,'west_coast_ocean',stringsAsFactors=F, verbose=F)
+   wco.shp <- readOGR('/storage/data/projects/rci/data/assessments/shapefiles/bc_common',
+                           'ocean_mask', stringsAsFactors=F, verbose=F)
 
 ##  plot(spTransform(coast.shp,CRS(crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')  
   ##plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   ##plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   ##plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=1,col='gray')
+  plot(spTransform(wco.shp,CRS(crs)),add=TRUE,col='lightgray',lwd=0.5)
   plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=0.75)
+
 
 }
 

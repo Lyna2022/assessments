@@ -16,6 +16,32 @@ convert.to.alb.coords <- function(lon,lat,alb.crs="+init=epsg:3005") {
   return(rv)
 }
 
+
+##X-Axis Ticks
+get.proj.xaxis <- function(lons,crs,plot.window.ylim) {
+
+  y <- seq(0,80,0.1)
+  xm <- sapply(lons,rep,length(y))
+  S <- apply(xm,2,function(x) {SpatialPoints(cbind(x,y), proj4string = CRS("+proj=longlat +datum=WGS84"))})
+  S2<- lapply(S,spTransform, crs)
+  indices <- lapply(S2,function(x){which.min(abs(x@coords[,'y']-plot.window.ylim[1]))})
+  xticks <- mapply(FUN=function(s,i){s@coords[,'x'][i]},S2,indices)
+  return(xticks)
+}
+
+ ##Y-Axis Ticks
+get.proj.yaxis <- function(lats,crs,plot.window.xlim) {
+
+  x <- seq(-180,-80,0.1)
+  ym <- sapply(lats,rep,length(x))
+  S <- apply(ym,2,function(y) {SpatialPoints(cbind(x,y), proj4string = CRS("+proj=longlat +datum=WGS84"))})
+  S2<- lapply(S,spTransform, crs)
+  indices <- lapply(S2,function(x){which.min(abs(x@coords[,'x']-plot.window.xlim[1]))})
+  yticks <- mapply(FUN=function(s,i){s@coords[,'y'][i]},S2,indices)
+  return(yticks)
+}
+
+
 reg.ds.maps <- function(box.data,region,region.range,box.range,
                         var.name,type,ds.type,region.shp,
                         plot.file,plot.title,
@@ -33,7 +59,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   box.data <-projectRaster(box.data,crs=CRS(alb.crs))
   bounds <- extent(box.data)
 
-  plot.window <- make.plot.window(bounds,region.shp)
+  plot.window <- make.plot.window(region,bounds,region.shp)
 
   white.box <- box.data - box.data
   white.box[is.na(white.box)] <- 0
@@ -110,7 +136,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   class.breaks <- class.breaks
   colour.ramp < rev(colour.ramp)
 
-  grats <- add.graticules(alb.crs)
+  grats <- add.graticules(alb.crs,region)
   file.type <- get.file.type(region)
   plot.size <- get.plot.size(region)
   width <- plot.size[1]
@@ -125,28 +151,29 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
     tiff(file=plot.file,width=15,height=15,units='cm',res=150,bg='gray98')
   } 
   if (grepl('png',file.type)) {
-   png(file=plot.file,width=width,height=height,units='in',res=600,pointsize=6,bg='gray94')
+   png(file=plot.file,width=width,height=height,units='in',res=600,pointsize=6,bg='white')
    ### png(file=plot.file,width=width,height=height,bg='gray98')
   }
 
   title.info <- get.title.info(alb.crs,plot.title)
   
+
+###'Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='',
   par(mar=title.info$mar)    
   plot(c(),xlim=plot.window$xlim,ylim=plot.window$ylim,xaxs='i',yaxs='i',
-     bg='lightgray',axes=FALSE,
-       xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='',
+     bg='white',axes=FALSE,
+       xlab='',ylab='',###xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='', ## 
        cex.axis=1.95,cex.lab=1.95,cex.main=1.95)
-  title(main=strsplit(title.info$upper.title,'\n')[[1]][1],line=3.5,cex.main=1.95)
-  title(main=strsplit(title.info$upper.title,'\n')[[1]][2],line=1.75,cex.main=1.95)
-  title(main=strsplit(title.info$upper.title,'\n')[[1]][3],line=0.5,cex.main=1)
-
-  glen <- dim(grats$labs@coords)[1]     
-  ghalf <- glen/2
+  ###title(main=strsplit(title.info$upper.title,'\n')[[1]][1],line=3.5,cex.main=1.95)
+  ###title(main=strsplit(title.info$upper.title,'\n')[[1]][2],line=1.75,cex.main=1.95)
+  ###title(main=strsplit(title.info$upper.title,'\n')[[1]][3],line=0.5,cex.main=1)
+  grats <- add.graticules(alb.crs,region)
+  xtks <- get.proj.xaxis(grats$lons,alb.crs,plot.window$ylim)
+  ytks <- get.proj.yaxis(grats$lats,alb.crs,plot.window$xlim)
+  ###axis(2,at=ytks,label=grats$lats,cex.axis=1.95)   
+  ###axis(1,at=xtks,label=grats$lons,cex.axis=1.95)  
   
-  axis(1,at=unclass(grats$labs@coords)[1:ghalf,1],label=grats$lons,cex.axis=1.95)  
-  axis(2,at=unclass(grats$labs@coords)[(ghalf+1):glen,2],label=grats$lats,cex.axis=1.95)  
-
-  rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col='lightgray')
+  rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col='gray94')
   
   ##First plot the entire rectangular region with lighter transparency
   image(box.data, col=colour.ramp,breaks=class.breaks,xlim=plot.window.xlim, ylim=plot.window.ylim, add=TRUE)   
@@ -161,19 +188,20 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   bc.overlay <- 'h_land_WGS84'
   coast.overlay <- 'west_coast_ocean'
   rivers.overlay <- 'h_rivers_WGS84'
-  us.overlay <- 'pnw_us_wgs84'
+  us.overlay <- 'washington'
   bc.shp <- readOGR(shape.dir, bc.overlay, stringsAsFactors=F, verbose=F)
   coast.shp <- readOGR(shape.dir, coast.overlay, stringsAsFactors=F, verbose=F)
   us.shp <- readOGR(shape.dir,us.overlay,stringsAsFactors=F, verbose=F)
   rivers.shp <- readOGR(shape.dir,rivers.overlay,stringsAsFactors=F, verbose=F)
 
   ##plot(spTransform(coast.shp,CRS(alb.crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')                
-##  plot(spTransform(us.shp,CRS(alb.crs)),add=TRUE,col='gray')
+
 ##  plot(spTransform(bc.shp,CRS(alb.crs)),add=TRUE)
 ##plot(spTransform(rivers.shp,CRS(alb.crs)),add=TRUE,col='lightblue')
 
   ##Plot additional overlays if necessay
   add.plot.overlays(alb.crs,region)
+  plot(spTransform(us.shp,CRS(alb.crs)),add=TRUE,lwd=1)
 
   ##Add the lon/lat lines
   plot(grats$grat,add=TRUE,lty=3,col='gray',lwd=0.75)
@@ -200,7 +228,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   }
 
   par(xpd=NA)
-  legend(leg.loc, col = "black", legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),
+  legend(leg.loc, col = "black", bg='white',legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),
          pt.cex=1.95, y.intersp=0.8, title.adj=0.2, title=my.label.units, xjust=0, cex=1.95)
 
   if (region=='toquaht') {
@@ -209,7 +237,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
                       pt.cex=1.95, y.intersp=0.8, title.adj=0.2, title='Regions', xjust=0, cex=1.95)
   }
 
-  box(which='plot',lwd=3)
+  box(which='plot',lwd=2)
 
   dev.off()
 

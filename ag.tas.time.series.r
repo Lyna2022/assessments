@@ -62,9 +62,9 @@ read.gcm.data <- function(gcm.list,scenario,type,season,region) {
 ##---------------------------------------------------------------------
 ##PCDS Data
 
-area <- 'ALBERNI-CLAYOQUOT'
-area.title <- 'Alberni-Clayoquot' ##'Central Interior'
-##regions <- list(c('BULKLEY-NECHAKO','0.6'),c('FRASER-FORT GEORGE','0.4'))
+##area <- 'ALBERNI-CLAYOQUOT'
+##area.title <- 'Alberni-Clayoquot' ##'Central Interior'
+regions <- list(c('BULKLEY-NECHAKO','0.6'),c('FRASER-FORT GEORGE','0.4'))
 regions <- list(c('ALBERNI-CLAYOQUOT','1'))  ##list(c('CENTRAL KOOTENAY','0.39'),c('EAST KOOTENAY','0.47'),c('KOOTENAY BOUNDARY','0.14'))
 
 seasons <- 'annual' ##c('winter','spring','summer','fall')

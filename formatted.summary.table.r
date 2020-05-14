@@ -498,7 +498,22 @@ reg.list <- list(c('cariboo_memorial_hospital','interior_health/cariboo_memorial
                  c('creston_valley_hospital','interior_health/creston_valley_hospital'))
 
 reg.list <- list(c('bc','bc'))
+
+reg.list <- list(c('campbell_river','vancouver_island/campbell_river'),
+                 c('courtenay','vancouver_island/courtenay'),
+                 c('port_alberni','vancouver_island/port_alberni'),
+                 c('nanaimo','vancouver_island/nanaimo'),
+                 c('duncan','vancouver_island/duncan'),
+                 c('victoria','vancouver_island/victoria'),
+                 c('sooke','vancouver_island/sooke'),
+                 c('alberni_clayoquot','vancouver_island/alberni_clayoquot'),     
+                 c('comox_valley','vancouver_island/comox_valley'),     
+                 c('cowichan_valley','vancouver_island/cowichan_valley'),     
+                 c('capital_region','vancouver_island/capital_region'),     
+                 c('nanaimo_regional_district','vancouver_island/nanaimo_regional_district'))     
                     
+reg.list <- list(c('sayward','vancouver_island/sayward'))
+
 table.vars <- list(c('pr','seasonal','PR'),
                    c('rx1dayETCCDI','seasonal','RX1DAY'),
                    c('rx5dayETCCDI','seasonal','RX5DAY'),

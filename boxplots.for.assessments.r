@@ -210,19 +210,19 @@ make.plot <- function(var.name,seasons,
 ##region <- 'bella_hospital_site'
 ##title <- 'Bella Bella Hospital'
 ##writeloc <- 'van_coastal_health/bella_hospital_site'
-region <- 'northeast'
-title <- 'Northeast'
-writeloc <- 'northeast'
+region <- 'okanagan'
+title <- 'Okanagan'
+writeloc <- 'okanagan/okanagan'
 
-
-read.dir <- '/storage/data/projects/rci/data/assessments/northeast/monthly_data_files/'
+read.dir <- '/storage/data/projects/rci/data/assessments/okanagan/okanagan_districts/monthly_data_files/'
 plot.dir <- paste0('/storage/data/projects/rci/data/assessments/',writeloc,'/plots/boxplots/')
 
 ##yvals <- list(van_coastal_health=list(pr=c(0,900,200),tasmax=c(0,35,5),tasmin=c(-5,20,5)),
 ##              lionsgate_hospital_site=list(pr=c(0,900,200),tasmax=c(-5,40,5),tasmin=c(-5,30,5)),
 ##              bella_hospital_site=list(pr=c(0,1000,200),tasmax=c(-5,40,5),tasmin=c(-5,25,5)),
 ##              royal_columbian_hospital_site=list(pr=c(0,1000,200),tasmax=c(-5,40,5),tasmin=c(-5,25,5)))                              
-yvals <- list(northeast=list(pr=c(0,250,50),tasmax=c(-30,40,10),tasmin=c(-40,30,10)))
+##yvals <- list(northeast=list(pr=c(0,250,50),tasmax=c(-30,40,10),tasmin=c(-40,30,10)))
+yvals <- list(okanagan=list(pr=c(0,300,50),tasmax=c(-15,45,10),tasmin=c(-30,30,10)))
 
 
   ##Averages

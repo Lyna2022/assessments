@@ -208,7 +208,7 @@ if(1==1) {
               add.cities=add.cities,add.districts=add.districts,
               add.graticules=add.graticules,leg.loc=leg.loc,
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
-
+##browser()
   ##Future
   region.range <- range(as.matrix(proj.crop),na.rm=T)
   box.range <-  range(as.matrix(proj.box),na.rm=T)
@@ -575,9 +575,9 @@ plot.climdex <- function(region,scenario,proj.int,proj.intervals,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region <- 'penticton_airport'
-readloc <- 'interior_health'
-type <- 'season'
+region <- 'vancouver_island'
+readloc <- 'vancouver_island'
+type <- 'return_periods'
 
 ##args <- commandArgs(trailingOnly=TRUE)
 ##for(i in 1:length(args)){
@@ -590,6 +590,7 @@ print(type)
 
 source(paste0('/storage/home/ssobie/code/repos/assessments/',region,'_map_support.r'),chdir=T)       
 ##source(paste0('/storage/home/ssobie/code/repos/assessments/okanagan_map_support.r'),chdir=T)       
+##source(paste0('/storage/home/ssobie/code/repos/assessments/vancouver_island_map_support.r'),chdir=T)       
 scenario <- 'rcp85'
 
 proj.intervals <- '2041-2070' ##c('2041-2070','2071-2100') ##c('2011-2040','2041-2070','2071-2100')
@@ -598,10 +599,12 @@ proj.intervals <- '2041-2070' ##c('2041-2070','2071-2100') ##c('2011-2040','2041
 run.season <- function(region) {
 
   ##Annual Maps
-  var.list <- c('pr','tasmax','tasmin') ##,'tas')
+  var.list <- c('pr','tasmax','tasmin','tas')
+  ##var.list <- 'tas'
   for (var.name in var.list) {
 
      grep.name <- paste0(var.name,'_',readloc,'_annual_average_climatology')
+     ##grep.name <- paste0(var.name,'_average_annual_climatology')
      for (proj.int in proj.intervals) {
         print(proj.int)
         print(region)
@@ -630,7 +633,7 @@ run.season <- function(region) {
 
 ##Return Periods
 run.return.periods <- function(region) {
-  var.list <- c('pr','tasmax','tasmin')
+  var.list <- 'pr' ##c('pr','tasmax','tasmin')
   for (var.name in var.list) {
      for (proj.int in proj.intervals) {        
        print(region)
@@ -648,18 +651,18 @@ run.climdex <- function(region) {
                  'txxETCCDI','txnETCCDI','tnnETCCDI','tnxETCCDI','dtrETCCDI',
                  'rx1dayETCCDI','rx5dayETCCDI',
                  'sdiiETCCDI','r10mmETCCDI','r20mmETCCDI',
-                 'cwdETCCDI','cddETCCDI','cdd90ETCCDI','cddmaxETCCDI',
+                 'cwdETCCDI','cddETCCDI', ##'cdd90ETCCDI','cddmaxETCCDI',
                  'prcptotETCCDI','r95pETCCDI','r99pETCCDI','r95daysETCCDI','r99daysETCCDI')
    ##var.names <- c('trETCCDI','dtrETCCDI')
    ##var.names <- c('rx1dayETCCDI','suETCCDI','fdETCCDI')
-   var.names <- c('suETCCDI','su30ETCCDI','tnnETCCDI','idETCCDI','rx5dayETCCDI','gslETCCDI')
+   ##var.names <- c('suETCCDI','su30ETCCDI','tnnETCCDI','idETCCDI','rx5dayETCCDI','gslETCCDI')
    for (var.name in var.names) {
       for (proj.int in proj.intervals) {                
          plot.climdex(region,scenario,proj.int,proj.intervals,
                          var.name,seas='Annual')        
       }
    }
-browser()
+##browser()
 ##Seasonal Climdex Maps
   var.names <- c('txxETCCDI','txnETCCDI','tnnETCCDI','tnxETCCDI','dtrETCCDI',
                  'rx1dayETCCDI','rx5dayETCCDI')                

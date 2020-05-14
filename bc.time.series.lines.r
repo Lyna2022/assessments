@@ -103,6 +103,8 @@ rcp85.90 <- rollmean(apply(rcp85.data,1,quantile,0.9,na.rm=T),rx)[ix]
 rcp85.10 <- rollmean(apply(rcp85.data,1,quantile,0.1,na.rm=T),rx)[ix]
 
 plot.dir <- '/storage/data/projects/rci/data/assessments/bc/'
+
+if (1==0) {
 plot.file <- paste0(plot.dir,'bc.annual.tas.agu.rcp85.png')
 
 png(plot.file,width=1000,height=600)
@@ -158,22 +160,87 @@ legend('topleft',legend=c('Historial Observations (PCDS)',
                           col=c('black','red','orange','blue'),cex=2,pch=15)
 dev.off()
 
-browser()
+}
 
-rcp26.mean <- rollmean(rcp26.series,11)
-rcp45.mean <- rollmean(rcp45.series,11)
-rcp85.mean <- rollmean(rcp85.series,11)
-
-
-plot.file <- paste0(plot.dir,'nfld.annual.tas.smoothed.png')
+##plot.file <- paste0(plot.dir,'nfld.annual.tas.smoothed.png')
 ##png(plot.file,width=900,height=900)
 par(mar=c(5,5,5,3))
-plot(1955:2095,rcp26.mean,type='l',lwd=4,col='green',ylim=c(0,15),
-     main='NFLD Smoothed Annual Average Temperatures',xlab='Year',ylab='TAS (degC)',
-     cex.axis=2,cex.lab=2,cex.main=2.5)
-lines(1955:2095,rcp45.mean,lwd=4,col='orange')
-lines(1955:2094,rcp85.mean,lwd=4,col='red')
+plot(1956:2095,rcp26.mean,type='l',lwd=4,col='green',ylim=c(0,10),
+     main='Annual Average Temperatures',xlab='Year',ylab='TAS (degC)',
+     cex.axis=2,cex.lab=2,cex.main=2.5,xlim=c(1950,2110))
+apply(rcp85.data,2,function(y,x){lines(x,y,lwd=1,col=alpha('red',0.5))},1951:2100)
+apply(rcp45.data,2,function(y,x){lines(x,y,lwd=1,col=alpha('orange',0.3))},1951:2100)
+apply(rcp26.data,2,function(y,x){lines(x,y,lwd=1,col=alpha('blue',0.3))},1951:2100)
+
+lines(1951:2100,rcp26.series,lwd=4,col='blue')
+lines(1951:2100,rcp45.series,lwd=4,col='orange')
+lines(1951:2100,rcp85.series,lwd=4,col='red')
 abline(h=seq(0,20,5),col='gray',lty=3,lwd=3)
 legend('topleft',legend=c('RCP8.5','RCP4.5','RCP2.6'),col=c('red','orange','green'),cex=2,pch=15)
 box(which='plot')
 ##dev.off()
+
+years <- 2081:2100
+tas <- rcp26.series[131:150]
+rcp.ext <- data.frame(years=years,tas=tas)
+rcp.fit <- lm(tas~years,rcp.ext)
+x <- 2081:2110
+y.26 <- rcp.fit$coefficients[2]*x + rcp.fit$coefficients[1]
+lines(x,y.26,col='blue')
+
+years <- 2081:2100
+tas <- rcp45.series[131:150]
+rcp.ext <- data.frame(years=years,tas=tas)
+rcp.fit <- lm(tas~years,rcp.ext)
+x <- 2081:2110
+y.45 <- rcp.fit$coefficients[2]*x + rcp.fit$coefficients[1]
+lines(x,y.45,col='orange')
+
+years <- 2081:2100
+tas <- rcp85.series[131:150]
+rcp.ext <- data.frame(years=years,tas=tas)
+rcp.fit <- lm(tas~years,rcp.ext)
+x <- 2081:2110
+y.85 <- rcp.fit$coefficients[2]*x + rcp.fit$coefficients[1]
+lines(x,y.85,col='red')
+
+ts <- 1951:2100
+
+st.10s <- grep(1986,ts)
+en.10s <- grep(2016,ts)
+
+st.20s <- grep(2011,ts)
+en.20s <- grep(2040,ts)
+
+st.50s <- grep(2041,ts)
+en.50s <- grep(2070,ts)
+
+st.80s <- grep(2071,ts)
+en.80s <- grep(2100,ts)
+
+col.names <- c('RCPs','2010s','2020s','2050s','2080s','2100')
+row.names <- c('RCP2.6','RCP4.5','RCP8.5')
+
+anoms.26 <- c(mean(rcp26.series[st.10s:en.10s]),
+              mean(rcp26.series[st.20s:en.20s]),
+              mean(rcp26.series[st.50s:en.50s]),
+              mean(rcp26.series[st.80s:en.80s]),
+              mean(y.26[11:30]))
+
+anoms.45 <- c(mean(rcp45.series[st.10s:en.10s]),
+              mean(rcp45.series[st.20s:en.20s]),
+              mean(rcp45.series[st.50s:en.50s]),
+              mean(rcp45.series[st.80s:en.80s]),
+              mean(y.45[11:30]))
+              
+anoms.85 <- c(mean(rcp85.series[st.10s:en.10s]),
+              mean(rcp85.series[st.20s:en.20s]),
+              mean(rcp85.series[st.50s:en.50s]),
+              mean(rcp85.series[st.80s:en.80s]),
+              mean(y.85[11:30]))
+
+
+bc.anoms <- cbind(row.names,round(rbind(anoms.26,anoms.45,anoms.85),1))
+colnames(bc.anoms) <- col.names
+
+write.table(bc.anoms,file=paste0(plot.dir,'BC.gcm.bccaq2.tas.anomalies.csv'),quote=F,sep=',',col.names=T,row.names=F)

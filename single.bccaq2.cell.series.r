@@ -1,5 +1,7 @@
 ##Script to plot a single cell of data as a time series
 
+##This I used to check Arelia's anomalously large snow melt values
+
 library(ncdf4)
 source('/storage/data/projects/rci/stat.downscaling/bccaq2/code/new.netcdf.calendar.R',chdir=T)
 

@@ -199,6 +199,7 @@ get.color.ramp <- function(map.class.breaks, var.name, grey.zones, choose.ramp="
             rv <- c(dark.red.to.yellow(ramp.left.len),light.blue.to.dark.blue(ramp.right.len))
           if (grepl("cwdE",var.name))
             rv <- c(dark.brown.to.light.brown(ramp.left.len),light.blue.to.dark.blue(ramp.right.len))
+            ###rv <- c(dark.brown.to.light.brown(ramp.left.len), yellow.green.blue(ramp.right.len))            
           if (grepl("(cddE|cdd90|cddmax)",var.name))
             rv <- c(dark.blue.to.light.blue(ramp.left.len),light.brown.to.dark.brown(ramp.right.len))
           
@@ -229,12 +230,12 @@ get.color.ramp <- function(map.class.breaks, var.name, grey.zones, choose.ramp="
         rv <- color.ramp.lookup[[choose.ramp]]$right(ramp.length)
       }
     } else {
-      if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|cwdE|r10|r20)", var.name)){
+      if (grepl("(pr|snm|snd|ptot|rx|r9|RP|rp|r10|r20)", var.name)){
         if (left.len==0)
-          rv <- yellow.green.blue(ramp.length) ####light.blue.to.dark.blue(ramp.length)
+          rv <- yellow.green.blue(ramp.length) ####light.blue.to.dark.blue(ramp.length) ##
         if (right.len==0)
           rv <- dark.brown.to.light.brown(ramp.length)
-      } else if (grepl('(pas|snowdepth|swe)',var.name)) {
+      } else if (grepl('(pas|snowdepth|swe|cwdE)',var.name)) {
         if (left.len==0)
           rv <- light.blue.to.dark.blue(ramp.length)
         if (right.len==0)

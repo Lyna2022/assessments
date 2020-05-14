@@ -46,7 +46,7 @@ get.file.type <- function(region) {
 get.plot.size <- function(region) {
   rv <- switch(region,
                okanagan=c(1200,1000),
-               central_okanagan=c(1200,800),
+               central_okanagan=c(9,6),
                north_okanagan=c(1200,1000),
                okanagan_similkameen=c(1200,800))
                
@@ -56,7 +56,7 @@ get.plot.size <- function(region) {
 
 ##Set plot boundaries
 
-make.plot.window <- function(bounds,region.shp) {
+make.plot.window <- function(region,bounds,region.shp) {
   ext <- extent(region.shp)
 
   off <- switch(region,
@@ -86,10 +86,15 @@ make.plot.window <- function(bounds,region.shp) {
   return(rv)
 }
 
-add.graticules <- function(crs) {   
+add.graticules <- function(crs,region) {   
   
   lons <- c(-122,-121,-120.5,-120,-119.5,-119,-118.5,-118.0)
   lats <- c(48.5,49,49.5,50,50.5,51,51.5,52.0)
+  
+  if (region=='central_okanagan') {
+     lons <- c(-121,-120.75,-120.5,-120.25,-120,-119.75,-119.5,-119.25,-119,-118.75,-118.5)
+     lats <- c(49.3,49.4,49.5,49.6,49.7,49.8,49.9,50.0,50.1,50.2,50.3)
+  }
 
   grat <- graticule(lons, lats, proj = CRS(crs))
   labs <- graticule_labels(lons = lons, lats = lats, xline = -129, yline = 54, proj = CRS(crs))
@@ -101,7 +106,8 @@ add.graticules <- function(crs) {
 ##Additional overlays to add specific to the region
 add.plot.overlays <- function(crs,region) {
   shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/okanagan/'
-  electoral.shp <- readOGR(shape.dir,'RDCO_east_west',stringsAsFactors=F, verbose=F)
+  electoral.shp <- readOGR(shape.dir,'co_electoral_areas',stringsAsFactors=F, verbose=F)
+  reserves.shp <- readOGR(shape.dir,'westbank_first_nation',stringsAsFactors=F, verbose=F)
   
   region.shp <- readOGR(shape.dir,region,stringsAsFactors=F, verbose=F)
   road.shp <- readOGR('/storage/data/gis/basedata/BC_Roads/','bc_hwy_geo',stringsAsFactors=F, verbose=F)
@@ -111,11 +117,12 @@ add.plot.overlays <- function(crs,region) {
   plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   if (region=='central_okanagan') {
-     plot(spTransform(electoral.shp,CRS(crs)),add=TRUE,border='black',lwd=2,lty=2)
+     plot(spTransform(electoral.shp,CRS(crs)),add=TRUE,border='black',lwd=1,lty=2)
+     plot(spTransform(reserves.shp,CRS(crs)),add=TRUE,border='black',lwd=1,lty=2)
   }
 
-  plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=2,col='gray')
-  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=4)
+  plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=1,col='gray')
+  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=2.2)
 }
 
 add.cities <- function(crs,region) {
@@ -204,7 +211,8 @@ add.districts <- function(crs,region=NULL) {
 
   district.coords <- list(
                          list(name='Central Okanagan\nWest Electoral Area',lon=-119.65,lat=50.04),
-                         list(name='Central Okanagan\nEast Electoral Area',lon=-119.18,lat=49.96))
+                         list(name='Central Okanagan\nEast Electoral Area',lon=-119.18,lat=49.96),
+                         list(name='Westbank\nFirst Nation',lon=-119.46,lat=49.85))
 
   for (dc in seq_along(district.coords)) {
       district <- unclass(district.coords[[dc]])
@@ -214,6 +222,10 @@ add.districts <- function(crs,region=NULL) {
       district.name <- district$name      
       if (region=='central_okanagan') {
          text(cx,cy,district.name,font=2,adj=4,pos=1,cex=1.2,col='black',bg='white')
+         lines(c(-119.52,-119.6),c(49.827,49.84),col='black') ##Bottom Left
+         lines(c(-119.51,-119.53),c(49.841,49.88),col='black') ##Top Left
+         lines(c(-119.41,-119.33),c(49.841,49.844),col='black') ##Bottom Right
+         lines(c(-119.40,-119.275),c(49.827,49.828),col='black') ##Top Right
       }
   }
 }

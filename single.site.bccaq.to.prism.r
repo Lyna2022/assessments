@@ -1,10 +1,8 @@
 ##Generates a time series of meteo data from BCCAQ2 downscaled GCMS to 
 ##PNWNAmet, bias-corrected by PRISM for a single locations
 
-
 library(ncdf4)
 library(PCICt)
-
 
 ##******************************************************************************
 ################################################################################
