@@ -20,7 +20,9 @@ get.leg.loc <- function(region) {
 }
 
 get.crop.box <- function(region) {
-  return(c(-131.0,-121.0,53.0,56.0))
+  ##return(c(-131.0,-121.0,53.0,56.0)) ##First Terrace Assessment
+  ###return(c(-129.2,-127.8,54.2,54.8))
+  return(c(-129.0,-128.1,54.3,54.7))
 }
 
 get.file.type <- function(region) {
@@ -28,18 +30,18 @@ get.file.type <- function(region) {
 }
 
 get.plot.size <- function(region) {
-  return(c(1200,1000))
+  ##return(c(1200,800)) 
+    return(c(8,6))
 }
-
 
 ##Set plot boundaries
 
-make.plot.window <- function(bounds) {
+make.plot.window <- function(region,bounds,region.shp) {
 
-  xleft  <- 0.1
-  xright <- -0.2
-  ybot   <- 0.2
-  ytop   <- -0.2
+  xleft  <- 0.43 ##0.35 #0.1
+  xright <- -0.46 ##-0.37 #-0.2
+  ybot   <- 0.43 ##0.37 #0.2
+  ytop   <- -0.46 ##-0.37 #-0.2
 
   xlim.min <- bounds@xmin
   xlim.max <- bounds@xmax
@@ -56,9 +58,11 @@ make.plot.window <- function(bounds) {
   return(rv)
 }
 
-add.graticules <- function(crs) {   
-  lons <- c(-131,-130,-129.0,-128.0,-128.0,-127.0,-126.0)
-  lats <- c(53.5,54.0,54.5,54.5,54.5,55.0,55.5)
+add.graticules <- function(crs,region) {   
+  ##lons <- c(-131,-130,-129.0,-128.0,-128.0,-127.0,-126.0)
+  ##lats <- c(53.5,54.0,54.5,54.5,54.5,55.0,55.5)
+  lons <- c(-129.4,-129.2,-129.0,-128.8,-128.6,-128.4,-128.2,-128.0,-127.8,-127.6)
+  lats <- c(54.0,54.2,54.4,54.6,54.8,55.0)
 
   grat <- graticule(lons, lats, proj = CRS(crs))
   labs <- graticule_labels(lons = lons, lats = lats, xline = -129, yline = 54, proj = CRS(crs))
@@ -68,7 +72,7 @@ add.graticules <- function(crs) {
 }
 
 ##Additional overlays to add specific to the region
-add.plot.overlays <- function(crs) {
+add.plot.overlays <- function(crs,region) {
   shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/terrace/'
   region.shp <- readOGR(shape.dir,'terrace',stringsAsFactors=F, verbose=F)
   road.shp <- readOGR('/storage/data/gis/basedata/BC_Roads/','bc_hwy_geo',stringsAsFactors=F, verbose=F)
@@ -78,17 +82,24 @@ add.plot.overlays <- function(crs) {
   plot(spTransform(lakes.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   plot(spTransform(rivers.shp,CRS(crs)),add=TRUE,col='lightblue',border='lightblue')
   plot(spTransform(road.shp,CRS(crs)),add=TRUE,lwd=2,col='gray')
-  ##plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=4)
+  plot(spTransform(region.shp,CRS(crs)),add=TRUE,lwd=2)
 }
 
-add.cities <- function(crs) {
+add.hillshade <- function(region,alb.crs) {
+  shade.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/terrace/'
+  shade <- raster(paste0(shade.dir,'terrace_hillshade.tif'))
+  image(shade,add=T,col = grey(1:100/100))
+  return(TRUE)
+}
+
+add.cities <- function(crs,region) {
   ##Coordinates of cities to plot on the map
 
   ##list(name='Chetwynd',lon=-121.6297,lat=55.6977,xoffset=-8000,yoffset=4000),
   ##list(name='Dawson Creek',lon=-120.2377,lat=55.7596,xoffset=-8000,yoffset=8000))
 
   city.coords <- list(
-                     list(name='Terrace',lon=-128.6032,lat=54.5182,xoffset=0,yoffset=0.0),
+                     list(name='Terrace',lon=-128.6032,lat=54.6,xoffset=0,yoffset=0.0),
                      list(name='Smithers',lon=-127.1686,lat=54.7824,xoffset=0,yoffset=0.0),
                      list(name='Kitimat',lon=-128.6284,lat=54.0494,xoffset=0,yoffset=0.0),
                      list(name='Prince Rupert',lon=-130.3208,lat=54.3150,xoffset=0,yoffset=0.0),
@@ -102,12 +113,12 @@ add.cities <- function(crs) {
       xoffset <- city$xoffset
       yoffset <- city$yoffset
       city.name <- city$name
-      points(cx,cy,pch=17,cex=1.5,col='black')
-      shadowtext(cx+xoffset,cy+yoffset,city.name,adj=4,pos=3,cex=1.75,col='black',bg='white',r=0.1)
+      ##points(cx,cy,pch=17,cex=1.5,col='black')
+      ##shadowtext(cx+xoffset,cy+yoffset,city.name,adj=4,pos=3,cex=1.75,col='black',bg='white',r=0.1)
   }
 }
 
-add.districts <- function(crs) {
+add.districts <- function(crs,region) {
 
   district.coords <- list(
                          list(name='Alaska',lon=-130.5,lat=55.325))

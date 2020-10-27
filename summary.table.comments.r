@@ -35,6 +35,7 @@ variable.comment <- function(var.name) {
                     fdETCCDI=c('FD\n','Average number of frost days (daily minimum temperature < 0\u00B0C)'),
                     gslETCCDI=c('GSL\n','Growing season length (number of days between first span of at least 6 days with daily mean temperature > 5\u00B0C and first span after July 1st of 6 days with daily mean temperature < 5\u00B0C)'),
                     cdd=c('CDD\n','Cooling Degree Days (Threshold: 18\u00B0C)'),
+                    cdd_10=c('CDD10\n','Cooling Degree Days (Threshold: 10\u00B0C)'),
                     gdd=c('GDD\n','Growing Degree Days (Threshold: 5\u00B0C)'),
                     hdd=c('HDD\n','Heating Degree Days (Threshold: 18\u00B0C)'),
                     fdd=c('FDD\n','Freezing Degree Days (Threshold: 0\u00B0C)'),

@@ -33,7 +33,7 @@ get.plot.size <- function(region) {
 
 ##Set plot boundaries
 
-make.plot.window <- function(bounds,region.shp) {
+make.plot.window <- function(region,bounds,region.shp) {
 
   xleft  <- 0.1
   xright <- -0.00
@@ -55,17 +55,15 @@ make.plot.window <- function(bounds,region.shp) {
   return(rv)
 }
 
-add.graticules <- function(lons,lats,crs) {
-
-  xl <-  range(lons)
-  yl <- range(lats)
-
-  rv <- grat
-  return(rv)
-}
+##add.graticules <- function(lons,lats,crs) {
+##  xl <-  range(lons)
+##  yl <- range(lats)
+##  rv <- grat
+##  return(rv)
+##}
 
 
-add.graticules <- function(crs) {   
+add.graticules <- function(crs,region) {   
 
   lons <- c(-145.0, -140.0,-135.0,-130.0,-125.0,-120.0,-115.0,-110.0)
   lats <- c(  48.0,  50.0,  52.0,  54.0,  56.0,  58.0,  60.0,  62.0)
@@ -94,6 +92,15 @@ add.plot.overlays <- function(crs,region) {
 
 
 }
+
+add.hillshade <- function(region,alb.crs) {
+  ##shade.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/bc/'
+  ##shade <- raster(paste0(shade.dir,'bc_hillshade_clipped.tif'))
+  ##shade.proj <- projectRaster(shade,crs=CRS(alb.crs))
+  ##image(shade.proj,add=T,col = grey(1:100/100))
+  return(FALSE)  
+}
+
 
 add.cities <- function(crs,region) {
   ##Coordinates of cities to plot on the map

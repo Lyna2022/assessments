@@ -1,5 +1,6 @@
 ##Script to map the downscaled output
 library(graticule)
+library(scales)
 
 ##Plotting script for maps in the BC Albers Projection
 
@@ -158,26 +159,30 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   title.info <- get.title.info(alb.crs,plot.title)
   
 
-###'Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='',
+ ###'Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='',
   par(mar=title.info$mar)    
   plot(c(),xlim=plot.window$xlim,ylim=plot.window$ylim,xaxs='i',yaxs='i',
      bg='white',axes=FALSE,
-       xlab='',ylab='',###xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='', ## 
+       xlab='Longitude (\u00B0E)',ylab='Latitude (\u00B0N)',main='', ## 
        cex.axis=1.95,cex.lab=1.95,cex.main=1.95)
-  ###title(main=strsplit(title.info$upper.title,'\n')[[1]][1],line=3.5,cex.main=1.95)
-  ###title(main=strsplit(title.info$upper.title,'\n')[[1]][2],line=1.75,cex.main=1.95)
-  ###title(main=strsplit(title.info$upper.title,'\n')[[1]][3],line=0.5,cex.main=1)
+  title(main=strsplit(title.info$upper.title,'\n')[[1]][1],line=3.5,cex.main=1.95)
+  title(main=strsplit(title.info$upper.title,'\n')[[1]][2],line=1.75,cex.main=1.95)
+  title(main=strsplit(title.info$upper.title,'\n')[[1]][3],line=0.5,cex.main=1)
   grats <- add.graticules(alb.crs,region)
   xtks <- get.proj.xaxis(grats$lons,alb.crs,plot.window$ylim)
   ytks <- get.proj.yaxis(grats$lats,alb.crs,plot.window$xlim)
-  ###axis(2,at=ytks,label=grats$lats,cex.axis=1.95)   
-  ###axis(1,at=xtks,label=grats$lons,cex.axis=1.95)  
+  axis(2,at=ytks,label=grats$lats,cex.axis=1.95)   
+  axis(1,at=xtks,label=grats$lons,cex.axis=1.95)  
   
   rect(par("usr")[1], par("usr")[3], par("usr")[2], par("usr")[4], col='gray94')
   
   ##First plot the entire rectangular region with lighter transparency
-  image(box.data, col=colour.ramp,breaks=class.breaks,xlim=plot.window.xlim, ylim=plot.window.ylim, add=TRUE)   
-
+  hill <- add.hillshade(region,alb.crs)
+  if (hill) {  
+     image(box.data, col=alpha(colour.ramp,0.8),breaks=class.breaks,xlim=plot.window.xlim, ylim=plot.window.ylim, add=TRUE)
+  } else {
+     image(box.data, col=colour.ramp,breaks=class.breaks,xlim=plot.window.xlim, ylim=plot.window.ylim, add=TRUE)
+  }
   ##-------------------------------------------------------------------------------------------------
 
   ##Add the region overlays to plot 
@@ -194,7 +199,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
   us.shp <- readOGR(shape.dir,us.overlay,stringsAsFactors=F, verbose=F)
   rivers.shp <- readOGR(shape.dir,rivers.overlay,stringsAsFactors=F, verbose=F)
 
-  ##plot(spTransform(coast.shp,CRS(alb.crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')                
+  plot(spTransform(coast.shp,CRS(alb.crs)),add=TRUE,col='lightgray') ##'lightblue',border='lightblue')##'lightgray')                
 
 ##  plot(spTransform(bc.shp,CRS(alb.crs)),add=TRUE)
 ##plot(spTransform(rivers.shp,CRS(alb.crs)),add=TRUE,col='lightblue')
@@ -229,7 +234,7 @@ reg.ds.maps <- function(box.data,region,region.range,box.range,
 
   par(xpd=NA)
   legend(leg.loc, col = "black", bg='white',legend=map.class.breaks.labels, pch=22, pt.bg = rev(colour.ramp),
-         pt.cex=1.95, y.intersp=0.8, title.adj=0.2, title=my.label.units, xjust=0, cex=1.95)
+         pt.cex=3.95, y.intersp=0.8, title.adj=0.2, title=my.label.units, xjust=0, cex=1.95,box.lwd=1.5)
 
   if (region=='toquaht') {
     legend('topleft', legend=c('Toquaht Parcels','Community Forest','Traditional Territory'), 

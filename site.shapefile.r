@@ -81,19 +81,23 @@ make.shape.file <- function(site) {
 ##shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/okanagan'
 ##sites <- list(list(region='penticton',lon=-119.603070,lat=49.460218,dir=shape.dir))
 
-shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/vancouver_island'
+##shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/vancouver_island'
 ##sites <- list(list(region='campbell_river',lon=-122.143595,lat=52.137342,dir=shape.dir),
 ##              list(region='courtenay',lon=-120.018194,lat=51.645362,dir=shape.dir),
 ##              list(region='port_alberni',lon=-120.018194,lat=51.645362,dir=shape.dir),
 ##              list(region='nanaimo',lon=-120.018194,lat=51.645362,dir=shape.dir),
 ##              list(region='duncan',lon=-120.018194,lat=51.645362,dir=shape.dir),
 ##              list(region='sooke',lon=-120.018194,lat=51.645362,dir=shape.dir),
-
-sites <- list(list(region='cedar',lon=-123.8643,lat=49.1155,dir=shape.dir),
-              list(region='saanichton',lon=-123.4169,lat=49.5963,dir=shape.dir),
-              list(region='metchosin',lon=-123.5378,lat=48.3820,dir=shape.dir))
+##shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/vancouver_island'
+##sites <- list(list(region='cedar',lon=-123.8643,lat=49.1155,dir=shape.dir),
+##              list(region='saanichton',lon=-123.4169,lat=49.5963,dir=shape.dir),
+##              list(region='metchosin',lon=-123.5378,lat=48.3820,dir=shape.dir))
+##sites <- list(list(region='sayward',lon=-125.9602,lat=50.3837,dir=shape.dir))
       
-sites <- list(list(region='sayward',lon=-125.9602,lat=50.3837,dir=shape.dir))
+shape.dir <- '/storage/data/projects/rci/data/assessments/shapefiles/terrace'
+sites <- list(list(region='terrace_city_hall',lon=-128.599321,lat=54.517322,dir=shape.dir),     
+              list(region='halliwell_and_eby',lon=-128.598466,lat=54.535141,dir=shape.dir))
+
 for (site in sites) {
     make.shape.file(site)
 }

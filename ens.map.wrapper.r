@@ -70,6 +70,8 @@ get.var.title <- function(var.name,rp=NULL) {
                  pr_standard_deviation='Standard Deviation of Total Precipitation') 
 
   }
+  return(rv)
+
 }
 
 get.var.grep.name <- function(var.name,rp=NULL) {
@@ -208,7 +210,7 @@ if(1==1) {
               add.cities=add.cities,add.districts=add.districts,
               add.graticules=add.graticules,leg.loc=leg.loc,
               shared.range=shared.range,shared.box=shared.box,draft=FALSE)
-##browser()
+browser()
   ##Future
   region.range <- range(as.matrix(proj.crop),na.rm=T)
   box.range <-  range(as.matrix(proj.box),na.rm=T)
@@ -575,9 +577,9 @@ plot.climdex <- function(region,scenario,proj.int,proj.intervals,
 ###***********************************************************************************
 ###***********************************************************************************
 
-region <- 'vancouver_island'
-readloc <- 'vancouver_island'
-type <- 'return_periods'
+region <- 'terrace'
+readloc <- 'terrace'
+type <- 'season'
 
 ##args <- commandArgs(trailingOnly=TRUE)
 ##for(i in 1:length(args)){
@@ -600,7 +602,7 @@ run.season <- function(region) {
 
   ##Annual Maps
   var.list <- c('pr','tasmax','tasmin','tas')
-  ##var.list <- 'tas'
+  var.list <- 'pr'
   for (var.name in var.list) {
 
      grep.name <- paste0(var.name,'_',readloc,'_annual_average_climatology')
@@ -656,6 +658,9 @@ run.climdex <- function(region) {
    ##var.names <- c('trETCCDI','dtrETCCDI')
    ##var.names <- c('rx1dayETCCDI','suETCCDI','fdETCCDI')
    ##var.names <- c('suETCCDI','su30ETCCDI','tnnETCCDI','idETCCDI','rx5dayETCCDI','gslETCCDI')
+
+   var.names <- 'su30ETCCDI'
+
    for (var.name in var.names) {
       for (proj.int in proj.intervals) {                
          plot.climdex(region,scenario,proj.int,proj.intervals,

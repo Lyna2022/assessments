@@ -512,7 +512,10 @@ reg.list <- list(c('campbell_river','vancouver_island/campbell_river'),
                  c('capital_region','vancouver_island/capital_region'),     
                  c('nanaimo_regional_district','vancouver_island/nanaimo_regional_district'))     
                     
-reg.list <- list(c('sayward','vancouver_island/sayward'))
+##reg.list <- list(c('sayward','vancouver_island/sayward'))
+reg.list <- list(c('terrace_city_hall','terrace/terrace_city_hall'),
+                 c('halliwell_and_eby','terrace/halliwell_and_eby'))
+
 
 table.vars <- list(c('pr','seasonal','PR'),
                    c('rx1dayETCCDI','seasonal','RX1DAY'),
